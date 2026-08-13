@@ -11,7 +11,27 @@ import "jsr:@supabase/functions-js/edge-runtime.d.ts";
 import { createClient } from "jsr:@supabase/supabase-js@2";
 
 const MODEL = "claude-sonnet-5";
-const MAX_POR_HORA = 40;
+const MAX_POR_HORA = 40;      // com sessão iniciada
+const MAX_POR_IP_HORA = 15;   // sem sessão (anon key é pública)
+
+// deno-lint-ignore no-explicit-any
+async function limitePorUtilizador(admin: any, userId: string) {
+  const { data } = await admin.rpc("ai_recent_count", { p_user: userId, p_minutes: 60 });
+  return typeof data === "number" && data >= MAX_POR_HORA;
+}
+
+// deno-lint-ignore no-explicit-any
+async function limitePorIp(admin: any, req: Request) {
+  const ip = (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim();
+  if (!ip) return false;
+  const desde = new Date(Date.now() - 60 * 60 * 1000).toISOString();
+  const { count } = await admin
+    .from("ai_queries")
+    .select("id", { count: "exact", head: true })
+    .eq("client_ip", ip)
+    .gte("created_at", desde);
+  return typeof count === "number" && count >= MAX_POR_IP_HORA;
+}
 
 const cors = {
   "Access-Control-Allow-Origin": "*",
@@ -82,14 +102,16 @@ Deno.serve(async (req: Request) => {
       userId = data?.user?.id ?? null;
     }
 
-    if (userId) {
-      const { data: usados } = await admin.rpc("ai_recent_count", { p_user: userId, p_minutes: 60 });
-      if (typeof usados === "number" && usados >= MAX_POR_HORA) {
-        return json({
-          erro: "limite_atingido",
-          mensagem: "Fizeste muitas perguntas na última hora. Tenta daqui a pouco.",
-        }, 429);
-      }
+    // Rate limiting: por utilizador quando há sessão, por IP quando não há.
+    // Sem isto, a anon key (que é pública) permitiria esgotar créditos do modelo.
+    const limiteExcedido = userId
+      ? await limitePorUtilizador(admin, userId)
+      : await limitePorIp(admin, req);
+    if (limiteExcedido) {
+      return json({
+        erro: "limite_atingido",
+        mensagem: "Foram feitas muitas perguntas na última hora. Tenta daqui a pouco.",
+      }, 429);
     }
 
     // ---- contexto verificado enviado pelo frontend ----
@@ -146,6 +168,7 @@ Deno.serve(async (req: Request) => {
       escalated: saida.escalar === true,
       city: body?.utilizador?.cidade ?? null,
       country_id: body?.utilizador?.pais ?? null,
+      client_ip: userId ? null : (req.headers.get("x-forwarded-for") ?? "").split(",")[0].trim() || null,
     });
 
     return json(saida);

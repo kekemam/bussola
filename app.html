@@ -911,7 +911,10 @@ let S={
   savedEvents:[], joinedGroups:['g4'], contactedPros:[],
   notifs:JSON.parse(JSON.stringify(NOTIFS)),
 };
-function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function save(){
+  try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
+  if(typeof syncSoon==='function')syncSoon();   // empurra para o servidor se houver conta
+}
 function load(){try{const r=localStorage.getItem(LS);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}}
 
 /* ---------- Plano de chegada ---------- */
@@ -957,6 +960,7 @@ function toggleTheme(){S.theme=S.theme==='dark'?'light':'dark';applyTheme();save
 function boot(){
   load(); applyTheme();
   if(S.onboarded){ startApp(); } else { renderOnboarding(); }
+  sbInit();   // assíncrono e não bloqueante: a app já está a funcionar
   // atalhos
   document.addEventListener('keydown',e=>{
     if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCmdk()}
@@ -1847,6 +1851,27 @@ ROUTES.profile=()=>{
       <button class="btn btn-ghost" onclick="editProfile()">Editar perfil</button>
     </div>
   </div>
+  <!-- Conta / sincronização -->
+  ${signedIn()
+    ? `<div class="card card-pad mb24 row between wrap gap12" style="border-color:var(--sage-soft)">
+        <div class="row gap12"><div class="av av-md" style="background:var(--sage-soft);color:var(--sage);border-radius:12px">${svg('shield')}</div>
+        <div><div class="fw6">Progresso guardado na tua conta</div>
+        <div class="muted fs-sm">${esc(SB_USER.email||'')} · sincroniza entre dispositivos</div></div></div>
+        <button class="btn btn-ghost btn-sm" onclick="sairConta()">${svg('logout')} Terminar sessão</button>
+      </div>`
+    : `<div class="card card-pad mb24" style="background:linear-gradient(135deg,var(--clay-tint),var(--surface));border-color:var(--clay-soft)">
+        <div class="row between wrap gap12">
+          <div style="flex:1;min-width:220px">
+            <div class="row gap8 mb4"><span class="clay" style="width:20px">${svg('warn')}</span><div class="fw6">O teu progresso está só neste dispositivo</div></div>
+            <div class="muted fs-sm">Cria uma conta para não perderes o teu plano se mudares ou perderes o telemóvel. Não precisas de nenhum documento.</div>
+          </div>
+          <div class="row gap8">
+            <button class="btn btn-ghost btn-sm" onclick="contaModal('entrar')">Entrar</button>
+            <button class="btn btn-primary btn-sm" onclick="contaModal('criar')">Guardar progresso</button>
+          </div>
+        </div>
+      </div>`}
+
   <div class="section-head"><h2 class="h2">A tua atividade</h2></div>
   <div class="grid g2 mb24">${rows.map(([r,l,ic,meta])=>`<div class="card card-pad row between card-hover" onclick="go('${r==='contacted'?'contacted':r}')">
     <div class="row gap12"><div class="av av-md" style="background:var(--surface-2);border-radius:12px;color:var(--ink-2)">${svg(ic)}</div>
@@ -1882,11 +1907,68 @@ function privacyModal(){openModal(`<div class="modal-pad"><button class="btn btn
   <h2 class="h2 mt12 mb8">Privacidade e dados</h2>
   <p class="muted mb16">Os teus dados são teus. Aqui controlas o que fazemos com eles.</p>
   <div class="stack gap8">
-    <button class="btn btn-ghost btn-block" style="justify-content:space-between" onclick="toast('Exportação preparada (demonstração)')">Exportar os meus dados (JSON) ${svg('arrow')}</button>
-    <button class="btn btn-ghost btn-block" style="justify-content:space-between" onclick="toast('Preferências guardadas')">Gerir consentimentos ${svg('arrow')}</button>
-    <button class="btn btn-block" style="justify-content:space-between;color:var(--danger);background:var(--danger-soft)" onclick="closeModal();resetApp()">Eliminar a minha conta ${svg('arrow')}</button>
+    <button class="btn btn-ghost btn-block" style="justify-content:space-between" onclick="exportarDados()">Exportar os meus dados (JSON) ${svg('arrow')}</button>
+    <button class="btn btn-block" style="justify-content:space-between;color:var(--danger);background:var(--danger-soft)" onclick="apagarTudo()">${signedIn()?'Apagar a minha conta e dados':'Apagar os meus dados deste dispositivo'} ${svg('arrow')}</button>
   </div>
-  <p class="muted fs-xs mt16">Esta plataforma está a ser construída em conformidade com o RGPD.</p></div>`)}
+  <p class="muted fs-xs mt16">${signedIn()
+    ? 'Apagar remove definitivamente o teu perfil, plano, checklists, guardados e candidaturas do servidor.'
+    : 'Como ainda não tens conta, os teus dados existem apenas neste dispositivo.'}</p></div>`)}
+
+/* Exportação RGPD: junta o estado local e, havendo conta, o que está no servidor. */
+async function exportarDados(){
+  const pacote={
+    exportado_em:new Date().toISOString(),
+    origem:'Bússola',
+    conta:signedIn()?{email:SB_USER.email,id:SB_USER.id}:null,
+    perfil:{nome:S.name,pais:countryName(),cidade:S.city,situacoes:S.situations},
+    plano:{concluidos:Object.keys(S.planDone).filter(k=>S.planDone[k]),total:PLAN.length},
+    documentacao:S.docChecks,
+    guardados:{vagas:S.savedJobs,casas:S.savedHomes,eventos:S.savedEvents,grupos:S.joinedGroups,profissionais:S.contactedPros},
+    candidaturas:S.appliedJobs,
+    perguntas_sem_resposta:S.aiUnknown||[]
+  };
+  if(signedIn()){
+    try{
+      const uid=SB_USER.id;
+      const [{data:g},{data:c}]=await Promise.all([
+        sb.from('saved_items').select('kind,item_id').eq('user_id',uid),
+        sb.from('applications').select('job_id,status,created_at').eq('user_id',uid)]);
+      pacote.servidor={guardados:g||[],candidaturas:c||[]};
+    }catch(e){pacote.servidor={erro:'não foi possível ler do servidor'}}
+  }
+  const blob=new Blob([JSON.stringify(pacote,null,2)],{type:'application/json'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob);
+  a.download='bussola-os-meus-dados.json';
+  a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+  toast('Dados exportados ✓');
+}
+
+function apagarTudo(){
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="av av-lg" style="background:var(--danger-soft);color:var(--danger);border-radius:16px;width:52px;height:52px">${svg('warn')}</div>
+    <h2 class="h2 mt12 mb8">${signedIn()?'Apagar a conta e todos os dados?':'Apagar os teus dados?'}</h2>
+    <p class="muted mb16">Isto remove o teu plano, checklists, guardados e candidaturas${signedIn()?' do servidor e deste dispositivo':' deste dispositivo'}. <b>Não é reversível.</b></p>
+    <p class="muted fs-sm mb16">Se quiseres ficar com uma cópia, exporta os teus dados antes.</p>
+    <div class="row gap8"><button class="btn btn-ghost flex1" onclick="closeModal()">Cancelar</button>
+    <button class="btn flex1" style="background:var(--danger);color:#fff" onclick="apagarConfirmado()">Apagar tudo</button></div></div>`);
+}
+async function apagarConfirmado(){
+  if(signedIn()){
+    try{
+      const uid=SB_USER.id;
+      await Promise.all([
+        sb.from('plan_progress').delete().eq('user_id',uid),
+        sb.from('doc_checklist').delete().eq('user_id',uid),
+        sb.from('saved_items').delete().eq('user_id',uid),
+        sb.from('applications').delete().eq('user_id',uid),
+      ]);
+      await sb.from('profiles').delete().eq('id',uid);
+      await sb.auth.signOut();
+    }catch(e){console.warn('apagar remoto falhou:',e&&e.message)}
+  }
+  doReset();
+}
 function resetApp(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb8">Recomeçar?</h2><p class="muted mb24">Isto limpa os teus dados de demonstração neste dispositivo e volta ao início.</p>
   <div class="row gap8"><button class="btn btn-ghost flex1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary flex1" style="background:var(--danger)" onclick="doReset()">Recomeçar</button></div></div>`)}
@@ -1944,6 +2026,148 @@ function cmdkKey(e){
 }
 function cmdkPaint(){$$('.cmdk-row').forEach(r=>{const on=+r.dataset.i===cmdkSel;r.classList.toggle('sel',on);if(on)r.scrollIntoView({block:'nearest'})})}
 function cmdkGo(i){const r=cmdkResults[i];if(!r)return;closeCmdk();setTimeout(()=>r.go(),120)}
+
+/* ============================================================
+   LIGAÇÃO AO BACKEND (Supabase)
+   ------------------------------------------------------------
+   Princípio: offline-first. O localStorage continua a ser a
+   fonte de verdade local — a app funciona sempre, com ou sem
+   rede e com ou sem conta. A conta serve para o progresso
+   sobreviver à mudança de telemóvel.
+   ============================================================ */
+const SB_URL='https://wtbskvimckdsypmuyxen.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0YnNrdmltY2tkc3lwbXV5eGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY5MjYsImV4cCI6MjEwMjE0MjkyNn0.5ds-vniFcG5W9DUVaYDBbca48Z1EkT0Otqj1X742dtg';
+let sb=null, SB_ON=false, SB_USER=null, syncTimer=null, SB_SYNCING=false;
+
+async function sbInit(){
+  try{
+    const m=await import('https://esm.sh/@supabase/supabase-js@2');
+    sb=m.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'bussola_auth'}});
+    const {data}=await sb.auth.getSession();
+    SB_USER=data?.session?.user||null;
+    SB_ON=true;
+    sb.auth.onAuthStateChange(async(ev,s)=>{
+      SB_USER=s?.user||null;
+      if(ev==='SIGNED_IN'){await syncPull();await syncPush()}
+      renderShell();if(S.onboarded)go(S.route);
+    });
+    if(SB_USER){await syncPull();if(S.onboarded){renderShell();go(S.route)}}
+  }catch(e){
+    SB_ON=false; // esm.sh em baixo, sem rede, browser antigo — a app continua a funcionar
+    console.warn('Bússola em modo local:',e&&e.message);
+  }
+}
+const signedIn=()=>!!SB_USER;
+
+/* ---------- Sincronização ---------- */
+function syncSoon(){ if(!signedIn())return; clearTimeout(syncTimer); syncTimer=setTimeout(syncPush,1200) }
+async function syncPush(){
+  if(!signedIn()||SB_SYNCING)return; SB_SYNCING=true;
+  const uid=SB_USER.id;
+  try{
+    await sb.from('profiles').upsert({id:uid,name:S.name,country_id:S.country,city:S.city,situations:S.situations,updated_at:new Date().toISOString()});
+    const passos=Object.keys(S.planDone).filter(k=>S.planDone[k]).map(step_id=>({user_id:uid,step_id}));
+    if(passos.length)await sb.from('plan_progress').upsert(passos);
+    const checks=[];
+    Object.entries(S.docChecks).forEach(([doc_id,itens])=>Object.entries(itens).forEach(([i,v])=>{
+      if(v)checks.push({user_id:uid,doc_id,item_index:+i,done:true})}));
+    if(checks.length)await sb.from('doc_checklist').upsert(checks);
+    const guardados=[
+      ...S.savedJobs.map(id=>({user_id:uid,kind:'job',item_id:id})),
+      ...S.savedHomes.map(id=>({user_id:uid,kind:'home',item_id:id})),
+      ...S.savedEvents.map(id=>({user_id:uid,kind:'event',item_id:id})),
+      ...S.joinedGroups.map(id=>({user_id:uid,kind:'group',item_id:id})),
+      ...S.contactedPros.map(id=>({user_id:uid,kind:'pro',item_id:id})),
+    ];
+    if(guardados.length)await sb.from('saved_items').upsert(guardados);
+    const cands=Object.entries(S.appliedJobs).map(([job_id,status])=>({user_id:uid,job_id,status}));
+    if(cands.length)await sb.from('applications').upsert(cands,{onConflict:'user_id,job_id'});
+  }catch(e){console.warn('sync push falhou:',e&&e.message)}
+  SB_SYNCING=false;
+}
+async function syncPull(){
+  if(!signedIn())return;
+  const uid=SB_USER.id;
+  try{
+    const [{data:prof},{data:passos},{data:checks},{data:guard},{data:cands}]=await Promise.all([
+      sb.from('profiles').select('*').eq('id',uid).maybeSingle(),
+      sb.from('plan_progress').select('step_id').eq('user_id',uid),
+      sb.from('doc_checklist').select('doc_id,item_index,done').eq('user_id',uid),
+      sb.from('saved_items').select('kind,item_id').eq('user_id',uid),
+      sb.from('applications').select('job_id,status').eq('user_id',uid),
+    ]);
+    // perfil: o servidor só ganha se tiver dados (não apagar o que é local)
+    if(prof){
+      if(prof.name)S.name=prof.name;
+      if(prof.country_id)S.country=prof.country_id;
+      if(prof.city)S.city=prof.city;
+      if(prof.situations&&prof.situations.length)S.situations=prof.situations;
+      S.onboarded=true;
+    }
+    // união: nunca perder progresso de nenhum dos lados
+    (passos||[]).forEach(p=>S.planDone[p.step_id]=true);
+    (checks||[]).forEach(c=>{if(c.done){S.docChecks[c.doc_id]=S.docChecks[c.doc_id]||{};S.docChecks[c.doc_id][c.item_index]=true}});
+    const porTipo=k=>(guard||[]).filter(g=>g.kind===k).map(g=>g.item_id);
+    const uniao=(a,b)=>[...new Set([...(a||[]),...b])];
+    S.savedJobs=uniao(S.savedJobs,porTipo('job'));
+    S.savedHomes=uniao(S.savedHomes,porTipo('home'));
+    S.savedEvents=uniao(S.savedEvents,porTipo('event'));
+    S.joinedGroups=uniao(S.joinedGroups,porTipo('group'));
+    S.contactedPros=uniao(S.contactedPros,porTipo('pro'));
+    (cands||[]).forEach(c=>{if(!S.appliedJobs[c.job_id])S.appliedJobs[c.job_id]=c.status});
+    save();
+  }catch(e){console.warn('sync pull falhou:',e&&e.message)}
+}
+
+/* ---------- Conta ---------- */
+function contaModal(modo){
+  modo=modo||'entrar';
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="av av-lg" style="background:var(--clay-soft);color:var(--clay-deep);border-radius:16px;width:52px;height:52px">${svg('shield')}</div>
+    <h2 class="h2 mt12 mb4">${modo==='criar'?'Guardar o meu progresso':'Entrar na minha conta'}</h2>
+    <p class="muted mb16">${modo==='criar'
+      ? 'Cria uma conta para não perderes o teu plano se mudares de telemóvel. Não precisas de nenhum documento.'
+      : 'Entra para recuperares o teu plano e o que guardaste.'}</p>
+    <div class="field"><label>Email</label><input class="input" id="acEmail" type="email" placeholder="o.teu@email.pt" autocomplete="email"></div>
+    <div class="field"><label>Palavra-passe</label><input class="input" id="acPass" type="password" placeholder="Pelo menos 8 caracteres" autocomplete="${modo==='criar'?'new-password':'current-password'}"></div>
+    <div id="acErro"></div>
+    <button class="btn btn-primary btn-block btn-lg mt8" id="acBtn" onclick="contaSubmit('${modo}')">${modo==='criar'?'Criar conta':'Entrar'}</button>
+    <p class="tc fs-sm muted mt16">${modo==='criar'
+      ? 'Já tens conta? <a onclick="contaModal(&#39;entrar&#39;)" class="clay fw6" style="cursor:pointer">Entrar</a>'
+      : 'Ainda não tens conta? <a onclick="contaModal(&#39;criar&#39;)" class="clay fw6" style="cursor:pointer">Criar conta</a>'}</p>
+    <div class="callout callout-info mt16">${svg('shield')}<div>Os teus dados são teus. Podes exportá-los ou apagar a conta a qualquer momento.</div></div>
+  </div>`);
+  setTimeout(()=>{const e=el('acEmail');if(e)e.focus()},240);
+}
+function acErro(msg){const d=el('acErro');if(d)d.innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(msg)}</div></div>`}
+async function contaSubmit(modo){
+  if(!SB_ON){acErro('Sem ligação ao servidor. O teu progresso continua guardado neste dispositivo.');return}
+  const email=(el('acEmail').value||'').trim(), pass=el('acPass').value||'';
+  if(!email||!email.includes('@')){acErro('Escreve um email válido.');return}
+  if(pass.length<8){acErro('A palavra-passe precisa de pelo menos 8 caracteres.');return}
+  const btn=el('acBtn');btn.disabled=true;btn.textContent='A processar…';
+  try{
+    const r=modo==='criar'
+      ? await sb.auth.signUp({email,password:pass,options:{data:{name:S.name}}})
+      : await sb.auth.signInWithPassword({email,password:pass});
+    if(r.error)throw r.error;
+    if(modo==='criar'&&!r.data.session){
+      closeModal();toast('Confirma o email para ativares a conta ✓');return;
+    }
+    closeModal();toast(modo==='criar'?'Conta criada — progresso guardado ✓':'Bem-vindo de volta ✓');
+  }catch(e){
+    const m=String(e&&e.message||'');
+    acErro(/Invalid login/i.test(m)?'Email ou palavra-passe incorretos.'
+      :/already registered/i.test(m)?'Este email já tem conta. Tenta entrar.'
+      :/rate/i.test(m)?'Demasiadas tentativas. Espera um pouco.'
+      :'Não foi possível concluir. Tenta novamente.');
+    btn.disabled=false;btn.textContent=modo==='criar'?'Criar conta':'Entrar';
+  }
+}
+async function sairConta(){
+  try{await sb.auth.signOut()}catch(e){}
+  toast('Sessão terminada');renderShell();go('profile');
+}
 
 /* ============================================================
    ASSISTENTE — camada de IA ancorada (grounded)
@@ -2032,10 +2256,37 @@ function aiSend(){const t=el('aiIn');if(!t)return;const v=t.value.trim();if(!v)r
 function aiAsk(q){
   if(AI_BUSY)return;
   AI_MSGS.push({r:'user',t:q});AI_BUSY=true;aiRender();
-  setTimeout(()=>{
-    const a=aiAnswer(q);
-    AI_BUSY=false;AI_MSGS.push({r:'bot',a});aiRender();
-  },430+Math.random()*260);
+  aiResolve(q).then(a=>{AI_BUSY=false;AI_MSGS.push({r:'bot',a});aiRender()});
+}
+/* Tenta o modelo (Edge Function). Se não houver rede, chave ou resposta
+   utilizável, cai no motor ancorado local — que responde sempre. */
+let AI_REMOTO=true;   // desliga-se se a função não estiver configurada
+async function aiResolve(q){
+  if(SB_ON&&sb&&AI_REMOTO){
+    try{
+      const r=await aiAskModel(q);
+      if(r&&r.resposta)return aiFromModel(r,q);
+    }catch(e){
+      // Se o assistente não está configurado, não vale a pena voltar a tentar
+      // nesta sessão — poupa ~1 arranque a frio por pergunta.
+      if(String(e&&e.message)==='nao_configurado')AI_REMOTO=false;
+    }
+  }
+  // pausa curta só para o indicador "a escrever" ter tempo de registar
+  await new Promise(r=>setTimeout(r,240+Math.random()*160));
+  return aiAnswer(q);
+}
+/* Converte a resposta do modelo no mesmo formato de cartões e acções
+   que o motor local usa, para a experiência ser indistinguível. */
+function aiFromModel(r,q){
+  const base=aiAnswer(q);                    // reaproveita cartões/acções ancorados
+  const texto=String(r.resposta).split(/\n\s*\n/).map(p=>`<p>${esc(p)}</p>`).join('');
+  if(r.escalar)return Object.assign({},aiEscalate(q),{text:texto});
+  if(r.respondido===false){
+    if(q&&q.trim()){S.aiUnknown=(S.aiUnknown||[]);S.aiUnknown.push({q:q.trim(),t:Date.now()});save()}
+    return Object.assign({},aiUnknown(''),{text:texto});
+  }
+  return Object.assign({},base,{text:texto,src:base.src||'Conteúdo verificado da Bússola'});
 }
 
 /* ---------- Extractores ---------- */
@@ -2277,21 +2528,27 @@ function aiBuildContext(q){
     documentacao:DOCS.map(d=>({id:d.id,titulo:d.title,cat:d.cat,resumo:d.summary,precisa:d.need,passos:d.steps,onde:d.where,custo:d.cost,prazos:d.deadline,alerta:d.alert,faq:d.faq})),
     trabalho:JOBS.map(j=>({id:j.id,cargo:j.role,empresa:j.company,cidade:j.city,salario:j.salary,semExperiencia:!j.exp})),
     habitacao:HOMES.map(h=>({id:h.id,titulo:h.title,cidade:h.city,preco:h.price,tipo:h.type,verificado:h.verified})),
-    profissionais:PROS.map(p=>({id:p.id,nome:p.name,prof:p.prof,cidade:p.city,especialidades:p.spec,idiomas:p.langs})),
-    regras:[
-      'Responder apenas com base no contexto fornecido.',
-      'Nunca inventar requisitos legais, prazos, custos ou documentos.',
-      'Se a resposta não estiver no contexto, dizer que não sabe e encaminhar.',
-      'Se a pergunta exigir análise do caso concreto, responder: "Esta situação pode depender do teu caso. Posso ajudar-te a encontrar um profissional."',
-      'Português europeu. Tratamento por tu. Linguagem simples.'
-    ]
+    profissionais:PROS.map(p=>({id:p.id,nome:p.name,prof:p.prof,cidade:p.city,especialidades:p.spec,idiomas:p.langs,preco:p.price})),
+    servicos:SERVICES.map(s=>({id:s.id,nome:s.name,cat:s.cat,cidade:s.city,desc:s.desc})),
+    eventos:EVENTS.map(e=>({id:e.id,titulo:e.title,cat:e.cat,data:e.date,hora:e.time,cidade:e.city,local:e.venue,preco:e.price}))
+    /* as regras vivem no system prompt da Edge Function, fora do alcance do cliente */
   };
 }
 async function aiAskModel(q){
-  const r=await fetch('/api/ai-assistant',{method:'POST',headers:{'Content-Type':'application/json'},
-    body:JSON.stringify(aiBuildContext(q))});
-  if(!r.ok)throw new Error('assistente indisponível');
-  return r.json();
+  const {data}=await sb.auth.getSession();
+  const token=data?.session?.access_token||SB_ANON;   // sessão do utilizador, ou anon key
+  const ctl=new AbortController(); const timer=setTimeout(()=>ctl.abort(),9000);
+  try{
+    const r=await fetch(SB_URL+'/functions/v1/ai-assistant',{
+      method:'POST',signal:ctl.signal,
+      headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'apikey':SB_ANON},
+      body:JSON.stringify(aiBuildContext(q))
+    });
+    if(r.status===503)throw new Error('nao_configurado');
+    if(r.status===429){const j=await r.json().catch(()=>({}));throw new Error(j.mensagem||'limite')}
+    if(!r.ok)throw new Error('indisponivel_'+r.status);
+    return await r.json();
+  } finally { clearTimeout(timer) }
 }
 
 /* ============================================================
