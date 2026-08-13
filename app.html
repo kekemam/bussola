@@ -1,0 +1,2303 @@
+<!DOCTYPE html>
+<html lang="pt-PT" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F4EF">
+<title>Bússola — onde Portugal começa a fazer sentido</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BÚSSOLA — Design System
+   Editorial · premium · humano · calmo
+   ============================================================ */
+
+/* ---- Tokens ---- */
+:root{
+  /* Paper & ink (warm neutrals) */
+  --paper:#F7F4EF;            /* app background */
+  --surface:#FDFCFA;          /* cards */
+  --surface-2:#F1ECE3;        /* subtle fill */
+  --ink:#1C1A16;             /* primary text */
+  --ink-2:#57534A;           /* secondary text */
+  --ink-3:#8A8478;           /* muted / captions */
+  --line:#E7E1D6;            /* borders */
+  --line-2:#EFEAE0;
+
+  /* Accent — terracota (humano, terroso, sem clichê de bandeira) */
+  --clay:#C25A3A;
+  --clay-deep:#A8432A;
+  --clay-soft:#F3E4DB;
+  --clay-tint:#FBF1EB;
+
+  /* Suporte */
+  --sage:#3E6B5A;            /* progresso / verificado */
+  --sage-soft:#E4EEE8;
+  --gold:#B4842B;            /* destaque quente */
+  --sky:#37618E;            /* links de entidades oficiais */
+  --danger:#B23A2E;
+  --danger-soft:#F6E3E0;
+
+  /* Tipografia */
+  --serif:'Fraunces',Georgia,serif;
+  --sans:'Inter',system-ui,-apple-system,sans-serif;
+
+  /* Raio & sombra (moderados) */
+  --r-sm:8px; --r:14px; --r-lg:20px; --r-xl:28px; --r-full:999px;
+  --sh-sm:0 1px 2px rgba(28,26,22,.05);
+  --sh:0 4px 20px -8px rgba(28,26,22,.14);
+  --sh-lg:0 24px 60px -20px rgba(28,26,22,.24);
+
+  /* Espaçamento */
+  --nav-w:264px; --header-h:68px; --bottom-h:64px; --max:1180px;
+
+  /* Movimento */
+  --ease:cubic-bezier(.22,.61,.36,1);
+  --dur:.42s;
+}
+[data-theme="dark"]{
+  --paper:#16140F;
+  --surface:#1E1B15;
+  --surface-2:#26221A;
+  --ink:#F3EFE6;
+  --ink-2:#B8B2A4;
+  --ink-3:#867F70;
+  --line:#302B22;
+  --line-2:#2A251D;
+  --clay:#E0794F;
+  --clay-deep:#C25A3A;
+  --clay-soft:#3A2419;
+  --clay-tint:#241812;
+  --sage:#6FA98F;
+  --sage-soft:#1E2C25;
+  --gold:#D0A150;
+  --sky:#6E9CCB;
+  --danger:#E27366;
+  --danger-soft:#331b18;
+  --sh-sm:0 1px 2px rgba(0,0,0,.3);
+  --sh:0 6px 24px -8px rgba(0,0,0,.5);
+  --sh-lg:0 24px 60px -20px rgba(0,0,0,.6);
+}
+
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{
+  font-family:var(--sans);
+  background:var(--paper);
+  color:var(--ink);
+  font-size:15px;
+  line-height:1.55;
+  -webkit-font-smoothing:antialiased;
+  letter-spacing:-.011em;
+  overflow-x:hidden;
+}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+
+/* ---- Ícones: tamanho base + overrides ---- */
+.i{width:1.15em;height:1.15em;flex:none;vertical-align:middle}
+.av svg{width:46%;height:46%}
+.photo svg.i{width:34px;height:34px}
+.state .ill svg{width:100%;height:100%}
+.mappin .p svg.i{width:15px;height:15px}
+
+/* ---- Tipografia ---- */
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;line-height:1.12;letter-spacing:-.02em;color:var(--ink)}
+.display{font-size:clamp(2.1rem,5.2vw,3.4rem);font-weight:500;line-height:1.04;letter-spacing:-.03em}
+.h1{font-size:clamp(1.7rem,3.6vw,2.4rem)}
+.h2{font-size:clamp(1.32rem,2.6vw,1.72rem)}
+.h3{font-size:1.16rem;font-weight:600}
+.eyebrow{font-family:var(--sans);font-size:.72rem;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--ink-3)}
+.lead{font-size:1.08rem;color:var(--ink-2);line-height:1.5}
+.muted{color:var(--ink-3)}
+.serif{font-family:var(--serif)}
+a{color:inherit;text-decoration:none}
+.num{font-family:var(--serif);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+
+/* ---- Botões ---- */
+.btn{
+  font-family:var(--sans);font-size:.92rem;font-weight:550;
+  display:inline-flex;align-items:center;justify-content:center;gap:.5em;
+  padding:.72em 1.25em;border-radius:var(--r-full);border:1px solid transparent;
+  cursor:pointer;transition:transform .18s var(--ease),background .2s,border-color .2s,color .2s,box-shadow .2s;
+  white-space:nowrap;background:none;color:var(--ink);line-height:1;user-select:none;
+}
+.btn:active{transform:scale(.97)}
+.btn svg{width:1.15em;height:1.15em;flex:none}
+.btn-primary{background:var(--clay);color:#fff;box-shadow:var(--sh-sm)}
+.btn-primary:hover{background:var(--clay-deep);box-shadow:var(--sh)}
+.btn-dark{background:var(--ink);color:var(--paper)}
+.btn-dark:hover{opacity:.9}
+.btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink-3);background:var(--surface-2)}
+.btn-quiet{background:transparent;color:var(--ink-2)}
+.btn-quiet:hover{background:var(--surface-2);color:var(--ink)}
+.btn-lg{padding:.92em 1.6em;font-size:1rem}
+.btn-sm{padding:.52em .9em;font-size:.82rem}
+.btn-block{width:100%}
+.btn-icon{padding:.55em;border-radius:var(--r-full);width:2.5em;height:2.5em}
+
+/* ---- Chips / badges ---- */
+.chip{
+  display:inline-flex;align-items:center;gap:.4em;font-size:.8rem;font-weight:500;
+  padding:.42em .82em;border-radius:var(--r-full);background:var(--surface);
+  border:1px solid var(--line);color:var(--ink-2);cursor:pointer;transition:all .18s var(--ease);white-space:nowrap;
+}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.badge{display:inline-flex;align-items:center;gap:.35em;font-size:.72rem;font-weight:600;padding:.32em .66em;border-radius:var(--r-full);letter-spacing:.01em}
+.badge-clay{background:var(--clay-soft);color:var(--clay-deep)}
+.badge-sage{background:var(--sage-soft);color:var(--sage)}
+.badge-gold{background:#F6EDD8;color:var(--gold)}
+.badge-line{background:var(--surface);border:1px solid var(--line);color:var(--ink-2)}
+[data-theme="dark"] .badge-gold{background:#2b2415}
+.verified{display:inline-flex;align-items:center;gap:.3em;color:var(--sage);font-weight:600;font-size:.78rem}
+.verified svg{width:1em;height:1em}
+
+/* ---- Cards ---- */
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);transition:border-color .2s,box-shadow .2s,transform .2s var(--ease)}
+.card-pad{padding:22px}
+.card-hover{cursor:pointer}
+.card-hover:hover{border-color:var(--ink-3);box-shadow:var(--sh);transform:translateY(-2px)}
+
+/* ---- Inputs ---- */
+.field{display:flex;flex-direction:column;gap:.4em;margin-bottom:14px}
+.field label{font-size:.82rem;font-weight:550;color:var(--ink-2)}
+.input,.select,textarea.input{
+  font-family:var(--sans);font-size:.95rem;color:var(--ink);width:100%;
+  padding:.78em 1em;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);
+  transition:border-color .18s,box-shadow .18s;
+}
+.input::placeholder{color:var(--ink-3)}
+.input:focus,.select:focus,textarea.input:focus{outline:none;border-color:var(--clay);box-shadow:0 0 0 3px var(--clay-soft)}
+textarea.input{resize:vertical;min-height:96px;line-height:1.5}
+.search-wrap{position:relative;display:flex;align-items:center}
+.search-wrap svg.ic{position:absolute;left:14px;width:18px;height:18px;color:var(--ink-3);pointer-events:none}
+.search-wrap .input{padding-left:42px}
+
+/* ---- Layout ---- */
+.app{display:none}
+.app.live{display:block}
+.shell{display:flex;min-height:100vh}
+.sidebar{
+  width:var(--nav-w);flex:none;position:fixed;top:0;left:0;bottom:0;
+  background:var(--surface);border-right:1px solid var(--line);
+  display:flex;flex-direction:column;padding:20px 16px;z-index:40;
+}
+.brand{display:flex;align-items:center;gap:.6em;padding:6px 8px 22px;font-family:var(--serif);font-size:1.32rem;font-weight:600;letter-spacing:-.02em}
+.brand .mark{width:30px;height:30px;flex:none}
+.nav{display:flex;flex-direction:column;gap:2px;flex:1}
+.nav-sec{font-size:.68rem;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);padding:16px 12px 6px}
+.nav-item{
+  display:flex;align-items:center;gap:.75em;padding:.66em .8em;border-radius:var(--r);
+  color:var(--ink-2);font-weight:500;font-size:.92rem;cursor:pointer;transition:all .16s var(--ease);position:relative;
+}
+.nav-item svg{width:19px;height:19px;flex:none;opacity:.85}
+.nav-item:hover{background:var(--surface-2);color:var(--ink)}
+.nav-item.on{background:var(--ink);color:var(--paper)}
+.nav-item.on svg{opacity:1}
+.nav-item .dot{margin-left:auto;background:var(--clay);color:#fff;font-size:.68rem;font-weight:700;min-width:18px;height:18px;padding:0 5px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center}
+.nav-foot{border-top:1px solid var(--line);padding-top:12px;margin-top:8px}
+.nav-user{display:flex;align-items:center;gap:.6em;padding:.5em;border-radius:var(--r);cursor:pointer}
+.nav-user:hover{background:var(--surface-2)}
+
+.main{flex:1;margin-left:var(--nav-w);min-width:0;display:flex;flex-direction:column;min-height:100vh}
+.topbar{
+  height:var(--header-h);position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--paper) 82%,transparent);
+  backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--line);
+  display:flex;align-items:center;gap:14px;padding:0 clamp(18px,4vw,40px);
+}
+.topbar .gsearch{flex:1;max-width:440px}
+.top-actions{margin-left:auto;display:flex;align-items:center;gap:8px}
+.content{flex:1;padding:clamp(22px,3.5vw,40px) clamp(18px,4vw,40px) 80px;max-width:var(--max);width:100%;margin:0 auto;animation:fadeUp .5s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+/* mobile bits hidden on desktop */
+.mobile-only{display:none!important}
+.bottomnav,.mobtop{display:none}
+
+/* ---- Progress ---- */
+.pbar{height:7px;background:var(--surface-2);border-radius:var(--r-full);overflow:hidden}
+.pbar>i{display:block;height:100%;background:var(--clay);border-radius:var(--r-full);transition:width .8s var(--ease)}
+.ring{transform:rotate(-90deg)}
+.ring circle{fill:none;stroke-width:7}
+.ring .bg{stroke:var(--surface-2)}
+.ring .fg{stroke:var(--clay);stroke-linecap:round;transition:stroke-dashoffset 1s var(--ease)}
+
+/* ---- Avatar ---- */
+.av{border-radius:var(--r-full);object-fit:cover;background:var(--surface-2);flex:none;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--ink-2);overflow:hidden}
+.av-sm{width:32px;height:32px;font-size:.8rem}
+.av-md{width:44px;height:44px;font-size:.95rem}
+.av-lg{width:72px;height:72px;font-size:1.4rem;font-family:var(--serif)}
+
+/* ---- Grids ---- */
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)}
+.g3{grid-template-columns:repeat(3,1fr)}
+.g4{grid-template-columns:repeat(4,1fr)}
+.row{display:flex;gap:12px;align-items:center}
+.wrap{flex-wrap:wrap}
+.between{justify-content:space-between}
+.stack{display:flex;flex-direction:column}
+.section{margin-top:40px}
+.section-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;margin-bottom:18px}
+.divider{height:1px;background:var(--line);border:0;margin:0}
+
+/* ---- Toast ---- */
+.toasts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+.toast{
+  background:var(--ink);color:var(--paper);padding:.85em 1.2em;border-radius:var(--r-full);font-size:.9rem;font-weight:500;
+  box-shadow:var(--sh-lg);display:flex;align-items:center;gap:.6em;animation:toastIn .4s var(--ease);max-width:90vw;
+}
+.toast.err{background:var(--danger)}
+@keyframes toastIn{from{opacity:0;transform:translateY(14px) scale(.96)}to{opacity:1;transform:none}}
+
+/* ---- Modal / drawer ---- */
+.scrim{position:fixed;inset:0;background:rgba(20,17,12,.44);backdrop-filter:blur(3px);z-index:100;opacity:0;pointer-events:none;transition:opacity .3s}
+.scrim.on{opacity:1;pointer-events:auto}
+.modal{
+  position:fixed;z-index:110;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);
+  box-shadow:var(--sh-lg);width:min(560px,94vw);max-height:88vh;overflow-y:auto;
+  left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);opacity:0;pointer-events:none;transition:all .34s var(--ease);
+}
+.modal.on{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+.modal-pad{padding:26px}
+.modal-x{position:absolute;top:16px;right:16px}
+
+/* drawer (mobile filters / detail) */
+.drawer{
+  position:fixed;z-index:110;background:var(--surface);left:0;right:0;bottom:0;border-radius:var(--r-xl) var(--r-xl) 0 0;
+  max-height:92vh;overflow-y:auto;transform:translateY(100%);transition:transform .38s var(--ease);box-shadow:var(--sh-lg);
+}
+.drawer.on{transform:translateY(0)}
+.drawer-grab{width:40px;height:4px;border-radius:var(--r-full);background:var(--line);margin:12px auto 4px}
+
+/* ---- Empty / states ---- */
+.state{text-align:center;padding:56px 20px;max-width:420px;margin:0 auto;animation:fadeUp .5s var(--ease)}
+.state .ill{width:64px;height:64px;margin:0 auto 18px;color:var(--ink-3);opacity:.7}
+.state h3{margin-bottom:8px}
+.state p{color:var(--ink-3);margin-bottom:18px}
+.skel{background:linear-gradient(100deg,var(--surface-2) 30%,var(--line-2) 50%,var(--surface-2) 70%);background-size:200% 100%;animation:shimmer 1.3s infinite;border-radius:var(--r)}
+@keyframes shimmer{to{background-position:-200% 0}}
+
+/* ---- Checklist ---- */
+.check-item{display:flex;gap:12px;align-items:flex-start;padding:14px 0;border-bottom:1px solid var(--line-2);cursor:pointer}
+.check-item:last-child{border-bottom:0}
+.check-box{width:22px;height:22px;border:2px solid var(--line);border-radius:7px;flex:none;margin-top:1px;display:flex;align-items:center;justify-content:center;transition:all .2s var(--ease)}
+.check-box svg{width:14px;height:14px;color:#fff;opacity:0;transform:scale(.5);transition:all .2s var(--ease)}
+.check-item.done .check-box{background:var(--sage);border-color:var(--sage)}
+.check-item.done .check-box svg{opacity:1;transform:none}
+.check-item.done .ci-label{color:var(--ink-3);text-decoration:line-through}
+
+/* ---- Timeline (plano) ---- */
+.tl{position:relative;padding-left:34px}
+.tl::before{content:"";position:absolute;left:14px;top:8px;bottom:8px;width:2px;background:var(--line)}
+.tl-step{position:relative;padding:0 0 26px}
+.tl-step:last-child{padding-bottom:0}
+.tl-node{position:absolute;left:-34px;top:0;width:30px;height:30px;border-radius:var(--r-full);background:var(--surface);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:.82rem;font-weight:600;color:var(--ink-3);z-index:1}
+.tl-step.done .tl-node{background:var(--sage);border-color:var(--sage);color:#fff}
+.tl-step.now .tl-node{background:var(--clay);border-color:var(--clay);color:#fff;box-shadow:0 0 0 4px var(--clay-soft)}
+
+/* ---- Tabs ---- */
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:.7em 1em;font-weight:550;font-size:.92rem;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap;transition:color .18s}
+.tab:hover{color:var(--ink-2)}
+.tab.on{color:var(--ink);border-color:var(--clay)}
+
+/* ---- Photo blocks ---- */
+.photo{background:var(--surface-2);position:relative;overflow:hidden}
+.photo img{width:100%;height:100%;object-fit:cover;display:block}
+.thumb{aspect-ratio:16/10;border-radius:var(--r);overflow:hidden;background:var(--surface-2)}
+
+/* ---- Map ---- */
+.mapwrap{position:relative;border-radius:var(--r-lg);overflow:hidden;border:1px solid var(--line);background:
+  radial-gradient(circle at 30% 20%,rgba(62,107,90,.06),transparent 40%),
+  radial-gradient(circle at 70% 70%,rgba(194,90,58,.06),transparent 40%),var(--surface-2)}
+.mappin{position:absolute;transform:translate(-50%,-100%);cursor:pointer;transition:transform .2s var(--ease)}
+.mappin:hover{transform:translate(-50%,-108%) scale(1.08);z-index:5}
+.mappin .p{width:30px;height:30px;border-radius:var(--r-full) var(--r-full) var(--r-full) 2px;background:var(--clay);border:2px solid var(--surface);box-shadow:var(--sh);display:flex;align-items:center;justify-content:center;transform:rotate(45deg)}
+.mappin .p svg{transform:rotate(-45deg);width:15px;height:15px;color:#fff}
+
+/* ---- Segmented ---- */
+.seg{display:inline-flex;background:var(--surface-2);border-radius:var(--r-full);padding:3px}
+.seg button{border:0;background:none;font-family:var(--sans);font-weight:550;font-size:.85rem;color:var(--ink-2);padding:.5em 1em;border-radius:var(--r-full);cursor:pointer;transition:all .2s}
+.seg button.on{background:var(--surface);color:var(--ink);box-shadow:var(--sh-sm)}
+
+/* ---- Command palette ---- */
+.cmdk{position:fixed;left:50%;top:12vh;transform:translateX(-50%) translateY(-8px);width:min(600px,94vw);z-index:120;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh-lg);opacity:0;pointer-events:none;transition:all .28s var(--ease);overflow:hidden}
+.cmdk.on{opacity:1;pointer-events:auto;transform:translateX(-50%) translateY(0)}
+.cmdk-in{display:flex;align-items:center;gap:10px;padding:16px 18px;border-bottom:1px solid var(--line)}
+.cmdk-in input{border:0;background:none;font-family:var(--sans);font-size:1.05rem;color:var(--ink);width:100%;outline:none}
+.cmdk-res{max-height:52vh;overflow-y:auto;padding:8px}
+.cmdk-row{display:flex;align-items:center;gap:12px;padding:11px 12px;border-radius:var(--r);cursor:pointer}
+.cmdk-row:hover,.cmdk-row.sel{background:var(--surface-2)}
+.cmdk-row .k{margin-left:auto;font-size:.72rem;color:var(--ink-3)}
+.cmdk-cat{font-size:.68rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3);padding:12px 12px 4px}
+kbd{font-family:var(--sans);font-size:.72rem;background:var(--surface-2);border:1px solid var(--line);border-radius:5px;padding:.15em .45em;color:var(--ink-2)}
+
+/* ---- Notes / callouts ---- */
+.callout{display:flex;gap:12px;padding:14px 16px;border-radius:var(--r);font-size:.9rem;line-height:1.5}
+.callout svg{width:20px;height:20px;flex:none;margin-top:1px}
+.callout-warn{background:#F8EEDD;color:#7A5A1E}
+[data-theme="dark"] .callout-warn{background:#2a2113;color:var(--gold)}
+.callout-info{background:var(--sage-soft);color:var(--sage)}
+.callout-clay{background:var(--clay-tint);color:var(--clay-deep)}
+
+.link-official{display:inline-flex;align-items:center;gap:.4em;color:var(--sky);font-weight:550;font-size:.9rem}
+.link-official svg{width:1em;height:1em}
+
+/* ---- Onboarding ---- */
+.ob{position:fixed;inset:0;z-index:300;background:var(--paper);overflow-y:auto;display:none}
+.ob.live{display:block}
+.ob-wrap{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:clamp(24px,5vw,48px) 24px}
+.ob-top{display:flex;align-items:center;gap:12px;margin-bottom:auto;padding-top:8px}
+.ob-prog{flex:1;height:4px;background:var(--surface-2);border-radius:var(--r-full);overflow:hidden}
+.ob-prog>i{display:block;height:100%;background:var(--clay);transition:width .5s var(--ease)}
+.ob-body{margin:auto 0;padding:32px 0;animation:fadeUp .45s var(--ease)}
+.ob-body h1{margin-bottom:12px}
+.opt{display:flex;align-items:center;gap:14px;padding:16px 18px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);cursor:pointer;margin-bottom:10px;transition:all .18s var(--ease)}
+.opt:hover{border-color:var(--ink-3)}
+.opt.on{border-color:var(--clay);background:var(--clay-tint)}
+.opt .flag{font-size:1.5rem;line-height:1}
+.opt .tick{margin-left:auto;width:22px;height:22px;border-radius:var(--r-full);border:2px solid var(--line);display:flex;align-items:center;justify-content:center;transition:all .2s}
+.opt .tick svg{width:13px;height:13px;color:#fff;opacity:0}
+.opt.on .tick{background:var(--clay);border-color:var(--clay)}
+.opt.on .tick svg{opacity:1}
+.ob-foot{padding-top:20px;display:flex;gap:12px;align-items:center}
+
+/* ---- Utilities ---- */
+.mt0{margin-top:0}.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}
+.mb0{margin-bottom:0}.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}
+.gap4{gap:4px}.gap8{gap:8px}.gap6{gap:6px}.gap16{gap:16px}.gap20{gap:20px}
+.fs-sm{font-size:.85rem}.fs-xs{font-size:.78rem}
+.fw6{font-weight:600}.fw5{font-weight:550}
+.tc{text-align:center}.tr{text-align:right}
+.flex1{flex:1}.mla{margin-left:auto}
+.hide{display:none!important}
+.clay{color:var(--clay)}.sage{color:var(--sage)}
+.price{font-family:var(--serif);font-weight:600}
+.line-clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.scroll-x{display:flex;gap:12px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin:0 calc(-1*clamp(18px,4vw,40px));padding-left:clamp(18px,4vw,40px);padding-right:clamp(18px,4vw,40px)}
+.scroll-x::-webkit-scrollbar{display:none}
+.scroll-x>*{flex:none}
+
+/* ============================================================
+   ASSISTENTE (camada de IA)
+   ============================================================ */
+.ai-fab{
+  position:fixed;right:22px;bottom:22px;z-index:90;width:56px;height:56px;border-radius:var(--r-full);
+  background:var(--ink);color:var(--paper);border:0;cursor:pointer;box-shadow:var(--sh-lg);
+  display:flex;align-items:center;justify-content:center;transition:transform .25s var(--ease),background .2s;
+}
+.ai-fab:hover{transform:scale(1.06)}
+.ai-fab:active{transform:scale(.95)}
+.ai-fab svg{width:24px;height:24px}
+.ai-fab .pulse{position:absolute;inset:0;border-radius:var(--r-full);border:2px solid var(--clay);opacity:0;animation:aiPulse 3.4s ease-out infinite}
+@keyframes aiPulse{0%{opacity:.55;transform:scale(1)}70%{opacity:0;transform:scale(1.42)}100%{opacity:0}}
+
+.ai-panel{
+  position:fixed;right:22px;bottom:22px;z-index:130;width:min(430px,calc(100vw - 44px));height:min(660px,calc(100vh - 44px));
+  background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);box-shadow:var(--sh-lg);
+  display:flex;flex-direction:column;overflow:hidden;
+  opacity:0;pointer-events:none;transform:translateY(16px) scale(.97);transform-origin:bottom right;
+  transition:opacity .3s var(--ease),transform .3s var(--ease);
+}
+.ai-panel.on{opacity:1;pointer-events:auto;transform:none}
+.ai-head{display:flex;align-items:center;gap:11px;padding:16px 18px;border-bottom:1px solid var(--line);flex:none}
+.ai-avatar{width:38px;height:38px;border-radius:var(--r-full);background:var(--ink);color:var(--paper);display:flex;align-items:center;justify-content:center;flex:none}
+.ai-avatar svg{width:19px;height:19px}
+.ai-body{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:14px;background:var(--paper)}
+.ai-foot{flex:none;border-top:1px solid var(--line);padding:12px 14px;background:var(--surface)}
+.ai-input{display:flex;gap:8px;align-items:flex-end}
+.ai-input textarea{
+  flex:1;border:1px solid var(--line);border-radius:18px;padding:10px 14px;font-family:var(--fb,var(--sans,inherit));
+  font-size:.92rem;resize:none;background:var(--surface);color:var(--ink);max-height:110px;min-height:40px;line-height:1.4;
+}
+.ai-input textarea:focus{outline:none;border-color:var(--clay);box-shadow:0 0 0 3px var(--clay-soft)}
+
+/* mensagens */
+.ai-msg{max-width:88%;font-size:.92rem;line-height:1.55;animation:aiIn .35s var(--ease)}
+@keyframes aiIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.ai-msg.user{align-self:flex-end;background:var(--clay);color:#fff;padding:10px 14px;border-radius:16px;border-bottom-right-radius:5px}
+.ai-msg.bot{align-self:flex-start;width:100%;max-width:100%}
+.ai-bubble{background:var(--surface);border:1px solid var(--line);border-radius:16px;border-bottom-left-radius:5px;padding:14px 16px}
+.ai-bubble p+p{margin-top:9px}
+.ai-bubble b{font-weight:650}
+.ai-bubble ul{list-style:none;margin:10px 0 0;display:flex;flex-direction:column;gap:7px}
+.ai-bubble li{display:flex;gap:8px;align-items:flex-start;font-size:.89rem}
+.ai-bubble li>span:first-child{color:var(--sage);flex:none;margin-top:2px;width:15px}
+.ai-src{display:flex;align-items:center;gap:.4em;font-size:.72rem;color:var(--ink-3);margin-top:10px;padding-top:9px;border-top:1px solid var(--line-2)}
+.ai-src svg{width:13px;height:13px}
+
+/* cartões de resultado dentro da resposta */
+.ai-cards{display:flex;flex-direction:column;gap:8px;margin-top:11px}
+.ai-card{display:flex;gap:11px;align-items:center;padding:11px 13px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);cursor:pointer;transition:border-color .18s,transform .18s var(--ease)}
+.ai-card:hover{border-color:var(--ink-3);transform:translateX(2px)}
+.ai-card .aic-ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex:none;background:var(--surface);color:var(--ink-2)}
+.ai-card .aic-ic svg{width:17px;height:17px}
+.ai-card .aic-t{font-weight:600;font-size:.87rem;line-height:1.25}
+.ai-card .aic-s{font-size:.76rem;color:var(--ink-3);line-height:1.3}
+
+/* acções */
+.ai-acts{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+.ai-act{font-size:.82rem;font-weight:550;padding:.52em .95em;border-radius:var(--r-full);background:var(--ink);color:var(--paper);border:0;cursor:pointer;display:inline-flex;align-items:center;gap:.4em;transition:opacity .18s,transform .16s var(--ease)}
+.ai-act:hover{opacity:.88} .ai-act:active{transform:scale(.96)}
+.ai-act svg{width:14px;height:14px}
+.ai-act.soft{background:var(--surface);color:var(--ink);border:1px solid var(--line)}
+.ai-act.soft:hover{border-color:var(--ink-3)}
+
+/* aviso jurídico dentro da resposta */
+.ai-warn{display:flex;gap:9px;padding:11px 13px;border-radius:var(--r);font-size:.82rem;line-height:1.45;margin-top:11px;background:var(--clay-tint);color:var(--clay-deep)}
+.ai-warn svg{width:16px;height:16px;flex:none;margin-top:2px}
+.ai-note{display:flex;gap:9px;padding:11px 13px;border-radius:var(--r);font-size:.82rem;line-height:1.45;margin-top:11px;background:var(--sage-soft);color:var(--sage)}
+.ai-note svg{width:16px;height:16px;flex:none;margin-top:2px}
+
+/* sugestões */
+.ai-sugs{display:flex;flex-wrap:wrap;gap:7px}
+.ai-sug{font-size:.82rem;padding:.5em .9em;border-radius:var(--r-full);background:var(--surface);border:1px solid var(--line);color:var(--ink-2);cursor:pointer;transition:all .18s var(--ease);text-align:left}
+.ai-sug:hover{border-color:var(--clay);color:var(--clay);background:var(--clay-tint)}
+
+/* a escrever */
+.ai-typing{display:flex;gap:4px;padding:14px 16px;background:var(--surface);border:1px solid var(--line);border-radius:16px;border-bottom-left-radius:5px;width:fit-content}
+.ai-typing i{width:7px;height:7px;border-radius:50%;background:var(--ink-3);animation:aiDot 1.3s infinite}
+.ai-typing i:nth-child(2){animation-delay:.18s} .ai-typing i:nth-child(3){animation-delay:.36s}
+@keyframes aiDot{0%,60%,100%{opacity:.28;transform:translateY(0)}30%{opacity:1;transform:translateY(-4px)}}
+
+/* ============================================================
+   RESPONSIVO — experiência mobile própria
+   ============================================================ */
+@media (max-width:900px){
+  .sidebar{display:none}
+  .main{margin-left:0}
+  .desktop-only{display:none!important}
+  .mobile-only{display:flex!important}
+  .topbar{display:none}
+  .mobtop{display:flex;align-items:center;gap:12px;height:56px;padding:0 18px;position:sticky;top:0;z-index:30;
+    background:color-mix(in srgb,var(--paper) 85%,transparent);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .mobtop .brand{padding:0;font-size:1.18rem}
+  .content{padding:18px 18px calc(var(--bottom-h) + 34px);max-width:100%}
+  .bottomnav{
+    display:flex;position:fixed;bottom:0;left:0;right:0;height:calc(var(--bottom-h) + env(safe-area-inset-bottom));
+    padding-bottom:env(safe-area-inset-bottom);background:color-mix(in srgb,var(--surface) 92%,transparent);
+    backdrop-filter:blur(18px);border-top:1px solid var(--line);z-index:40;
+  }
+  .bn-item{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;color:var(--ink-3);font-size:.66rem;font-weight:550;cursor:pointer;position:relative;transition:color .18s}
+  .bn-item svg{width:23px;height:23px}
+  .bn-item.on{color:var(--clay)}
+  .bn-item .bdot{position:absolute;top:8px;right:calc(50% - 16px);width:7px;height:7px;background:var(--clay);border-radius:var(--r-full);border:1.5px solid var(--surface)}
+  .g3,.g4{grid-template-columns:repeat(2,1fr)}
+  .g2{grid-template-columns:1fr}
+  .display{font-size:2rem}
+  .modal{border-radius:var(--r-xl);top:auto;bottom:0;left:0;transform:translateY(100%);width:100%;max-width:100%;border-radius:var(--r-xl) var(--r-xl) 0 0}
+  .modal.on{transform:translateY(0)}
+  .modal-pad{padding:22px 20px calc(22px + env(safe-area-inset-bottom))}
+  .cmdk{top:0;left:0;transform:none;width:100%;border-radius:0;height:100vh;max-height:100vh}
+  .cmdk.on{transform:none}
+  .cmdk-res{max-height:calc(100vh - 70px)}
+  .section-head .h2{font-size:1.3rem}
+  /* assistente em mobile: acima da bottom-nav, e painel em ecrã inteiro */
+  .ai-fab{right:16px;bottom:calc(var(--bottom-h) + 16px + env(safe-area-inset-bottom));width:52px;height:52px}
+  .ai-panel{right:0;left:0;bottom:0;top:0;width:100%;height:100%;border-radius:0;transform:translateY(100%);transform-origin:center}
+  .ai-panel.on{transform:none}
+  .ai-foot{padding-bottom:calc(12px + env(safe-area-inset-bottom))}
+}
+@media (max-width:560px){
+  .g3,.g4{grid-template-columns:1fr}
+  .hide-xs{display:none!important}
+}
+@media (min-width:901px){.only-mobile-flow{display:none}}
+</style>
+</head>
+<body>
+
+<!-- ══════════════ ONBOARDING ══════════════ -->
+<div id="ob" class="ob"></div>
+
+<!-- ══════════════ APP ══════════════ -->
+<div id="app" class="app">
+  <div class="shell">
+    <aside class="sidebar" id="sidebar"></aside>
+    <div class="main">
+      <header class="mobtop mobile-only" id="mobtop"></header>
+      <header class="topbar desktop-only" id="topbar"></header>
+      <main class="content" id="view"></main>
+    </div>
+  </div>
+  <nav class="bottomnav mobile-only" id="bottomnav"></nav>
+</div>
+
+<!-- assistente -->
+<button id="aiFab" class="ai-fab hide" onclick="aiToggle()" aria-label="Abrir assistente"></button>
+<div id="aiPanel" class="ai-panel" role="dialog" aria-label="Assistente da Bússola"></div>
+
+<!-- overlays -->
+<div id="scrim" class="scrim"></div>
+<div id="modal" class="modal"><div id="modalBody"></div></div>
+<div id="cmdk" class="cmdk"></div>
+<div id="toasts" class="toasts"></div>
+
+<script>
+/* ============================================================
+   BÚSSOLA — app (vanilla JS, single-file)
+   ============================================================ */
+const BRAND = "Bússola";
+
+/* ---------- Ícones (stroke, minimais) ---------- */
+const I = {
+  home:'<path d="M3 10.5 12 3l9 7.5"/><path d="M5 9.5V21h14V9.5"/>',
+  compass:'<circle cx="12" cy="12" r="9"/><path d="m15.5 8.5-2 5-5 2 2-5z"/>',
+  plan:'<path d="M9 5H5v14h14v-9"/><path d="m15 3 6 6-8 8-4 1 1-4z"/>',
+  doc:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/>',
+  work:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/>',
+  home2:'<path d="M4 11 12 5l8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/>',
+  law:'<path d="M12 3v18"/><path d="M6 7h12"/><path d="m5 7-2 5a3 3 0 0 0 6 0z"/><path d="m19 7-2 5a3 3 0 0 0 6 0z"/><path d="M8 21h8"/>',
+  event:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+  people:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 6a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6"/>',
+  map:'<path d="m9 4-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/>',
+  service:'<circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/>',
+  bell:'<path d="M18 8a6 6 0 1 0-12 0c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.7 21a2 2 0 0 1-3.4 0"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  check:'<path d="m4 12 5 5L20 6"/>',
+  chevr:'<path d="m9 6 6 6-6 6"/>',
+  chevl:'<path d="m15 6-6 6 6 6"/>',
+  chevd:'<path d="m6 9 6 6 6-6"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>',
+  x:'<path d="M6 6 18 18M18 6 6 18"/>',
+  heart:'<path d="M12 21s-7.5-4.8-10-9.5C.7 8.6 2.3 5 5.5 5 8 5 9.5 7 12 7s4-2 6.5-2c3.2 0 4.8 3.6 3.5 6.5C19.5 16.2 12 21 12 21z"/>',
+  star:'<path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.4L12 18l-5.8 3 1.1-6.4L2.6 9.8l6.5-.9z"/>',
+  pin:'<path d="M12 21s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  euro:'<path d="M18 8a6 6 0 1 0 0 8"/><path d="M5 10h7M5 14h6"/>',
+  flag:'<path d="M5 21V4M5 4c3-1.5 6 1.5 9 0s5-1 5-1v10s-2 .5-5 1-6-1.5-9 0"/>',
+  build:'<rect x="4" y="9" width="7" height="12"/><rect x="13" y="4" width="7" height="17"/><path d="M7 13h1M7 17h1M16 8h1M16 12h1M16 16h1"/>',
+  external:'<path d="M14 4h6v6M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/>',
+  warn:'<path d="M12 3 2 20h20z"/><path d="M12 9v5M12 17.5v.5"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',
+  shield:'<path d="M12 3 4 6v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  bookmark:'<path d="M6 4h12v17l-6-4-6 4z"/>',
+  send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+  chat:'<path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z"/>',
+  filter:'<path d="M3 5h18M6 12h12M10 19h4"/>',
+  grid:'<rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/>',
+  moon:'<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>',
+  logout:'<path d="M15 4h4v16h-4"/><path d="M10 12h9M15 8l4 4-4 4"/>',
+  settings:'<circle cx="12" cy="12" r="3"/><path d="M12 2v2M12 20v2M4 12H2M22 12h-2M5 5l1.4 1.4M17.6 17.6 19 19M19 5l-1.4 1.4M6.4 17.6 5 19"/>',
+  briefcase:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+  book:'<path d="M4 5a2 2 0 0 1 2-2h13v16H6a2 2 0 0 0-2 2z"/><path d="M4 19V5"/>',
+  handshake:'<path d="m11 17 2 2 4-4M3 11l4-4 5 4 3-2 6 5-4 4-3-3"/>',
+  globe:'<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3c3 3 3 15 0 18M12 3c-3 3-3 15 0 18"/>',
+  card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18"/>',
+  health:'<path d="M12 21C5 15 2 11 2 7.5 2 5 4 3 6.5 3 9 3 12 6 12 6s3-3 5.5-3C20 3 22 5 22 7.5 22 11 19 15 12 21z"/><path d="M12 8v5M9.5 10.5h5"/>',
+  phone:'<path d="M5 3h4l2 5-3 2a12 12 0 0 0 5 5l2-3 5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 5a2 2 0 0 1 2-2z"/>',
+  spark:'<path d="M12 3v4M12 17v4M3 12h4M17 12h4M6 6l2 2M16 16l2 2M18 6l-2 2M8 16l-2 2"/>',
+  reload:'<path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  wifi:'<path d="M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01"/>',
+};
+function svg(name,cls){return `<svg class="i ${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${I[name]||''}</svg>`}
+
+/* ---------- Dados de referência ---------- */
+const COUNTRIES=[
+  {id:'ao',name:'Angola',flag:'🇦🇴'},{id:'cv',name:'Cabo Verde',flag:'🇨🇻'},
+  {id:'gw',name:'Guiné-Bissau',flag:'🇬🇼'},{id:'mz',name:'Moçambique',flag:'🇲🇿'},
+  {id:'st',name:'São Tomé e Príncipe',flag:'🇸🇹'},{id:'other',name:'Outro país',flag:'🌍'},
+];
+const CITIES=['Lisboa','Setúbal','Almada','Sintra','Amadora','Cascais','Odivelas','Loures','Porto','Braga','Coimbra','Faro','Aveiro','Barreiro','Seixal'];
+const SITUATIONS=[
+  {id:'arrived',label:'Acabei de chegar',icon:'flag'},
+  {id:'living',label:'Já vivo em Portugal',icon:'home'},
+  {id:'job',label:'Estou à procura de emprego',icon:'work'},
+  {id:'house',label:'Estou à procura de casa',icon:'home2'},
+  {id:'docs',label:'Preciso tratar documentação',icon:'doc'},
+  {id:'study',label:'Quero estudar',icon:'book'},
+  {id:'business',label:'Quero abrir negócio',icon:'briefcase'},
+  {id:'people',label:'Quero conhecer pessoas',icon:'people'},
+];
+
+/* ---------- SEED: Documentação ---------- */
+const DOCS=[
+  {id:'aima-res',cat:'Regularização',icon:'shield',title:'Autorização de Residência (AIMA)',
+   who:'Cidadãos PALOP que pretendem residir legalmente em Portugal e já iniciaram o pedido junto da AIMA.',
+   summary:'O título de residência é o documento central da tua situação legal. Desde 2023, os pedidos e renovações são tratados pela AIMA (que substituiu o SEF).',
+   need:['Passaporte válido','Comprovativo de entrada legal','Registo criminal (país de origem e/ou Portugal)','Comprovativo de meios de subsistência','Comprovativo de morada','NIF e NISS'],
+   steps:['Reúne os documentos da tua situação específica','Aguarda ou agenda o teu atendimento na AIMA','Comparece com os originais e cópias','Recolhe dados biométricos','Aguarda a emissão do título'],
+   where:'Lojas AIMA e Espaços Cidadão. O agendamento é feito pelos canais oficiais da AIMA.',
+   cost:'As taxas variam conforme o tipo de título. Consulta os valores oficiais em vigor na AIMA.',
+   deadline:'Os prazos de resposta dependem do volume de processos. Guarda sempre o comprovativo do teu pedido.',
+   links:[{t:'AIMA — Agência para a Integração, Migrações e Asilo',u:'aima.gov.pt'}],
+   alert:'Nunca entregues documentos originais únicos sem cópia. Desconfia de intermediários que prometem "acelerar" o processo a troco de dinheiro.',
+   faq:[{q:'O SEF ainda existe?',a:'Não. As funções do SEF passaram para a AIMA e para a PSP/GNR. Todos os assuntos de residência são agora tratados pela AIMA.'},
+        {q:'Posso trabalhar enquanto aguardo?',a:'O comprovativo de pedido de título pode dar acesso a certos direitos. Confirma a tua situação concreta com apoio jurídico.'}],
+   checklist:['Passaporte válido','Comprovativo de entrada legal','Registo criminal','Comprovativo de meios de subsistência','Comprovativo de morada','NIF atribuído','NISS atribuído']},
+
+  {id:'nif',cat:'NIF',icon:'card',title:'Número de Identificação Fiscal (NIF)',
+   who:'Qualquer pessoa que vá trabalhar, arrendar casa, abrir conta bancária ou fazer contratos em Portugal.',
+   summary:'O NIF é o teu número de contribuinte. É um dos primeiros documentos a tratar — quase tudo o resto depende dele.',
+   need:['Documento de identificação (passaporte)','Comprovativo de morada','Representante fiscal, se aplicável ao teu caso'],
+   steps:['Dirige-te a uma Repartição de Finanças ou Loja de Cidadão','Apresenta o passaporte','Indica a tua morada','Recebes o NIF na hora, gratuitamente'],
+   where:'Serviço de Finanças (Autoridade Tributária) e Lojas de Cidadão.',
+   cost:'A atribuição do NIF é gratuita.',
+   deadline:'Atribuído normalmente no mesmo dia.',
+   links:[{t:'Portal das Finanças',u:'portaldasfinancas.gov.pt'}],
+   alert:'Não pagues a terceiros por um NIF — o pedido presencial é gratuito.',
+   faq:[{q:'Preciso de representante fiscal?',a:'Depende da tua situação de residência. Muitos residentes já não precisam, mas confirma no atendimento.'}],
+   checklist:['Passaporte','Comprovativo de morada','Deslocação às Finanças agendada']},
+
+  {id:'niss',cat:'Segurança Social',icon:'people',title:'NISS — Número de Segurança Social',
+   who:'Quem vai trabalhar em Portugal (por conta de outrem ou própria).',
+   summary:'O NISS liga-te ao sistema de Segurança Social — necessário para trabalhar com contrato e aceder a apoios.',
+   need:['Documento de identificação','NIF','Título ou comprovativo de residência'],
+   steps:['Pede o NISS através da Segurança Social Direta ou presencialmente','Preenche o formulário de inscrição','Aguarda a atribuição do número'],
+   where:'Serviços da Segurança Social e Segurança Social Direta (online).',
+   cost:'Gratuito.',
+   deadline:'Alguns dias úteis, conforme o canal utilizado.',
+   links:[{t:'Segurança Social Direta',u:'seg-social.pt'}],
+   alert:'O empregador não te pode pedir para "dispensar" a Segurança Social — o desconto é um direito teu.',
+   faq:[{q:'O empregador trata disto?',a:'O empregador comunica a admissão, mas o NISS é teu e podes solicitá-lo diretamente.'}],
+   checklist:['Passaporte','NIF','Comprovativo de residência']},
+
+  {id:'sns',cat:'Saúde',icon:'health',title:'Número de Utente / Acesso ao SNS',
+   who:'Quem precisa de aceder a cuidados de saúde no Serviço Nacional de Saúde.',
+   summary:'O número de utente permite-te inscrever num centro de saúde e ter médico de família. O acesso à saúde é um direito.',
+   need:['Documento de identificação','NIF','Comprovativo de morada'],
+   steps:['Dirige-te ao centro de saúde da tua área de residência','Pede a inscrição como utente','Solicita a atribuição de médico de família, se disponível'],
+   where:'Centro de saúde / Unidade de Saúde Familiar da tua área.',
+   cost:'A inscrição é gratuita. Podem existir taxas moderadoras em certas situações.',
+   deadline:'A inscrição costuma ser imediata; a atribuição de médico pode demorar.',
+   links:[{t:'SNS 24',u:'sns24.gov.pt'}],
+   alert:'Em situação de urgência, o atendimento não pode ser recusado por falta de documentos.',
+   faq:[{q:'Posso ser recusado sem título de residência?',a:'O acesso a cuidados urgentes e de saúde pública está previsto na lei. Leva sempre o que tiveres.'}],
+   checklist:['Passaporte','NIF','Comprovativo de morada']},
+
+  {id:'reagr',cat:'Reagrupamento familiar',icon:'people',title:'Reagrupamento Familiar',
+   who:'Residentes que querem trazer familiares próximos para viverem consigo em Portugal.',
+   summary:'Permite reunir a família (cônjuge, filhos e, em certos casos, outros familiares) com quem já reside legalmente.',
+   need:['Título de residência do requerente','Documentos que provem o vínculo familiar','Comprovativo de alojamento','Comprovativo de meios de subsistência'],
+   steps:['Reúne os documentos que comprovam o vínculo','Submete o pedido junto da AIMA','Aguarda a análise','Após aprovação, o familiar trata do visto/entrada'],
+   where:'AIMA.',
+   cost:'Sujeito a taxas oficiais. Confirma os valores em vigor.',
+   deadline:'Variável. Guarda todos os comprovativos.',
+   links:[{t:'AIMA',u:'aima.gov.pt'}],
+   alert:'Documentos emitidos no estrangeiro podem precisar de tradução e legalização. Confirma os requisitos antes de submeter.',
+   faq:[{q:'Que familiares posso incluir?',a:'Depende do grau de parentesco e da tua situação. É um dos casos em que vale a pena falar com um profissional.'}],
+   checklist:['Título de residência válido','Prova de vínculo familiar','Comprovativo de alojamento','Comprovativo de rendimentos']},
+
+  {id:'nacio',cat:'Nacionalidade',icon:'flag',title:'Nacionalidade Portuguesa',
+   who:'Residentes que reúnem os requisitos legais de tempo e ligação a Portugal.',
+   summary:'A aquisição de nacionalidade tem requisitos específicos de tempo de residência, conhecimento da língua e ausência de antecedentes relevantes.',
+   need:['Certidão de nascimento','Comprovativo de tempo de residência','Certificado de conhecimento de língua portuguesa','Registo criminal'],
+   steps:['Confirma se cumpres os requisitos','Reúne a documentação (com traduções/legalizações)','Submete o pedido','Acompanha o estado do processo'],
+   where:'Conservatórias / IRN e canais oficiais.',
+   cost:'Sujeito a taxas oficiais.',
+   deadline:'Os prazos podem ser longos.',
+   links:[{t:'IRN — Instituto dos Registos e Notariado',u:'irn.justica.gov.pt'}],
+   alert:'Este é um processo com muitos detalhes legais. Um erro na documentação pode atrasar meses.',
+   faq:[{q:'Que nível de português preciso?',a:'É exigido um certificado de conhecimento da língua. Há centros que fazem esta certificação.'}],
+   checklist:['Certidão de nascimento','Comprovativo de tempo de residência','Certificado de língua portuguesa','Registo criminal']},
+
+  {id:'carta',cat:'Carta de condução',icon:'card',title:'Troca da Carta de Condução',
+   who:'Quem tem carta de condução do país de origem e quer conduzir legalmente em Portugal.',
+   summary:'Cartas de alguns países podem ser trocadas; noutros casos pode ser necessário exame. Há prazos a cumprir após fixar residência.',
+   need:['Carta de condução original','Documento de identificação','Atestado médico, quando exigido','Fotografia'],
+   steps:['Confirma se o teu país tem acordo de troca','Reúne os documentos','Submete o pedido ao IMT','Aguarda a emissão da carta portuguesa'],
+   where:'IMT — Instituto da Mobilidade e dos Transportes.',
+   cost:'Sujeito a taxas do IMT.',
+   deadline:'Existe um prazo após a fixação de residência — não deixes expirar.',
+   links:[{t:'IMT',u:'imt-ip.pt'}],
+   alert:'Conduzir com carta não reconhecida pode ter consequências legais. Trata da troca dentro do prazo.',
+   faq:[{q:'A minha carta é reconhecida?',a:'Depende do país emissor e dos acordos em vigor. Confirma no IMT antes de conduzir.'}],
+   checklist:['Carta de condução original','Passaporte','Fotografia','Atestado médico (se pedido)']},
+];
+const DOC_CATS=['Regularização','NIF','Segurança Social','Saúde','Reagrupamento familiar','Nacionalidade','Carta de condução'];
+
+/* ---------- SEED: Trabalho ---------- */
+const JOBS=[
+  {id:'j1',role:'Empregado(a) de mesa',company:'Restaurante Alma do Tejo',sector:'Restauração',city:'Lisboa',area:'Alfama',
+   salary:'900€–1.050€',type:'Tempo inteiro',schedule:'Turnos rotativos',exp:false,remote:'Presencial',posted:'há 2 dias',
+   desc:'Restaurante familiar no coração de Alfama procura empregado(a) de mesa para reforçar a equipa. Ambiente multicultural, formação dada.',
+   req:['Boa apresentação e simpatia','Disponibilidade para turnos e fins de semana','Português falado (nível básico aceite)'],
+   perks:['Refeição incluída','Gorjetas','Contrato com Segurança Social']},
+  {id:'j2',role:'Servente / Ajudante de construção',company:'Edifer Obras',sector:'Construção',city:'Almada',area:'Feijó',
+   salary:'1.000€–1.200€',type:'Tempo inteiro',schedule:'2ª a 6ª, 8h–17h',exp:false,remote:'Presencial',posted:'há 1 dia',
+   desc:'Empresa de construção civil recruta serventes para obra na margem sul. Sem experiência necessária — equipa acompanha os novos elementos.',
+   req:['Vontade de trabalhar','Pontualidade','Sem experiência necessária'],
+   perks:['Formação em segurança','Possibilidade de progressão','Transporte para obra']},
+  {id:'j3',role:'Operador(a) de armazém',company:'LusoLog Logística',sector:'Logística',city:'Loures',area:'Azambuja (proximidades)',
+   salary:'950€ + subsídios',type:'Tempo inteiro',schedule:'Turnos',exp:false,remote:'Presencial',posted:'há 4 dias',
+   desc:'Centro logístico procura operadores para picking e preparação de encomendas. Ambiente jovem, várias vagas.',
+   req:['Capacidade para trabalho físico','Disponibilidade para turnos','Leitura de português básico'],
+   perks:['Subsídio de turno','Cantina','Prémios de assiduidade']},
+  {id:'j4',role:'Auxiliar de limpeza',company:'BrilhoClean Serviços',sector:'Limpeza',city:'Lisboa',area:'Parque das Nações',
+   salary:'820€',type:'Part-time',schedule:'Manhãs',exp:false,remote:'Presencial',posted:'há 3 dias',
+   desc:'Limpeza de escritórios em horário de manhã. Ideal para conciliar com outras atividades ou estudos.',
+   req:['Responsabilidade','Disponibilidade de manhã'],
+   perks:['Horário fixo','Contrato estável']},
+  {id:'j5',role:'Motorista TVDE',company:'Frota parceira',sector:'Transportes',city:'Lisboa',area:'Grande Lisboa',
+   salary:'1.100€–1.600€',type:'Tempo inteiro',schedule:'Flexível',exp:true,remote:'Presencial',posted:'há 5 dias',
+   desc:'Frota parceira procura motoristas com certificado TVDE. Viatura fornecida em alguns casos.',
+   req:['Carta de condução válida em Portugal','Certificado TVDE','Cadastro limpo'],
+   perks:['Ganhos flexíveis','Viatura disponível','Apoio ao licenciamento']},
+  {id:'j6',role:'Rececionista de hotel',company:'Hotel Miradouro Boutique',sector:'Hotelaria',city:'Porto',area:'Ribeira',
+   salary:'1.000€–1.150€',type:'Tempo inteiro',schedule:'Turnos',exp:true,remote:'Presencial',posted:'há 6 dias',
+   desc:'Hotel boutique no Porto procura rececionista com atendimento ao público e línguas.',
+   req:['Português e inglês','Experiência em atendimento','Boa apresentação'],
+   perks:['Formação contínua','Ambiente internacional']},
+  {id:'j7',role:'Auxiliar de geriatria',company:'Lar Sorriso Sénior',sector:'Cuidados',city:'Setúbal',area:'Centro',
+   salary:'900€–1.000€',type:'Tempo inteiro',schedule:'Turnos',exp:false,remote:'Presencial',posted:'há 2 dias',
+   desc:'Instituição de apoio a idosos procura auxiliares dedicados. Formação inicial garantida.',
+   req:['Empatia e paciência','Disponibilidade para turnos','Formação dada'],
+   perks:['Formação certificada','Refeições','Contrato estável']},
+  {id:'j8',role:'Empregado(a) de balcão',company:'Padaria Grão & Forno',sector:'Retalho',city:'Amadora',area:'Venteira',
+   salary:'830€',type:'Tempo inteiro',schedule:'Manhãs cedo',exp:false,remote:'Presencial',posted:'há 1 dia',
+   desc:'Padaria de bairro procura atendimento ao balcão. Ambiente acolhedor e de bairro.',
+   req:['Simpatia','Disponibilidade para começar cedo'],
+   perks:['Pão incluído','Horário só de manhã']},
+];
+const JOB_SECTORS=['Restauração','Construção','Logística','Limpeza','Transportes','Retalho','Hotelaria','Cuidados','Tecnologia','Administração','Saúde'];
+const APP_STATES=['Guardada','Candidatura enviada','Em análise','Entrevista','Oferta','Rejeitada'];
+
+/* ---------- SEED: Habitação ---------- */
+const HOMES=[
+  {id:'h1',title:'Quarto individual em apartamento partilhado',type:'Quarto',city:'Almada',area:'Cova da Piedade',
+   price:380,bills:'Incluídas',deposit:'1 mês',rooms:'Quarto',avail:'Imediato',posted:'há 3 dias',
+   feat:['Mobilado','Internet','Cozinha equipada','Perto de transportes'],
+   rules:'Ambiente calmo, não fumadores. Casa partilhada com mais 2 pessoas.',
+   host:'Ana Sofia',hostType:'Senhoria',verified:true,x:34,y:62,
+   desc:'Quarto luminoso numa casa partilhada e tranquila, a 5 min do MST. Zona bem servida de comércio e transportes para Lisboa.'},
+  {id:'h2',title:'T1 renovado perto do centro',type:'Apartamento',city:'Setúbal',area:'Bela Vista',
+   price:750,bills:'Não incluídas',deposit:'2 meses',rooms:'T1',avail:'A partir do próximo mês',posted:'há 1 dia',
+   feat:['Renovado','Cozinha nova','Varanda','Elevador'],
+   rules:'Sem animais. Contrato mínimo de 1 ano.',
+   host:'Imobiliária Sado Habitat',hostType:'Agência',verified:true,x:58,y:40,
+   desc:'Apartamento T1 totalmente renovado, pronto a habitar. Boa exposição solar e perto de serviços.'},
+  {id:'h3',title:'Cama em quarto partilhado (2 pessoas)',type:'Alojamento temporário',city:'Lisboa',area:'Anjos',
+   price:250,bills:'Incluídas',deposit:'Sem caução',rooms:'Partilhado',avail:'Imediato',posted:'há 6 dias',
+   feat:['Solução temporária','Internet','Roupa de cama'],
+   rules:'Ideal para quem acabou de chegar e precisa de tempo para se organizar.',
+   host:'Residência Ponto de Partida',hostType:'Residência',verified:false,x:46,y:30,
+   desc:'Solução de curta duração para os primeiros tempos, no centro de Lisboa. Ambiente de passagem, com pessoas em situação semelhante.'},
+  {id:'h4',title:'Apartamento T2 para família',type:'Apartamento',city:'Amadora',area:'Damaia',
+   price:900,bills:'Não incluídas',deposit:'2 meses',rooms:'T2',avail:'Imediato',posted:'há 4 dias',
+   feat:['2 quartos','Perto de escola','Transportes','Marquise'],
+   rules:'Preferência a agregado familiar com contrato de trabalho.',
+   host:'Carlos Mendes',hostType:'Senhorio',verified:true,x:22,y:44,
+   desc:'T2 espaçoso ideal para família, numa zona com escolas, mercado e ligação de comboio a Lisboa.'},
+  {id:'h5',title:'Quarto em moradia com jardim',type:'Quarto',city:'Seixal',area:'Corroios',
+   price:340,bills:'Incluídas',deposit:'1 mês',rooms:'Quarto',avail:'Imediato',posted:'há 2 dias',
+   feat:['Jardim','Ambiente familiar','Estacionamento'],
+   rules:'Casa de família acolhedora.',
+   host:'Fátima Duarte',hostType:'Senhoria',verified:true,x:40,y:70,
+   desc:'Quarto numa moradia tranquila com jardim, ambiente familiar e acolhedor para quem procura estabilidade.'},
+  {id:'h6',title:'Studio moderno junto à universidade',type:'Apartamento',city:'Coimbra',area:'Celas',
+   price:520,bills:'Parcialmente incluídas',deposit:'1 mês',rooms:'Studio',avail:'Próximo mês',posted:'há 5 dias',
+   feat:['Mobilado','Internet','Ideal para estudantes'],
+   rules:'Preferência a estudantes ou jovens trabalhadores.',
+   host:'Imobiliária UniCasa',hostType:'Agência',verified:true,x:64,y:24,
+   desc:'Studio compacto e funcional, perto do polo universitário. Boa opção para quem vem estudar.'},
+];
+const HOME_TYPES=['Quarto','Apartamento','Casa','Residência','Alojamento temporário'];
+const REPORT_REASONS=['Possível burla','Informação falsa','Preço incorreto','Anúncio duplicado','Outro'];
+
+/* ---------- SEED: Profissionais ---------- */
+const PROS=[
+  {id:'p1',name:'Dra. Helena Baptista',prof:'Advogada',spec:['Direito de Imigração','Nacionalidade'],city:'Lisboa',
+   langs:['Português','Crioulo cabo-verdiano','Inglês'],exp:'12 anos',rating:4.9,reviews:87,cases:340,verified:true,price:'A partir de 60€/consulta',
+   online:true,inperson:true,avail:'Disponível esta semana',
+   bio:'Especialista em regularização e nacionalidade, com forte ligação à comunidade cabo-verdiana. Acompanho cada caso do início ao fim, com linguagem clara.'},
+  {id:'p2',name:'Dr. Manuel Adão',prof:'Solicitador',spec:['Reagrupamento familiar','Autorização de residência'],city:'Setúbal',
+   langs:['Português','Crioulo','Francês'],exp:'8 anos',rating:4.7,reviews:52,cases:210,verified:true,price:'A partir de 45€/consulta',
+   online:true,inperson:true,avail:'Próxima semana',
+   bio:'Apoio em processos de residência e reagrupamento familiar na margem sul. Trabalho próximo com famílias PALOP.'},
+  {id:'p3',name:'Dra. Sílvia Nunes',prof:'Advogada',spec:['Direito do Trabalho','Contratos'],city:'Lisboa',
+   langs:['Português','Inglês'],exp:'15 anos',rating:4.8,reviews:64,cases:280,verified:true,price:'A partir de 70€/consulta',
+   online:true,inperson:false,avail:'Disponível esta semana',
+   bio:'Trabalho questões laborais: contratos, despedimentos e direitos dos trabalhadores. Consultas online.'},
+  {id:'p4',name:'Dr. João Vaz',prof:'Advogado',spec:['Direito de Imigração','Recursos'],city:'Porto',
+   langs:['Português','Inglês','Espanhol'],exp:'10 anos',rating:4.6,reviews:41,cases:190,verified:true,price:'A partir de 55€/consulta',
+   online:true,inperson:true,avail:'Disponível esta semana',
+   bio:'Baseado no Porto, apoio processos de imigração e recursos junto das entidades competentes.'},
+  {id:'p5',name:'Dra. Aline Semedo',prof:'Solicitadora',spec:['Nacionalidade','Registos'],city:'Amadora',
+   langs:['Português','Crioulo cabo-verdiano'],exp:'6 anos',rating:4.9,reviews:38,cases:150,verified:true,price:'A partir de 40€/consulta',
+   online:false,inperson:true,avail:'Próxima semana',
+   bio:'Apoio prático em processos de nacionalidade e registos, com atendimento próximo e humano.'},
+];
+const PRO_SPECS=['Direito de Imigração','Nacionalidade','Reagrupamento familiar','Autorização de residência','Direito do Trabalho','Contratos','Recursos','Registos'];
+
+/* ---------- SEED: Eventos ---------- */
+const EVENTS=[
+  {id:'e1',title:'Noite de Kizomba & Semba',cat:'Música',date:'2026-08-15',time:'22:00',city:'Lisboa',venue:'B.Leza, Cais do Sodré',
+   price:'10€',org:'Associação Kianda',color:'#C25A3A',
+   desc:'Uma noite dedicada à melhor música angolana e cabo-verdiana, com DJ ao vivo e pista aberta até tarde.'},
+  {id:'e2',title:'Workshop: Como tratar a tua documentação',cat:'Formação',date:'2026-08-13',time:'18:30',city:'Setúbal',venue:'Casa da Cultura de Setúbal',
+   price:'Gratuito',org:'Rede de Apoio ao Migrante',color:'#3E6B5A',
+   desc:'Sessão prática e gratuita sobre NIF, NISS, título de residência e onde pedir ajuda. Com apoio de voluntários.'},
+  {id:'e3',title:'Feira de Gastronomia Africana',cat:'Gastronomia',date:'2026-08-17',time:'12:00',city:'Amadora',venue:'Parque Central da Amadora',
+   price:'Entrada livre',org:'Coletivo Sabores PALOP',color:'#B4842B',
+   desc:'Cachupa, muamba, calulu e muito mais. Um dia para celebrar os sabores dos cinco países, em família.'},
+  {id:'e4',title:'Networking — Empreendedores PALOP',cat:'Negócios',date:'2026-08-20',time:'19:00',city:'Lisboa',venue:'Impact Hub Lisboa',
+   price:'Gratuito (inscrição)',org:'PALOP Business Network',color:'#37618E',
+   desc:'Encontro para quem quer abrir ou já tem negócio em Portugal. Partilha de experiências e contactos úteis.'},
+  {id:'e5',title:'Torneio de Futebol Inter-Comunidades',cat:'Desporto',date:'2026-08-24',time:'10:00',city:'Almada',venue:'Complexo Desportivo do Feijó',
+   price:'Gratuito',org:'Liga Comunitária Margem Sul',color:'#3E6B5A',
+   desc:'Equipas das várias comunidades juntam-se para um dia de desporto e convívio. Vem jogar ou apoiar.'},
+  {id:'e6',title:'Roda de Conversa: Primeiros meses em Portugal',cat:'Comunidade',date:'2026-08-14',time:'17:00',city:'Porto',venue:'Biblioteca Municipal do Porto',
+   price:'Gratuito',org:'Ponto de Chegada',color:'#C25A3A',
+   desc:'Espaço seguro para partilhar dúvidas, medos e conquistas dos primeiros tempos. Chá e histórias.'},
+];
+const EVENT_CATS=['Música','Cultura','Comunidade','Networking','Negócios','Desporto','Formação','Festas','Gastronomia'];
+
+/* ---------- SEED: Comunidade ---------- */
+const GROUPS=[
+  {id:'g1',name:'Cabo-verdianos em Lisboa',members:2840,city:'Lisboa',flag:'🇨🇻',color:'#37618E'},
+  {id:'g2',name:'Angolanos em Setúbal',members:1210,city:'Setúbal',flag:'🇦🇴',color:'#C25A3A'},
+  {id:'g3',name:'Moçambicanos no Porto',members:760,city:'Porto',flag:'🇲🇿',color:'#3E6B5A'},
+  {id:'g4',name:'Primeiros meses em Portugal',members:5320,city:'Nacional',flag:'🧭',color:'#B4842B'},
+  {id:'g5',name:'Empreendedores PALOP',members:1890,city:'Nacional',flag:'💼',color:'#A8432A'},
+  {id:'g6',name:'Guineenses em Portugal',members:940,city:'Nacional',flag:'🇬🇼',color:'#3E6B5A'},
+];
+const POSTS=[
+  {id:'q1',group:'Primeiros meses em Portugal',author:'Domingas T.',country:'🇦🇴',time:'há 3 h',type:'Pergunta',
+   text:'Cheguei a Lisboa há uma semana. Devo tratar primeiro do NIF ou do título de residência? Estou um pouco perdida.',
+   replies:14,reacts:23,tag:'Documentação'},
+  {id:'q2',group:'Cabo-verdianos em Lisboa',author:'Jandira M.',country:'🇨🇻',time:'há 6 h',type:'Recomendação',
+   text:'Deixo aqui a dica: no centro de saúde dos Anjos fizeram-me a inscrição de utente sem complicações. Levem NIF e comprovativo de morada.',
+   replies:9,reacts:41,tag:'Saúde'},
+  {id:'q3',group:'Empreendedores PALOP',author:'Nelson B.',country:'🇬🇼',time:'há 1 dia',type:'Oportunidade',
+   text:'Vou abrir um espaço de comida guineense no Barreiro e procuro alguém para a cozinha. Alguém interessado ou que conheça?',
+   replies:21,reacts:35,tag:'Trabalho'},
+  {id:'q4',group:'Angolanos em Setúbal',author:'Preciosa L.',country:'🇦🇴',time:'há 2 dias',type:'Pergunta',
+   text:'Alguém sabe de quartos bons e a preço justo na zona de Setúbal? Cuidado que já vi alguns anúncios estranhos.',
+   replies:17,reacts:12,tag:'Habitação'},
+];
+
+/* ---------- SEED: Serviços ---------- */
+const SERVICES=[
+  {id:'s1',name:'CNAIM — Apoio à Integração de Migrantes',cat:'Apoio social',city:'Lisboa',verified:true,icon:'shield',
+   desc:'Centro Nacional de Apoio à Integração de Migrantes. Atendimento gratuito e mediadores culturais.'},
+  {id:'s2',name:'Abertura de conta bancária',cat:'Bancos',city:'Lisboa',verified:true,icon:'card',
+   desc:'Balcões com experiência em abertura de conta para recém-chegados. Leva passaporte e NIF.'},
+  {id:'s3',name:'Cartão SIM português (pré-pago)',cat:'Telecomunicações',city:'Nacional',verified:true,icon:'phone',
+   desc:'Cartão SIM e planos com dados. Necessário documento de identificação.'},
+  {id:'s4',name:'Centro de Saúde dos Anjos',cat:'Saúde',city:'Lisboa',verified:true,icon:'health',
+   desc:'Inscrição de utente e cuidados de saúde primários para residentes da área.'},
+  {id:'s5',name:'Associação Cabo-verdiana de Lisboa',cat:'Associações',city:'Lisboa',verified:true,icon:'people',
+   desc:'Apoio comunitário, atividades culturais e orientação para recém-chegados.'},
+  {id:'s6',name:'ContaCerta — Contabilidade para negócios',cat:'Contabilidade',city:'Setúbal',verified:false,icon:'briefcase',
+   desc:'Apoio a quem quer abrir atividade ou pequeno negócio. Primeira reunião gratuita.'},
+];
+const SERVICE_CATS=['Bancos','Telecomunicações','Saúde','Educação','Transportes','Seguros','Contabilidade','Tradução','Associações','Apoio social'];
+
+/* ---------- SEED: Notificações ---------- */
+const NOTIFS=[
+  {id:'n1',icon:'work',color:'var(--clay)',title:'Nova oportunidade para ti',body:'"Servente / Ajudante de construção" em Almada — sem experiência necessária.',time:'há 1 h',unread:true,go:'jobs'},
+  {id:'n2',icon:'plan',color:'var(--sage)',title:'O teu plano avançou',body:'Concluíste "Pedir o NIF". Falta pouco para o próximo passo.',time:'há 5 h',unread:true,go:'plan'},
+  {id:'n3',icon:'law',color:'var(--sky)',title:'Resposta de profissional',body:'A Dra. Helena Baptista respondeu ao teu pedido de consulta.',time:'há 1 dia',unread:false,go:'pros'},
+  {id:'n4',icon:'event',color:'var(--gold)',title:'Evento esta semana',body:'"Workshop: Como tratar a tua documentação" — quarta, 18:30, Setúbal.',time:'há 2 dias',unread:false,go:'events'},
+];
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+const LS='bussola_v1';
+let S={
+  onboarded:false, name:'', country:null, city:'', situations:[],
+  theme:'light', route:'home',
+  planDone:{}, docChecks:{}, savedJobs:[], appliedJobs:{}, savedHomes:[],
+  savedEvents:[], joinedGroups:['g4'], contactedPros:[],
+  notifs:JSON.parse(JSON.stringify(NOTIFS)),
+};
+function save(){try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}}
+function load(){try{const r=localStorage.getItem(LS);if(r)S=Object.assign(S,JSON.parse(r))}catch(e){}}
+
+/* ---------- Plano de chegada ---------- */
+const PLAN=[
+  {id:'ps1',n:'01',title:'Organizar a documentação',desc:'NIF, NISS, número de utente e o teu título de residência.',icon:'doc',route:'docs'},
+  {id:'ps2',n:'02',title:'Encontrar alojamento',desc:'Um lugar seguro para viver enquanto te organizas.',icon:'home2',route:'homes'},
+  {id:'ps3',n:'03',title:'Procurar emprego',desc:'Oportunidades adequadas à tua experiência e zona.',icon:'work',route:'jobs'},
+  {id:'ps4',n:'04',title:'Conhecer os serviços essenciais',desc:'Banco, saúde, telecomunicações e apoio social perto de ti.',icon:'service',route:'services'},
+  {id:'ps5',n:'05',title:'Construir a tua rede',desc:'Comunidade, grupos e pessoas que já passaram por aqui.',icon:'people',route:'community'},
+];
+
+/* ============================================================
+   HELPERS
+   ============================================================ */
+const $=(s,r=document)=>r.querySelector(s);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const el=id=>document.getElementById(id);
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const greet=()=>{const h=new Date().getHours();return h<13?'Bom dia':h<20?'Boa tarde':'Boa noite'};
+const firstName=()=>S.name?S.name.split(' ')[0]:'';
+const countryName=()=>{const c=COUNTRIES.find(c=>c.id===S.country);return c?c.name:''};
+const countryFlag=()=>{const c=COUNTRIES.find(c=>c.id===S.country);return c?c.flag:'🌍'};
+const stars=r=>{let s='';for(let i=1;i<=5;i++)s+=`<span style="color:${i<=Math.round(r)?'var(--gold)':'var(--line)'}">${svg('star')}</span>`;return `<span class="row" style="gap:1px">${s}</span>`};
+function fmtDate(iso){const d=new Date(iso+'T00:00:00');const dias=['dom','seg','ter','qua','qui','sex','sáb'],mes=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return `${dias[d.getDay()]}, ${d.getDate()} ${mes[d.getMonth()]}`}
+function fmtDay(iso){const d=new Date(iso+'T00:00:00');return {d:d.getDate(),m:['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][d.getMonth()]}}
+
+/* Toasts */
+let toastN=0;
+function toast(msg,type){const t=document.createElement('div');t.className='toast'+(type==='err'?' err':'');t.innerHTML=`${type==='err'?svg('warn'):svg('check')}<span>${esc(msg)}</span>`;el('toasts').appendChild(t);const id=++toastN;setTimeout(()=>{t.style.transition='opacity .3s,transform .3s';t.style.opacity='0';t.style.transform='translateY(10px)';setTimeout(()=>t.remove(),300)},2600)}
+
+/* Modal */
+function openModal(html){el('modalBody').innerHTML=html;el('modal').classList.add('on');el('scrim').classList.add('on');document.body.style.overflow='hidden'}
+function closeModal(){el('modal').classList.remove('on');el('scrim').classList.remove('on');document.body.style.overflow=''}
+
+/* Theme */
+function applyTheme(){document.documentElement.setAttribute('data-theme',S.theme);const m=$('meta[name=theme-color]');if(m)m.content=S.theme==='dark'?'#16140F':'#F7F4EF'}
+function toggleTheme(){S.theme=S.theme==='dark'?'light':'dark';applyTheme();save();renderShell()}
+
+/* ============================================================
+   BOOT
+   ============================================================ */
+function boot(){
+  load(); applyTheme();
+  if(S.onboarded){ startApp(); } else { renderOnboarding(); }
+  // atalhos
+  document.addEventListener('keydown',e=>{
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCmdk()}
+    if(e.key==='Escape'){closeModal();closeCmdk()}
+  });
+  el('scrim').addEventListener('click',()=>{closeModal();closeCmdk()});
+}
+
+/* ============================================================
+   ONBOARDING
+   ============================================================ */
+let obStep=0;
+const OB_TOTAL=5;
+let obTemp={name:'',country:null,city:'',situations:[]};
+function renderOnboarding(){el('ob').classList.add('live');el('app').classList.remove('live');drawOb()}
+function obPct(){return Math.round((obStep/(OB_TOTAL))*100)}
+function drawOb(){
+  let body='';
+  if(obStep===0){
+    body=`<div class="ob-body">
+      <div class="mark-lg mb24">${brandMark(46)}</div>
+      <div class="eyebrow mb12">${esc(BRAND)}</div>
+      <h1 class="display">Bem-vindo a Portugal.</h1>
+      <p class="lead mt12">Estamos aqui para te ajudar a encontrar o teu caminho — passo a passo, sem confusão.</p>
+      <div class="ob-foot"><button class="btn btn-primary btn-lg btn-block" onclick="obNext()">Começar ${svg('arrow')}</button></div>
+      <p class="muted fs-xs tc mt16">Leva menos de um minuto.</p>
+    </div>`;
+  } else if(obStep===1){
+    body=`<div class="ob-body">
+      <div class="eyebrow mb8">Passo 1 de 4</div>
+      <h1 class="h1">Como te chamas?</h1>
+      <p class="lead mt8 mb24">Para personalizarmos a tua experiência.</p>
+      <div class="field"><input class="input" id="obName" placeholder="O teu nome" value="${esc(obTemp.name)}" oninput="obTemp.name=this.value" autofocus></div>
+    </div>`;
+  } else if(obStep===2){
+    body=`<div class="ob-body">
+      <div class="eyebrow mb8">Passo 2 de 4</div>
+      <h1 class="h1">De onde vens?</h1>
+      <p class="lead mt8 mb24">Vamos adaptar a informação ao teu país de origem.</p>
+      ${COUNTRIES.map(c=>`<div class="opt ${obTemp.country===c.id?'on':''}" onclick="obTemp.country='${c.id}';drawOb()">
+        <span class="flag">${c.flag}</span><span class="fw5">${esc(c.name)}</span>
+        <span class="tick">${svg('check')}</span></div>`).join('')}
+    </div>`;
+  } else if(obStep===3){
+    body=`<div class="ob-body">
+      <div class="eyebrow mb8">Passo 3 de 4</div>
+      <h1 class="h1">Onde estás em Portugal?</h1>
+      <p class="lead mt8 mb16">A tua cidade ajuda-nos a mostrar o que está perto de ti.</p>
+      <div class="search-wrap mb12">${svg('search','ic')}<input class="input" id="obCity" placeholder="Pesquisar cidade…" value="${esc(obTemp.city)}" oninput="obCityFilter(this.value)"></div>
+      <div id="obCityList" class="stack" style="gap:6px;max-height:38vh;overflow-y:auto"></div>
+    </div>`;
+  } else if(obStep===4){
+    body=`<div class="ob-body">
+      <div class="eyebrow mb8">Passo 4 de 4</div>
+      <h1 class="h1">Qual é a tua situação?</h1>
+      <p class="lead mt8 mb24">Escolhe tudo o que se aplica. Vamos criar um plano só para ti.</p>
+      ${SITUATIONS.map(s=>`<div class="opt ${obTemp.situations.includes(s.id)?'on':''}" onclick="obToggleSit('${s.id}')">
+        <span style="color:var(--clay);width:22px">${svg(s.icon)}</span><span class="fw5">${esc(s.label)}</span>
+        <span class="tick">${svg('check')}</span></div>`).join('')}
+    </div>`;
+  } else if(obStep===5){
+    // Gerar plano
+    body=`<div class="ob-body">
+      <div class="eyebrow mb12" style="color:var(--clay)">O teu plano em Portugal</div>
+      <h1 class="h1 mb8">Preparámos o teu caminho.</h1>
+      <p class="lead mb24">Com base no que nos disseste, ${obTemp.name?esc(obTemp.name.split(' ')[0])+', ':''}aqui está por onde começar.</p>
+      <div class="tl">${PLAN.map((p,i)=>`<div class="tl-step ${i===0?'now':''}">
+        <div class="tl-node">${p.n}</div>
+        <div class="fw6" style="font-family:var(--serif);font-size:1.05rem">${esc(p.title)}</div>
+        <div class="muted fs-sm">${esc(p.desc)}</div></div>`).join('')}</div>
+    </div>`;
+  }
+  const showBack=obStep>0&&obStep<5;
+  const foot=obStep===0?'':`<div class="ob-foot">
+    ${showBack?`<button class="btn btn-ghost btn-icon" onclick="obBack()">${svg('chevl')}</button>`:''}
+    <button class="btn btn-primary btn-lg flex1" onclick="${obStep===5?'obFinish()':'obNext()'}" id="obNextBtn">${obStep===5?'Entrar na Bússola':'Continuar'} ${svg('arrow')}</button>
+  </div>`;
+  el('ob').innerHTML=`<div class="ob-wrap">
+    <div class="ob-top">
+      <div class="brand" style="font-size:1.1rem;padding:0">${brandMark(24)} ${esc(BRAND)}</div>
+      <div class="ob-prog"><i style="width:${obPct()}%"></i></div>
+    </div>
+    ${body}
+    ${foot}
+  </div>`;
+  if(obStep===3)obCityFilter(obTemp.city);
+  if(obStep===1)setTimeout(()=>{const n=el('obName');if(n)n.focus()},60);
+}
+function obCityFilter(q){const list=el('obCityList');if(!list)return;const f=CITIES.filter(c=>c.toLowerCase().includes((q||'').toLowerCase()));list.innerHTML=f.length?f.map(c=>`<div class="opt ${obTemp.city===c?'on':''}" style="margin-bottom:0" onclick="obTemp.city='${c}';drawOb()"><span style="color:var(--ink-3);width:20px">${svg('pin')}</span><span class="fw5">${esc(c)}</span><span class="tick">${svg('check')}</span></div>`).join(''):`<p class="muted fs-sm" style="padding:8px">Escreve o nome da tua cidade e continua.</p>`}
+function obToggleSit(id){const i=obTemp.situations.indexOf(id);if(i>=0)obTemp.situations.splice(i,1);else obTemp.situations.push(id);drawOb()}
+function obNext(){
+  if(obStep===1&&!obTemp.name.trim()){toast('Diz-nos como te chamas.','err');return}
+  if(obStep===2&&!obTemp.country){toast('Escolhe o teu país de origem.','err');return}
+  if(obStep===3&&!obTemp.city){toast('Escolhe a tua cidade.','err');return}
+  if(obStep===4&&!obTemp.situations.length){toast('Escolhe pelo menos uma opção.','err');return}
+  obStep++;drawOb();window.scrollTo(0,0);
+}
+function obBack(){if(obStep>0){obStep--;drawOb()}}
+function obFinish(){
+  S.name=obTemp.name.trim();S.country=obTemp.country;S.city=obTemp.city;S.situations=obTemp.situations;S.onboarded=true;
+  save();el('ob').classList.remove('live');startApp();toast('Bem-vindo, '+firstName()+' 👋');
+}
+function brandMark(size){return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--clay)" stroke-width="2.4"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--clay)"/><circle cx="20" cy="20" r="2" fill="var(--paper)"/></svg>`}
+
+/* ============================================================
+   SHELL + ROUTER
+   ============================================================ */
+const NAV=[
+  {r:'home',label:'Início',icon:'home'},
+  {r:'plan',label:'Meu plano',icon:'plan'},
+  {r:'docs',label:'Documentação',icon:'doc'},
+  {r:'jobs',label:'Trabalho',icon:'work'},
+  {r:'homes',label:'Casa',icon:'home2'},
+  {r:'pros',label:'Profissionais',icon:'law'},
+  {r:'events',label:'Eventos',icon:'event'},
+  {r:'community',label:'Comunidade',icon:'people'},
+  {r:'map',label:'Mapa',icon:'map'},
+  {r:'services',label:'Serviços',icon:'service'},
+];
+const BOTTOM=[
+  {r:'home',label:'Início',icon:'home'},
+  {r:'explore',label:'Explorar',icon:'compass'},
+  {r:'jobs',label:'Oportunidades',icon:'briefcase'},
+  {r:'community',label:'Comunidade',icon:'people'},
+  {r:'profile',label:'Perfil',icon:'user'},
+];
+function unread(){return S.notifs.filter(n=>n.unread).length}
+function startApp(){
+  el('app').classList.add('live');renderShell();go(S.route||'home');
+  el('aiFab').innerHTML=`<span class="pulse"></span>${svg('spark')}`;
+  el('aiFab').classList.remove('hide');
+}
+function renderShell(){
+  // sidebar
+  el('sidebar').innerHTML=`
+    <div class="brand">${brandMark(30)} ${esc(BRAND)}</div>
+    <nav class="nav">
+      ${NAV.slice(0,2).map(navItem).join('')}
+      <div class="nav-sec">Explorar</div>
+      ${NAV.slice(2).map(navItem).join('')}
+    </nav>
+    <div class="nav-foot">
+      <div class="nav-item" onclick="toggleTheme()">${svg(S.theme==='dark'?'sun':'moon')}<span>${S.theme==='dark'?'Tema claro':'Tema escuro'}</span></div>
+      <div class="nav-user" onclick="go('profile')">
+        <div class="av av-sm">${initials(S.name)}</div>
+        <div style="line-height:1.2;min-width:0"><div class="fw6 fs-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.name)}</div><div class="muted fs-xs">${countryFlag()} ${esc(S.city)}</div></div>
+      </div>
+    </div>`;
+  // topbar
+  el('topbar').innerHTML=`
+    <div class="gsearch"><div class="search-wrap" onclick="openCmdk()">${svg('search','ic')}<input class="input" placeholder="Pesquisar em tudo…" readonly style="cursor:pointer"><kbd style="position:absolute;right:12px">⌘K</kbd></div></div>
+    <div class="top-actions">
+      <button class="btn btn-ghost btn-icon" onclick="openNotifs()" style="position:relative">${svg('bell')}${unread()?`<span style="position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--clay);border-radius:50%;border:2px solid var(--surface)"></span>`:''}</button>
+      <button class="btn btn-primary btn-sm" onclick="go('plan')">${svg('compass')} O meu plano</button>
+    </div>`;
+  // mobtop
+  el('mobtop').innerHTML=`<div class="brand">${brandMark(24)} ${esc(BRAND)}</div>
+    <div class="mla row" style="gap:6px">
+      <button class="btn btn-quiet btn-icon" onclick="openCmdk()">${svg('search')}</button>
+      <button class="btn btn-quiet btn-icon" onclick="openNotifs()" style="position:relative">${svg('bell')}${unread()?`<span style="position:absolute;top:6px;right:6px;width:8px;height:8px;background:var(--clay);border-radius:50%;border:2px solid var(--paper)"></span>`:''}</button>
+    </div>`;
+  // bottomnav
+  el('bottomnav').innerHTML=BOTTOM.map(b=>{
+    const on=(b.r===S.route)||(b.r==='explore'&&['docs','homes','pros','events','map','services','explore'].includes(S.route));
+    return `<div class="bn-item ${on?'on':''}" onclick="go('${b.r}')">${svg(b.icon)}<span>${b.label}</span>${b.r==='community'&&unread()?'<span class="bdot"></span>':''}</div>`}).join('');
+  updateNavActive();
+}
+function navItem(n){return `<div class="nav-item ${S.route===n.r?'on':''}" data-r="${n.r}" onclick="go('${n.r}')">${svg(n.icon)}<span>${n.label}</span>${n.r==='community'&&unread()?`<span class="dot">${unread()}</span>`:''}</div>`}
+function updateNavActive(){$$('.nav-item[data-r]').forEach(i=>i.classList.toggle('on',i.dataset.r===S.route))}
+
+const ROUTES={};
+function go(route,arg){
+  S.route=route;save();
+  closeModal();closeCmdk();
+  updateNavActive();
+  // bottomnav highlight refresh
+  if(el('bottomnav'))renderShellNavOnly();
+  const fn=ROUTES[route]||ROUTES.home;
+  el('view').innerHTML='';
+  el('view').scrollTop=0;window.scrollTo(0,0);
+  el('view').innerHTML=fn(arg);
+  el('view').style.animation='none';void el('view').offsetWidth;el('view').style.animation='';
+  // popular listas dinâmicas após render
+  if(route==='jobs')renderJobList();
+  else if(route==='homes')renderHomeList();
+  else if(route==='pros')renderProList();
+}
+function renderShellNavOnly(){
+  $$('.bn-item').forEach((it,i)=>{const b=BOTTOM[i];const on=(b.r===S.route)||(b.r==='explore'&&['docs','homes','pros','events','map','services','explore'].includes(S.route));it.classList.toggle('on',on)});
+  updateNavActive();
+}
+function pageHead(eyebrow,title,sub){return `<div class="mb24"><div class="eyebrow mb8">${esc(eyebrow)}</div><h1 class="h1">${esc(title)}</h1>${sub?`<p class="lead mt8">${esc(sub)}</p>`:''}</div>`}
+
+/* ---- Estados vazios/loading ---- */
+function emptyState(icon,title,msg,cta){return `<div class="state"><div class="ill">${svg(icon)}</div><h3 class="h3">${esc(title)}</h3><p>${esc(msg)}</p>${cta||''}</div>`}
+function skelCards(n){let s='<div class="grid g3">';for(let i=0;i<(n||6);i++)s+=`<div class="card card-pad"><div class="skel" style="height:16px;width:60%;margin-bottom:12px"></div><div class="skel" style="height:12px;width:90%;margin-bottom:8px"></div><div class="skel" style="height:12px;width:70%"></div></div>`;return s+'</div>'}
+
+/* ============================================================
+   HOME
+   ============================================================ */
+ROUTES.home=()=>{
+  const done=planDoneCount(),total=PLAN.length;
+  const next=PLAN.find(p=>!S.planDone[p.id])||PLAN[0];
+  const helpCards=[
+    {icon:'doc',label:'Documentação',r:'docs',c:'var(--clay)'},
+    {icon:'work',label:'Trabalho',r:'jobs',c:'var(--sage)'},
+    {icon:'home2',label:'Casa',r:'homes',c:'var(--gold)'},
+    {icon:'law',label:'Apoio jurídico',r:'pros',c:'var(--sky)'},
+  ];
+  const nearJobs=JOBS.filter(j=>j.city===S.city).slice(0,3);
+  const nearJobsShow=(nearJobs.length?nearJobs:JOBS.slice(0,3));
+  const weekEvents=EVENTS.slice(0,3);
+  const forYou=JOBS.filter(j=>!j.exp).slice(0,2);
+  return `
+  <div class="mb24">
+    <div class="eyebrow mb8">${greet()}, ${esc(firstName())} ${countryFlag()}</div>
+    <h1 class="display" style="max-width:16ch">Vamos tratar do que é importante.</h1>
+  </div>
+
+  <!-- Plano card -->
+  <div class="card card-pad" style="background:linear-gradient(135deg,var(--clay-tint),var(--surface));border-color:var(--clay-soft)">
+    <div class="row between wrap gap16">
+      <div style="min-width:220px;flex:1">
+        <div class="badge badge-clay mb12">${svg('compass')} O teu plano de chegada</div>
+        <h2 class="h2 mb4">${done} de ${total} passos concluídos</h2>
+        <p class="muted mb16">Próximo: <b class="clay">${esc(next.title)}</b></p>
+        <div class="pbar" style="max-width:340px"><i style="width:${Math.round(done/total*100)}%"></i></div>
+      </div>
+      <div class="row gap8" style="flex:none">
+        <button class="btn btn-primary btn-lg" onclick="go('plan')">Continuar o meu plano ${svg('arrow')}</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Assistente -->
+  <div class="card card-pad card-hover mt16" onclick="aiOpen()" style="display:flex;align-items:center;gap:16px">
+    <div class="av av-md" style="background:var(--ink);color:var(--paper);border-radius:14px">${svg('spark')}</div>
+    <div style="flex:1;min-width:0">
+      <div class="fw6">Não sabes por onde começar? Pergunta-me.</div>
+      <div class="muted fs-sm">"Cheguei ontem, o que trato primeiro?" · "Um quarto até 500€" · "Quero falar com um advogado"</div>
+    </div>
+    ${svg('chevr','')}
+  </div>
+
+  <!-- Ajuda -->
+  <div class="section">
+    <div class="section-head"><h2 class="h2">Precisas de ajuda com alguma coisa?</h2></div>
+    <div class="grid g4">
+      ${helpCards.map(h=>`<div class="card card-pad card-hover" onclick="go('${h.r}')">
+        <div class="av av-md" style="background:color-mix(in srgb,${h.c} 14%,transparent);color:${h.c};border-radius:14px">${svg(h.icon)}</div>
+        <div class="fw6 mt12">${esc(h.label)}</div>
+        <div class="muted fs-sm row" style="gap:4px;margin-top:2px">Ver ${svg('chevr')}</div>
+      </div>`).join('')}
+    </div>
+  </div>
+
+  <!-- Perto de ti -->
+  <div class="section">
+    <div class="section-head"><div><div class="eyebrow mb4">Perto de ti</div><h2 class="h2">Serviços em ${esc(S.city)}</h2></div><button class="btn btn-quiet btn-sm" onclick="go('services')">Ver todos ${svg('chevr')}</button></div>
+    <div class="grid g3">${SERVICES.filter(s=>s.city===S.city||s.city==='Nacional').slice(0,3).map(serviceCard).join('')||emptyState('service','Nada por perto ainda','Estamos a mapear serviços na tua zona.','')}</div>
+  </div>
+
+  <!-- Esta semana -->
+  <div class="section">
+    <div class="section-head"><div><div class="eyebrow mb4">Acontece esta semana</div><h2 class="h2">Eventos perto de ti</h2></div><button class="btn btn-quiet btn-sm" onclick="go('events')">Ver todos ${svg('chevr')}</button></div>
+    <div class="scroll-x">${weekEvents.map(e=>eventCardMini(e)).join('')}</div>
+  </div>
+
+  <!-- Oportunidades -->
+  <div class="section">
+    <div class="section-head"><div><div class="eyebrow mb4">Oportunidades para ti</div><h2 class="h2">Selecionadas para o teu perfil</h2></div><button class="btn btn-quiet btn-sm" onclick="go('jobs')">Ver todas ${svg('chevr')}</button></div>
+    <div class="grid g2">${nearJobsShow.slice(0,4).map(jobCard).join('')}</div>
+  </div>
+  `;
+};
+
+/* ============================================================
+   EXPLORAR (mobile hub)
+   ============================================================ */
+ROUTES.explore=()=>{
+  const tiles=[
+    {icon:'doc',label:'Documentação',r:'docs',c:'var(--clay)'},
+    {icon:'work',label:'Trabalho',r:'jobs',c:'var(--sage)'},
+    {icon:'home2',label:'Casa',r:'homes',c:'var(--gold)'},
+    {icon:'law',label:'Profissionais',r:'pros',c:'var(--sky)'},
+    {icon:'event',label:'Eventos',r:'events',c:'var(--clay)'},
+    {icon:'map',label:'Mapa',r:'map',c:'var(--sage)'},
+    {icon:'service',label:'Serviços',r:'services',c:'var(--gold)'},
+    {icon:'plan',label:'O meu plano',r:'plan',c:'var(--sky)'},
+  ];
+  return `${pageHead('Explorar','O que precisas de resolver hoje?','')}
+    <div class="grid g2">${tiles.map(t=>`<div class="card card-pad card-hover" onclick="go('${t.r}')">
+      <div class="av av-md" style="background:color-mix(in srgb,${t.c} 14%,transparent);color:${t.c};border-radius:14px">${svg(t.icon)}</div>
+      <div class="fw6 mt12">${esc(t.label)}</div></div>`).join('')}</div>`;
+};
+
+/* ============================================================
+   PLANO
+   ============================================================ */
+function planDoneCount(){return PLAN.filter(p=>S.planDone[p.id]).length}
+ROUTES.plan=()=>{
+  const done=planDoneCount(),total=PLAN.length,pct=Math.round(done/total*100);
+  return `
+  ${pageHead('O teu plano em Portugal','Vamos começar pelo mais importante.','Cada passo aproxima-te de te sentires em casa. Marca como concluído à medida que avanças.')}
+  <div class="card card-pad mb24 row between wrap gap16">
+    <div class="row gap16">
+      <div style="position:relative;width:64px;height:64px;flex:none">
+        <svg class="ring" width="64" height="64">${(()=>{const r=26,c=2*Math.PI*r,off=c-(pct/100)*c;return `<circle class="bg" cx="32" cy="32" r="${r}"></circle><circle class="fg" cx="32" cy="32" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${off}"></circle>`})()}</svg>
+        <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600">${pct}%</div>
+      </div>
+      <div><div class="h3">${done} de ${total} passos concluídos</div><div class="muted fs-sm">${done===total?'Concluíste o teu plano de chegada. Parabéns! 🎉':'Continua — estás a ir muito bem.'}</div></div>
+    </div>
+  </div>
+  <div class="tl">
+    ${PLAN.map((p,i)=>{
+      const isDone=!!S.planDone[p.id];
+      const isNow=!isDone&&PLAN.slice(0,i).every(x=>S.planDone[x.id]);
+      return `<div class="tl-step ${isDone?'done':isNow?'now':''}">
+        <div class="tl-node">${isDone?svg('check'):p.n}</div>
+        <div class="card card-pad ${isNow?'':''}" style="${isNow?'border-color:var(--clay)':''}">
+          <div class="row between wrap gap8">
+            <div style="flex:1;min-width:200px">
+              <div class="row gap8 mb4"><span style="color:var(--clay);width:20px">${svg(p.icon)}</span><h3 class="h3">${esc(p.title)}</h3></div>
+              <p class="muted fs-sm">${esc(p.desc)}</p>
+            </div>
+            <div class="row gap8">
+              <button class="btn btn-ghost btn-sm" onclick="go('${p.route}')">Abrir ${svg('chevr')}</button>
+              <button class="btn ${isDone?'btn-ghost':'btn-primary'} btn-sm" onclick="togglePlan('${p.id}')">${isDone?'Concluído ✓':'Marcar feito'}</button>
+            </div>
+          </div>
+        </div>
+      </div>`}).join('')}
+  </div>`;
+};
+function togglePlan(id){S.planDone[id]=!S.planDone[id];save();go('plan');toast(S.planDone[id]?'Passo concluído ✓':'Passo reaberto');renderShell()}
+
+/* ============================================================
+   CARD COMPONENTS (partilhados)
+   ============================================================ */
+function jobCard(j){
+  const saved=S.savedJobs.includes(j.id);
+  return `<div class="card card-pad card-hover" onclick="openJob('${j.id}')">
+    <div class="row between">
+      <div class="av av-md" style="background:var(--surface-2);border-radius:12px;color:var(--ink-2)">${svg('briefcase')}</div>
+      <button class="btn btn-icon btn-quiet" onclick="event.stopPropagation();toggleSaveJob('${j.id}')" style="color:${saved?'var(--clay)':'var(--ink-3)'}">${svg(saved?'bookmark':'bookmark')}</button>
+    </div>
+    <h3 class="h3 mt12">${esc(j.role)}</h3>
+    <div class="muted fs-sm">${esc(j.company)}</div>
+    <div class="row wrap gap6 mt12">
+      <span class="badge badge-line">${svg('pin')} ${esc(j.city)}</span>
+      <span class="badge badge-line">${esc(j.type)}</span>
+      ${!j.exp?`<span class="badge badge-sage">Sem experiência</span>`:''}
+    </div>
+    <div class="row between mt16"><span class="price clay">${esc(j.salary)}</span><span class="muted fs-xs">${esc(j.posted)}</span></div>
+  </div>`;
+}
+function serviceCard(s){
+  return `<div class="card card-pad card-hover" onclick="openService('${s.id}')">
+    <div class="row between"><div class="av av-md" style="background:var(--surface-2);border-radius:12px;color:var(--ink-2)">${svg(s.icon)}</div>${s.verified?`<span class="verified">${svg('shield')} Verificado</span>`:''}</div>
+    <h3 class="h3 mt12" style="font-size:1.02rem">${esc(s.name)}</h3>
+    <div class="muted fs-sm mt4 line-clamp2">${esc(s.desc)}</div>
+    <div class="row wrap gap6 mt12"><span class="badge badge-line">${esc(s.cat)}</span><span class="badge badge-line">${svg('pin')} ${esc(s.city)}</span></div>
+  </div>`;
+}
+function eventCardMini(e){
+  const d=fmtDay(e.date);const saved=S.savedEvents.includes(e.id);
+  return `<div class="card card-hover" style="width:260px;overflow:hidden" onclick="openEvent('${e.id}')">
+    <div class="photo" style="height:120px;background:linear-gradient(135deg,${e.color},${e.color}bb)">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.9">${svg(catIcon(e.cat),'')}</div>
+      <div style="position:absolute;top:12px;left:12px;background:var(--surface);border-radius:10px;padding:6px 10px;text-align:center;line-height:1"><div class="num" style="font-size:1.2rem">${d.d}</div><div class="fs-xs muted">${d.m}</div></div>
+    </div>
+    <div class="card-pad" style="padding:16px">
+      <span class="badge badge-line mb8">${esc(e.cat)}</span>
+      <h3 class="h3" style="font-size:1rem">${esc(e.title)}</h3>
+      <div class="muted fs-sm mt4 row gap6">${svg('pin')} ${esc(e.city)} · ${esc(e.time)}</div>
+    </div>
+  </div>`;
+}
+function catIcon(c){return {'Música':'spark','Cultura':'star','Comunidade':'people','Networking':'handshake','Negócios':'briefcase','Desporto':'compass','Formação':'book','Festas':'spark','Gastronomia':'heart'}[c]||'event'}
+
+/* ============================================================
+   DOCUMENTAÇÃO
+   ============================================================ */
+let docCatFilter='';
+ROUTES.docs=()=>{
+  const list=DOCS.filter(d=>!docCatFilter||d.cat===docCatFilter);
+  return `
+  ${pageHead('Centro de documentação','Organiza a tua documentação.','Guias claros, passo a passo, para tratares do que precisas — sem te perderes.')}
+  <div class="callout callout-info mb24">${svg('info')}<div><b>Esta informação é apenas orientação.</b> Para a análise do teu caso concreto, fala com um profissional qualificado. <a onclick="go('pros')" class="clay fw6" style="cursor:pointer">Encontrar apoio jurídico →</a></div></div>
+  <div class="row wrap gap6 mb24">
+    <span class="chip ${!docCatFilter?'on':''}" onclick="docCatFilter='';go('docs')">Todos</span>
+    ${DOC_CATS.map(c=>`<span class="chip ${docCatFilter===c?'on':''}" onclick="docCatFilter='${c}';go('docs')">${esc(c)}</span>`).join('')}
+  </div>
+  <div class="grid g3">
+    ${list.map(d=>{
+      const cl=docChecklistProgress(d);
+      return `<div class="card card-pad card-hover" onclick="openDoc('${d.id}')">
+        <div class="av av-md" style="background:var(--clay-soft);color:var(--clay-deep);border-radius:12px">${svg(d.icon)}</div>
+        <span class="badge badge-line mt12">${esc(d.cat)}</span>
+        <h3 class="h3 mt8" style="font-size:1.05rem">${esc(d.title)}</h3>
+        <p class="muted fs-sm mt4 line-clamp2">${esc(d.summary)}</p>
+        ${cl.total?`<div class="mt16"><div class="row between fs-xs muted mb4"><span>Checklist</span><span>${cl.done}/${cl.total}</span></div><div class="pbar" style="height:5px"><i style="width:${Math.round(cl.done/cl.total*100)}%;background:var(--sage)"></i></div></div>`:''}
+      </div>`}).join('')}
+  </div>`;
+};
+function docChecklistProgress(d){const checks=S.docChecks[d.id]||{};const done=d.checklist.filter((_,i)=>checks[i]).length;return {done,total:d.checklist.length}}
+function openDoc(id){
+  const d=DOCS.find(x=>x.id===id);if(!d)return;
+  S.route='docs';
+  el('view').innerHTML=docDetail(d);window.scrollTo(0,0);
+}
+function docDetail(d){
+  return `
+  <button class="btn btn-quiet btn-sm mb16" onclick="go('docs')">${svg('chevl')} Voltar à documentação</button>
+  <div class="row gap16 mb8"><div class="av av-lg" style="background:var(--clay-soft);color:var(--clay-deep);border-radius:18px;width:56px;height:56px">${svg(d.icon)}</div>
+    <div><span class="badge badge-line mb4">${esc(d.cat)}</span><h1 class="h1">${esc(d.title)}</h1></div></div>
+  <p class="lead mb24" style="max-width:70ch">${esc(d.summary)}</p>
+
+  <div class="grid g2" style="align-items:start">
+    <div class="stack gap20">
+      <div class="card card-pad"><div class="eyebrow mb8">Para quem é</div><p>${esc(d.who)}</p></div>
+      <div class="card card-pad"><div class="eyebrow mb12">O que precisas</div><ul style="list-style:none;display:flex;flex-direction:column;gap:8px">${d.need.map(n=>`<li class="row gap8"><span class="sage" style="width:18px;flex:none">${svg('check')}</span>${esc(n)}</li>`).join('')}</ul></div>
+      <div class="card card-pad"><div class="eyebrow mb12">Passo a passo</div><div class="tl">${d.steps.map((s,i)=>`<div class="tl-step"><div class="tl-node">${i+1}</div><div style="padding-top:3px">${esc(s)}</div></div>`).join('')}</div></div>
+    </div>
+    <div class="stack gap20">
+      <div class="card card-pad">
+        <div class="row between mb12"><div class="eyebrow">A tua checklist</div><span class="muted fs-xs">${docChecklistProgress(d).done}/${docChecklistProgress(d).total}</span></div>
+        ${d.checklist.map((c,i)=>{const on=(S.docChecks[d.id]||{})[i];return `<div class="check-item ${on?'done':''}" onclick="toggleDocCheck('${d.id}',${i})"><span class="check-box">${svg('check')}</span><span class="ci-label fw5">${esc(c)}</span></div>`}).join('')}
+      </div>
+      <div class="card card-pad">
+        <div class="stack gap12">
+          <div><div class="eyebrow mb4">Onde tratar</div><p class="fs-sm">${esc(d.where)}</p></div>
+          <hr class="divider"><div><div class="eyebrow mb4">Custos</div><p class="fs-sm">${esc(d.cost)}</p></div>
+          <hr class="divider"><div><div class="eyebrow mb4">Prazos</div><p class="fs-sm">${esc(d.deadline)}</p></div>
+          <hr class="divider"><div><div class="eyebrow mb8">Entidades oficiais</div>${d.links.map(l=>`<a class="link-official" href="https://${esc(l.u)}" target="_blank" rel="noopener">${svg('external')} ${esc(l.t)}</a>`).join('<br>')}</div>
+        </div>
+      </div>
+      <div class="callout callout-warn">${svg('warn')}<div><b>Importante.</b> ${esc(d.alert)}</div></div>
+      <button class="btn btn-primary btn-block" onclick="go('pros')">${svg('law')} Encontrar apoio jurídico</button>
+    </div>
+  </div>
+
+  <div class="section">
+    <h2 class="h2 mb16">Perguntas frequentes</h2>
+    <div class="stack gap8" style="max-width:760px">
+      ${d.faq.map((f,i)=>`<div class="card"><div class="row between card-pad" style="cursor:pointer;padding:16px 20px" onclick="this.parentNode.querySelector('.faq-a').classList.toggle('hide')"><span class="fw6">${esc(f.q)}</span>${svg('chevd')}</div><div class="faq-a hide" style="padding:0 20px 18px;color:var(--ink-2)">${esc(f.a)}</div></div>`).join('')}
+    </div>
+  </div>
+  <div class="callout callout-info mt24" style="max-width:760px">${svg('shield')}<div>A Bússola não substitui aconselhamento jurídico. Estas informações podem mudar — confirma sempre nas entidades oficiais.</div></div>
+  `;
+}
+function toggleDocCheck(id,i){if(!S.docChecks[id])S.docChecks[id]={};S.docChecks[id][i]=!S.docChecks[id][i];save();const d=DOCS.find(x=>x.id===id);el('view').innerHTML=docDetail(d)}
+
+/* ============================================================
+   TRABALHO
+   ============================================================ */
+let jobF={q:'',sector:'',type:'',noexp:false};
+ROUTES.jobs=()=>{
+  return `
+  <div class="row between wrap gap16 mb8">
+    <div><div class="eyebrow mb8">Trabalho</div><h1 class="h1">Encontra o teu próximo trabalho.</h1></div>
+    <button class="btn btn-ghost" onclick="go('applications')">${svg('briefcase')} As minhas candidaturas ${S.savedJobs.length||Object.keys(S.appliedJobs).length?`<span class="badge badge-clay">${S.savedJobs.length+Object.keys(S.appliedJobs).length}</span>`:''}</button>
+  </div>
+  <div class="card card-pad mb16">
+    <div class="grid g2 mb12" style="gap:12px">
+      <div class="search-wrap">${svg('search','ic')}<input class="input" placeholder="Cargo, empresa ou palavra-chave" value="${esc(jobF.q)}" oninput="jobF.q=this.value;renderJobList()"></div>
+      <div class="search-wrap">${svg('pin','ic')}<input class="input" placeholder="Localização (ex: Lisboa, Setúbal)" id="jobLoc" oninput="jobF.q2=this.value;renderJobList()"></div>
+    </div>
+    <div class="row wrap gap6">
+      <span class="chip ${!jobF.sector?'on':''}" onclick="jobF.sector='';go('jobs')">Todos os setores</span>
+      ${JOB_SECTORS.slice(0,8).map(s=>`<span class="chip ${jobF.sector===s?'on':''}" onclick="jobF.sector='${jobF.sector===s?'':s}';go('jobs')">${esc(s)}</span>`).join('')}
+      <span class="chip ${jobF.noexp?'on':''}" onclick="jobF.noexp=!jobF.noexp;go('jobs')">${svg('check')} Sem experiência</span>
+    </div>
+  </div>
+  <div id="jobList"></div>
+  `;
+};
+function filterJobs(){return JOBS.filter(j=>{
+  const q=(jobF.q||'').toLowerCase(),q2=(jobF.q2||'').toLowerCase();
+  if(q&&!(j.role.toLowerCase().includes(q)||j.company.toLowerCase().includes(q)||j.sector.toLowerCase().includes(q)))return false;
+  if(q2&&!(j.city.toLowerCase().includes(q2)||j.area.toLowerCase().includes(q2)))return false;
+  if(jobF.sector&&j.sector!==jobF.sector)return false;
+  if(jobF.noexp&&j.exp)return false;
+  return true;
+})}
+function renderJobList(){
+  const l=filterJobs();const t=el('jobList');if(!t)return;
+  t.innerHTML=`<div class="row between mb12"><span class="muted fs-sm">${l.length} ${l.length===1?'vaga encontrada':'vagas encontradas'}</span></div>`+
+    (l.length?`<div class="grid g2">${l.map(jobCard).join('')}</div>`
+    :emptyState('search','Não encontrámos vagas assim','Tenta alargar a pesquisa ou remover alguns filtros.',`<button class="btn btn-ghost" onclick="jobF={q:'',q2:'',sector:'',noexp:false};go('jobs')">${svg('reload')} Limpar filtros</button>`));
+}
+function toggleSaveJob(id){const i=S.savedJobs.indexOf(id);if(i>=0){S.savedJobs.splice(i,1);toast('Removido dos guardados')}else{S.savedJobs.push(id);toast('Vaga guardada ✓')}save();if(S.route==='jobs')renderJobList();else if(S.route==='applications')go('applications')}
+function openJob(id){
+  const j=JOBS.find(x=>x.id===id);if(!j)return;
+  const saved=S.savedJobs.includes(id),applied=S.appliedJobs[id];
+  openModal(`<div class="modal-pad">
+    <button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="av av-lg" style="background:var(--surface-2);color:var(--ink-2);border-radius:16px;width:52px;height:52px">${svg('briefcase')}</div>
+    <h2 class="h2 mt12">${esc(j.role)}</h2>
+    <div class="muted mb12">${esc(j.company)} · ${esc(j.area)}, ${esc(j.city)}</div>
+    <div class="row wrap gap6 mb16">
+      <span class="badge badge-clay">${svg('euro')} ${esc(j.salary)}</span>
+      <span class="badge badge-line">${esc(j.type)}</span>
+      <span class="badge badge-line">${svg('clock')} ${esc(j.schedule)}</span>
+      ${!j.exp?'<span class="badge badge-sage">Sem experiência</span>':'<span class="badge badge-line">Experiência necessária</span>'}
+    </div>
+    <p class="mb16">${esc(j.desc)}</p>
+    <div class="eyebrow mb8">Requisitos</div>
+    <ul style="list-style:none;display:flex;flex-direction:column;gap:6px" class="mb16">${j.req.map(r=>`<li class="row gap8"><span class="clay" style="width:16px;flex:none">${svg('check')}</span>${esc(r)}</li>`).join('')}</ul>
+    <div class="eyebrow mb8">O que oferecem</div>
+    <div class="row wrap gap6 mb24">${j.perks.map(p=>`<span class="badge badge-line">${esc(p)}</span>`).join('')}</div>
+    <div class="row gap8">
+      <button class="btn btn-ghost btn-icon" onclick="toggleSaveJob('${j.id}');closeModal()" style="color:${saved?'var(--clay)':''}">${svg('bookmark')}</button>
+      <button class="btn btn-primary flex1 btn-lg" onclick="applyJob('${j.id}')">${applied?'Candidatura enviada ✓':'Candidatar-me'}</button>
+    </div>
+  </div>`);
+}
+function applyJob(id){
+  if(S.appliedJobs[id]){closeModal();go('applications');return}
+  S.appliedJobs[id]='Candidatura enviada';const si=S.savedJobs.indexOf(id);if(si>=0)S.savedJobs.splice(si,1);
+  save();closeModal();toast('Candidatura enviada ✓');go('applications');
+}
+
+/* Candidaturas */
+ROUTES.applications=()=>{
+  const applied=Object.keys(S.appliedJobs).map(id=>({j:JOBS.find(x=>x.id===id),st:S.appliedJobs[id]})).filter(x=>x.j);
+  const saved=S.savedJobs.map(id=>JOBS.find(x=>x.id===id)).filter(Boolean);
+  return `<button class="btn btn-quiet btn-sm mb16" onclick="go('jobs')">${svg('chevl')} Voltar a trabalho</button>
+  ${pageHead('As tuas candidaturas','Acompanha o teu percurso.','')}
+  <div class="section-head"><h2 class="h2">Candidaturas enviadas</h2></div>
+  ${applied.length?`<div class="stack gap8">${applied.map(a=>`<div class="card card-pad row between wrap gap12">
+    <div class="row gap12"><div class="av av-md" style="background:var(--surface-2);border-radius:12px;color:var(--ink-2)">${svg('briefcase')}</div>
+    <div><div class="fw6">${esc(a.j.role)}</div><div class="muted fs-sm">${esc(a.j.company)} · ${esc(a.j.city)}</div></div></div>
+    <div class="row gap8"><span class="badge badge-sage">${esc(a.st)}</span><button class="btn btn-quiet btn-sm" onclick="openJob('${a.j.id}')">Ver</button></div>
+  </div>`).join('')}</div>`:emptyState('briefcase','Ainda sem candidaturas','Quando te candidatares a uma vaga, ela aparece aqui.',`<button class="btn btn-primary" onclick="go('jobs')">Ver oportunidades</button>`)}
+  <div class="section-head mt32"><h2 class="h2">Vagas guardadas</h2></div>
+  ${saved.length?`<div class="grid g2">${saved.map(jobCard).join('')}</div>`:`<p class="muted">Ainda não guardaste nenhuma vaga. Toca no marcador ${svg('bookmark')} numa vaga para a guardares.</p>`}
+  `;
+};
+
+/* ============================================================
+   HABITAÇÃO
+   ============================================================ */
+let homeF={q:'',type:'',max:0};
+ROUTES.homes=()=>{
+  return `
+  <div class="row between wrap gap16 mb8">
+    <div><div class="eyebrow mb8">Habitação</div><h1 class="h1">Encontra um lugar para viver.</h1></div>
+    <button class="btn btn-ghost" onclick="go('savedHomes')">${svg('heart')} Guardadas ${S.savedHomes.length?`<span class="badge badge-clay">${S.savedHomes.length}</span>`:''}</button>
+  </div>
+  <div class="callout callout-warn mb16">${svg('shield')}<div><b>Cuidado com burlas.</b> Nunca pagues caução ou sinal antes de veres a casa e conheceres o senhorio. <a onclick="scamGuide()" class="fw6" style="cursor:pointer;text-decoration:underline">Como evitar burlas no arrendamento →</a></div></div>
+  <div class="card card-pad mb16">
+    <div class="search-wrap mb12">${svg('search','ic')}<input class="input" placeholder="Cidade, freguesia ou palavra-chave" value="${esc(homeF.q)}" oninput="homeF.q=this.value;renderHomeList()"></div>
+    <div class="row wrap gap6">
+      <span class="chip ${!homeF.type?'on':''}" onclick="homeF.type='';go('homes')">Todos os tipos</span>
+      ${HOME_TYPES.map(t=>`<span class="chip ${homeF.type===t?'on':''}" onclick="homeF.type='${homeF.type===t?'':t}';go('homes')">${esc(t)}</span>`).join('')}
+    </div>
+    <div class="row gap12 mt12 wrap">
+      <div class="seg">
+        ${[0,400,600,900].map(v=>`<button class="${homeF.max===v?'on':''}" onclick="homeF.max=${v};renderHomeList();$$('.seg button').forEach(b=>b.classList.remove('on'));event.target.classList.add('on')">${v===0?'Qualquer preço':'até '+v+'€'}</button>`).join('')}
+      </div>
+      <button class="btn btn-ghost btn-sm" onclick="go('map')">${svg('map')} Ver no mapa</button>
+    </div>
+  </div>
+  <div id="homeList"></div>`;
+};
+function filterHomes(){return HOMES.filter(h=>{
+  const q=(homeF.q||'').toLowerCase();
+  if(q&&!(h.city.toLowerCase().includes(q)||h.area.toLowerCase().includes(q)||h.title.toLowerCase().includes(q)))return false;
+  if(homeF.type&&h.type!==homeF.type)return false;
+  if(homeF.max&&h.price>homeF.max)return false;
+  return true;
+})}
+function renderHomeList(){
+  const l=filterHomes();const t=el('homeList');if(!t)return;
+  t.innerHTML=`<div class="mb12 muted fs-sm">${l.length} ${l.length===1?'imóvel':'imóveis'}</div>`+
+    (l.length?`<div class="grid g3">${l.map(homeCard).join('')}</div>`
+    :emptyState('home2','Não encontrámos casas nesta zona','Alarga a pesquisa ou experimenta outra cidade.',`<button class="btn btn-ghost" onclick="homeF={q:'',type:'',max:0};go('homes')">${svg('reload')} Limpar filtros</button>`));
+}
+function homeCard(h){
+  const saved=S.savedHomes.includes(h.id);
+  return `<div class="card card-hover" style="overflow:hidden" onclick="openHome('${h.id}')">
+    <div class="photo" style="height:150px;background:linear-gradient(135deg,var(--surface-2),var(--line))">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-3);opacity:.5">${svg('home2')}</div>
+      <button class="btn btn-icon" onclick="event.stopPropagation();toggleSaveHome('${h.id}')" style="position:absolute;top:10px;right:10px;background:var(--surface);color:${saved?'var(--clay)':'var(--ink-3)'}">${svg('heart')}</button>
+      ${h.verified?`<span class="verified" style="position:absolute;top:12px;left:12px;background:var(--surface);padding:4px 8px;border-radius:8px">${svg('shield')} Verificado</span>`:''}
+      <span class="badge" style="position:absolute;bottom:10px;left:12px;background:var(--ink);color:var(--paper)">${esc(h.type)}</span>
+    </div>
+    <div class="card-pad" style="padding:16px">
+      <div class="row between"><span class="price clay" style="font-size:1.15rem">${h.price}€<span class="muted fs-xs fw5">/mês</span></span><span class="muted fs-xs">${esc(h.posted)}</span></div>
+      <h3 class="h3 mt4" style="font-size:1rem">${esc(h.title)}</h3>
+      <div class="muted fs-sm row gap6 mt4">${svg('pin')} ${esc(h.area)}, ${esc(h.city)}</div>
+      <div class="row wrap gap6 mt12"><span class="badge badge-line">${esc(h.rooms)}</span><span class="badge badge-line">Despesas: ${esc(h.bills)}</span></div>
+    </div>
+  </div>`;
+}
+function toggleSaveHome(id){const i=S.savedHomes.indexOf(id);if(i>=0){S.savedHomes.splice(i,1);toast('Removida das guardadas')}else{S.savedHomes.push(id);toast('Casa guardada ✓')}save();if(S.route==='homes')renderHomeList();else if(S.route==='savedHomes')go('savedHomes')}
+function openHome(id){
+  const h=HOMES.find(x=>x.id===id);if(!h)return;const saved=S.savedHomes.includes(id);
+  openModal(`<div class="modal-pad">
+    <button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()" style="background:var(--surface);z-index:2">${svg('x')}</button>
+    <div class="photo" style="height:190px;border-radius:var(--r);margin-bottom:16px;background:linear-gradient(135deg,var(--surface-2),var(--line))"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-3);opacity:.5">${svg('home2')}</div>${h.verified?`<span class="verified" style="position:absolute;top:12px;left:12px;background:var(--surface);padding:4px 8px;border-radius:8px">${svg('shield')} Verificado</span>`:''}</div>
+    <div class="row between"><span class="price clay" style="font-size:1.5rem">${h.price}€<span class="muted fs-sm fw5">/mês</span></span><span class="badge badge-line">${esc(h.type)}</span></div>
+    <h2 class="h2 mt8">${esc(h.title)}</h2>
+    <div class="muted row gap6 mb16">${svg('pin')} ${esc(h.area)}, ${esc(h.city)}</div>
+    <p class="mb16">${esc(h.desc)}</p>
+    <div class="grid g2 mb16" style="gap:10px">
+      ${[['Quartos',h.rooms],['Despesas',h.bills],['Caução',h.deposit],['Disponível',h.avail]].map(([k,v])=>`<div class="card card-pad" style="padding:12px 14px"><div class="eyebrow mb4">${k}</div><div class="fw6 fs-sm">${esc(v)}</div></div>`).join('')}
+    </div>
+    <div class="eyebrow mb8">Características</div>
+    <div class="row wrap gap6 mb16">${h.feat.map(f=>`<span class="badge badge-line">${esc(f)}</span>`).join('')}</div>
+    <div class="callout callout-info mb16">${svg('info')}<div><b>Regras:</b> ${esc(h.rules)}</div></div>
+    <div class="card card-pad row between mb16" style="padding:12px 16px"><div class="row gap8"><div class="av av-sm">${initials(h.host)}</div><div><div class="fw6 fs-sm">${esc(h.host)}</div><div class="muted fs-xs">${esc(h.hostType)}</div></div></div>${h.verified?`<span class="verified">${svg('shield')} Verificado</span>`:'<span class="badge badge-line">Não verificado</span>'}</div>
+    <div class="row gap8">
+      <button class="btn btn-ghost btn-icon" onclick="toggleSaveHome('${h.id}')" style="color:${saved?'var(--clay)':''}">${svg('heart')}</button>
+      <button class="btn btn-quiet btn-sm" onclick="reportHome('${h.id}')">${svg('warn')} Denunciar</button>
+      <button class="btn btn-primary flex1" onclick="contactHost('${h.id}')">${svg('chat')} Contactar anunciante</button>
+    </div>
+  </div>`);
+}
+function contactHost(id){const h=HOMES.find(x=>x.id===id);openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb4">Contactar ${esc(h.host)}</h2><p class="muted mb16">Sobre "${esc(h.title)}"</p>
+  <div class="field"><label>A tua mensagem</label><textarea class="input" id="hostMsg" placeholder="Olá, tenho interesse neste imóvel. Está disponível para visita?">Olá, tenho interesse neste imóvel. Ainda está disponível?</textarea></div>
+  <div class="callout callout-warn mb16">${svg('shield')}<div>Nunca faças pagamentos antes de visitar o imóvel presencialmente.</div></div>
+  <button class="btn btn-primary btn-block btn-lg" onclick="closeModal();toast('Mensagem enviada ✓')">${svg('send')} Enviar mensagem</button></div>`)}
+function reportHome(id){
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb4">Denunciar anúncio</h2><p class="muted mb16">Ajuda-nos a manter a plataforma segura. Qual é o motivo?</p>
+  <div class="stack gap8 mb16">${REPORT_REASONS.map(r=>`<label class="opt" style="margin-bottom:0"><input type="radio" name="rep" value="${esc(r)}" style="accent-color:var(--clay)"><span class="fw5">${esc(r)}</span></label>`).join('')}</div>
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Denúncia enviada. Obrigado por ajudares.')">Enviar denúncia</button></div>`)}
+function scamGuide(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <div class="av av-lg" style="background:var(--sage-soft);color:var(--sage);border-radius:16px;width:52px;height:52px">${svg('shield')}</div>
+  <h2 class="h2 mt12 mb16">Como evitar burlas no arrendamento</h2>
+  <div class="stack gap12">
+    ${['Nunca pagues caução, sinal ou "reserva" antes de visitares a casa em pessoa.','Desconfia de preços muito abaixo do mercado — costuma ser o primeiro sinal de burla.','Não envies dinheiro por transferências para o estrangeiro ou apps informais.','Confirma a identidade do senhorio e pede sempre contrato escrito.','Prefere anúncios de anunciantes verificados ✓ na plataforma.','Se algo te parecer estranho, denuncia o anúncio — proteges-te a ti e aos outros.'].map((t,i)=>`<div class="row gap12"><div class="av av-sm" style="background:var(--sage-soft);color:var(--sage)">${i+1}</div><p class="fs-sm" style="flex:1">${esc(t)}</p></div>`).join('')}
+  </div></div>`)}
+ROUTES.savedHomes=()=>{
+  const saved=S.savedHomes.map(id=>HOMES.find(x=>x.id===id)).filter(Boolean);
+  return `<button class="btn btn-quiet btn-sm mb16" onclick="go('homes')">${svg('chevl')} Voltar à habitação</button>
+  ${pageHead('Casas guardadas','As tuas casas favoritas.','')}
+  ${saved.length?`<div class="grid g3">${saved.map(homeCard).join('')}</div>`:emptyState('heart','Ainda sem casas guardadas','Toca no coração num anúncio para o guardares aqui.',`<button class="btn btn-primary" onclick="go('homes')">Procurar casa</button>`)}`;
+};
+
+/* ============================================================
+   PROFISSIONAIS
+   ============================================================ */
+let proF={q:'',spec:'',mode:''};
+ROUTES.pros=()=>{
+  return `
+  ${pageHead('Apoio jurídico','Encontra profissionais de confiança.','Advogados e solicitadores com experiência em imigração, verificados pela Bússola.')}
+  <div class="callout callout-info mb16">${svg('info')}<div>Todos os profissionais com ${'<b>Verificado ✓</b>'} tiveram as credenciais confirmadas pela nossa equipa.</div></div>
+  <div class="card card-pad mb16">
+    <div class="search-wrap mb12">${svg('search','ic')}<input class="input" placeholder="Nome, especialidade ou cidade" value="${esc(proF.q)}" oninput="proF.q=this.value;renderProList()"></div>
+    <div class="row wrap gap6">
+      <span class="chip ${!proF.spec?'on':''}" onclick="proF.spec='';go('pros')">Todas as áreas</span>
+      ${PRO_SPECS.slice(0,6).map(s=>`<span class="chip ${proF.spec===s?'on':''}" onclick="proF.spec='${proF.spec===s?'':s}';go('pros')">${esc(s)}</span>`).join('')}
+      <span class="chip ${proF.mode==='online'?'on':''}" onclick="proF.mode='${proF.mode==='online'?'':'online'}';go('pros')">${svg('wifi')} Online</span>
+      <span class="chip ${proF.mode==='inperson'?'on':''}" onclick="proF.mode='${proF.mode==='inperson'?'':'inperson'}';go('pros')">${svg('pin')} Presencial</span>
+    </div>
+  </div>
+  <div id="proList"></div>`;
+};
+function filterPros(){return PROS.filter(p=>{
+  const q=(proF.q||'').toLowerCase();
+  if(q&&!(p.name.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)||p.spec.join(' ').toLowerCase().includes(q)||p.prof.toLowerCase().includes(q)))return false;
+  if(proF.spec&&!p.spec.includes(proF.spec))return false;
+  if(proF.mode==='online'&&!p.online)return false;
+  if(proF.mode==='inperson'&&!p.inperson)return false;
+  return true;
+})}
+function renderProList(){const l=filterPros();const t=el('proList');if(!t)return;
+  t.innerHTML=`<div class="mb12 muted fs-sm">${l.length} ${l.length===1?'profissional':'profissionais'}</div>`+
+  (l.length?`<div class="grid g2">${l.map(proCard).join('')}</div>`:emptyState('search','Sem resultados','Tenta outra área ou remove filtros.',`<button class="btn btn-ghost" onclick="proF={q:'',spec:'',mode:''};go('pros')">${svg('reload')} Limpar filtros</button>`))}
+function proCard(p){
+  return `<div class="card card-pad card-hover" onclick="openPro('${p.id}')">
+    <div class="row gap12">
+      <div class="av av-lg" style="width:60px;height:60px">${initials(p.name)}</div>
+      <div style="flex:1;min-width:0">
+        <div class="row gap6 wrap"><h3 class="h3" style="font-size:1.05rem">${esc(p.name)}</h3>${p.verified?`<span class="verified">${svg('shield')}</span>`:''}</div>
+        <div class="muted fs-sm">${esc(p.prof)} · ${esc(p.city)}</div>
+        <div class="row gap6 mt4">${stars(p.rating)}<span class="fs-sm fw6">${p.rating}</span><span class="muted fs-xs">(${p.reviews})</span></div>
+      </div>
+    </div>
+    <div class="row wrap gap6 mt12">${p.spec.slice(0,2).map(s=>`<span class="badge badge-line">${esc(s)}</span>`).join('')}</div>
+    <div class="row between mt12"><span class="muted fs-xs row gap4">${svg('globe')} ${esc(p.langs.slice(0,2).join(', '))}</span><span class="badge badge-sage">${esc(p.avail)}</span></div>
+  </div>`;
+}
+function openPro(id){
+  const p=PROS.find(x=>x.id===id);if(!p)return;const contacted=S.contactedPros.includes(id);
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="row gap16"><div class="av av-lg" style="width:72px;height:72px">${initials(p.name)}</div>
+      <div><div class="row gap6 wrap"><h2 class="h2">${esc(p.name)}</h2>${p.verified?`<span class="verified">${svg('shield')} Verificado</span>`:''}</div>
+      <div class="muted">${esc(p.prof)} · ${esc(p.city)}</div>
+      <div class="row gap6 mt4">${stars(p.rating)}<span class="fw6 fs-sm">${p.rating}</span><span class="muted fs-xs">${p.reviews} avaliações · ${p.cases} casos</span></div></div>
+    </div>
+    <p class="mt16 mb16">${esc(p.bio)}</p>
+    <div class="grid g2 mb16" style="gap:10px">
+      <div class="card card-pad" style="padding:12px 14px"><div class="eyebrow mb4">Experiência</div><div class="fw6 fs-sm">${esc(p.exp)}</div></div>
+      <div class="card card-pad" style="padding:12px 14px"><div class="eyebrow mb4">Preço</div><div class="fw6 fs-sm">${esc(p.price)}</div></div>
+    </div>
+    <div class="eyebrow mb8">Especialidades</div><div class="row wrap gap6 mb12">${p.spec.map(s=>`<span class="badge badge-clay">${esc(s)}</span>`).join('')}</div>
+    <div class="eyebrow mb8">Idiomas</div><div class="row wrap gap6 mb12">${p.langs.map(l=>`<span class="badge badge-line">${esc(l)}</span>`).join('')}</div>
+    <div class="row wrap gap6 mb24">${p.online?'<span class="badge badge-sage">'+svg('wifi')+' Online</span>':''}${p.inperson?'<span class="badge badge-sage">'+svg('pin')+' Presencial</span>':''}</div>
+    <button class="btn btn-primary btn-block btn-lg" onclick="requestConsult('${p.id}')">${contacted?'Pedido enviado ✓':'Pedir consulta'}</button>
+  </div>`);
+}
+function requestConsult(id){const p=PROS.find(x=>x.id===id);
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb4">Pedir consulta</h2><p class="muted mb16">com ${esc(p.name)}</p>
+  <div class="field"><label>Explica brevemente o teu caso</label><textarea class="input" placeholder="Ex: Cheguei de Angola há 3 meses e preciso de ajuda com o meu título de residência…"></textarea></div>
+  <div class="callout callout-info mb16">${svg('info')}<div>O profissional recebe o teu pedido e responde através da plataforma. Não partilhes documentos sensíveis nesta fase.</div></div>
+  <button class="btn btn-primary btn-block btn-lg" onclick="confirmConsult('${p.id}')">${svg('send')} Enviar pedido</button></div>`)}
+function confirmConsult(id){if(!S.contactedPros.includes(id))S.contactedPros.push(id);save();closeModal();toast('Pedido de consulta enviado ✓')}
+
+/* ============================================================
+   EVENTOS
+   ============================================================ */
+let evF='';
+ROUTES.events=()=>{
+  const list=EVENTS.filter(e=>!evF||e.cat===evF).sort((a,b)=>a.date<b.date?-1:1);
+  return `
+  <div class="row between wrap gap16 mb8"><div><div class="eyebrow mb8">Eventos</div><h1 class="h1">O que está a acontecer perto de ti?</h1></div>
+  <button class="btn btn-ghost" onclick="go('calendar')">${svg('event')} O meu calendário ${S.savedEvents.length?`<span class="badge badge-clay">${S.savedEvents.length}</span>`:''}</button></div>
+  <div class="row wrap gap6 mb24">
+    <span class="chip ${!evF?'on':''}" onclick="evF='';go('events')">Todos</span>
+    ${EVENT_CATS.map(c=>`<span class="chip ${evF===c?'on':''}" onclick="evF='${evF===c?'':c}';go('events')">${esc(c)}</span>`).join('')}
+  </div>
+  ${list.length?`<div class="grid g3">${list.map(eventCard).join('')}</div>`:emptyState('event','Sem eventos nesta categoria','Experimenta outra categoria ou volta em breve.',`<button class="btn btn-ghost" onclick="evF='';go('events')">Ver todos</button>`)}`;
+};
+function eventCard(e){
+  const d=fmtDay(e.date);const going=S.savedEvents.includes(e.id);
+  return `<div class="card card-hover" style="overflow:hidden" onclick="openEvent('${e.id}')">
+    <div class="photo" style="height:150px;background:linear-gradient(135deg,${e.color},${e.color}bb)">
+      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.85">${svg(catIcon(e.cat))}</div>
+      <div style="position:absolute;top:12px;left:12px;background:var(--surface);border-radius:12px;padding:8px 12px;text-align:center;line-height:1"><div class="num" style="font-size:1.4rem">${d.d}</div><div class="fs-xs muted">${d.m}</div></div>
+      ${going?`<span class="badge badge-sage" style="position:absolute;top:12px;right:12px">${svg('check')} Vou</span>`:''}
+    </div>
+    <div class="card-pad" style="padding:16px">
+      <span class="badge badge-line mb8">${esc(e.cat)}</span>
+      <h3 class="h3" style="font-size:1.05rem">${esc(e.title)}</h3>
+      <div class="muted fs-sm mt4 row gap6">${svg('pin')} ${esc(e.venue)}</div>
+      <div class="row between mt12"><span class="fw6 fs-sm">${esc(e.time)}</span><span class="price ${e.price==='Gratuito'||e.price.includes('livre')?'sage':'clay'}">${esc(e.price)}</span></div>
+    </div>
+  </div>`;
+}
+function openEvent(id){
+  const e=EVENTS.find(x=>x.id===id);if(!e)return;const going=S.savedEvents.includes(id);
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()" style="background:var(--surface);z-index:2">${svg('x')}</button>
+    <div class="photo" style="height:170px;border-radius:var(--r);margin-bottom:16px;background:linear-gradient(135deg,${e.color},${e.color}bb)"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.9">${svg(catIcon(e.cat))}</div></div>
+    <span class="badge badge-line mb8">${esc(e.cat)}</span>
+    <h2 class="h2 mb12">${esc(e.title)}</h2>
+    <div class="stack gap8 mb16">
+      <div class="row gap8"><span class="clay" style="width:18px">${svg('event')}</span><span>${fmtDate(e.date)} · ${esc(e.time)}</span></div>
+      <div class="row gap8"><span class="clay" style="width:18px">${svg('pin')}</span><span>${esc(e.venue)}, ${esc(e.city)}</span></div>
+      <div class="row gap8"><span class="clay" style="width:18px">${svg('euro')}</span><span>${esc(e.price)}</span></div>
+      <div class="row gap8"><span class="clay" style="width:18px">${svg('people')}</span><span>Organizado por ${esc(e.org)}</span></div>
+    </div>
+    <p class="mb24">${esc(e.desc)}</p>
+    <button class="btn ${going?'btn-ghost':'btn-primary'} btn-block btn-lg" onclick="toggleEvent('${e.id}')">${going?'✓ Vais participar — cancelar':'Vou participar'}</button>
+  </div>`);
+}
+function toggleEvent(id){const i=S.savedEvents.indexOf(id);if(i>=0){S.savedEvents.splice(i,1);toast('Removido do calendário')}else{S.savedEvents.push(id);toast('Adicionado ao teu calendário ✓')}save();closeModal();if(S.route==='events')go('events');else if(S.route==='calendar')go('calendar')}
+ROUTES.calendar=()=>{
+  const mine=S.savedEvents.map(id=>EVENTS.find(x=>x.id===id)).filter(Boolean).sort((a,b)=>a.date<b.date?-1:1);
+  return `<button class="btn btn-quiet btn-sm mb16" onclick="go('events')">${svg('chevl')} Voltar aos eventos</button>
+  ${pageHead('O meu calendário','Os eventos em que vais participar.','')}
+  ${mine.length?`<div class="stack gap12">${mine.map(e=>{const d=fmtDay(e.date);return `<div class="card card-pad row gap16 card-hover" onclick="openEvent('${e.id}')">
+    <div style="text-align:center;line-height:1;flex:none"><div class="num" style="font-size:1.6rem;color:var(--clay)">${d.d}</div><div class="fs-xs muted">${d.m}</div></div>
+    <div style="flex:1"><div class="fw6">${esc(e.title)}</div><div class="muted fs-sm row gap6">${svg('pin')} ${esc(e.venue)} · ${esc(e.time)}</div></div>
+    <span class="badge badge-sage">${svg('check')} Vou</span></div>`}).join('')}</div>`:emptyState('event','O teu calendário está vazio','Marca "Vou participar" num evento para o veres aqui.',`<button class="btn btn-primary" onclick="go('events')">Ver eventos</button>`)}`;
+};
+
+/* ============================================================
+   COMUNIDADE
+   ============================================================ */
+let commTab='feed';
+ROUTES.community=()=>{
+  return `
+  ${pageHead('Comunidade','Não estás sozinho nesta caminhada.','Pessoas que já passaram por aqui, grupos da tua terra e respostas às tuas dúvidas.')}
+  <div class="tabs mb24">
+    ${[['feed','Perguntas'],['groups','Grupos'],['reco','Recomendações']].map(([k,l])=>`<div class="tab ${commTab===k?'on':''}" onclick="commTab='${k}';go('community')">${l}</div>`).join('')}
+  </div>
+  ${commTab==='groups'?commGroups():commTab==='reco'?commReco():commFeed()}`;
+};
+function commFeed(){
+  const posts=commTab==='reco'?POSTS.filter(p=>p.type==='Recomendação'):POSTS;
+  return `<div class="row between mb16"><div class="row gap6 wrap">
+    ${['Todos','Documentação','Habitação','Trabalho','Saúde'].map((t,i)=>`<span class="chip ${i===0?'on':''}">${t}</span>`).join('')}
+  </div><button class="btn btn-primary btn-sm" onclick="newPost()">${svg('plus')} Publicar</button></div>
+  <div class="stack gap12">${posts.map(postCard).join('')}</div>`;
+}
+function commReco(){const posts=POSTS.filter(p=>p.type==='Recomendação'||p.type==='Oportunidade');return `<div class="stack gap12">${posts.map(postCard).join('')}</div>`}
+function postCard(p){
+  const g=GROUPS.find(x=>x.name===p.group);
+  return `<div class="card card-pad">
+    <div class="row gap12 mb8">
+      <div class="av av-md">${p.country}</div>
+      <div style="flex:1"><div class="row gap6 wrap"><span class="fw6">${esc(p.author)}</span><span class="badge badge-line" style="font-size:.68rem">${esc(p.type)}</span></div>
+      <div class="muted fs-xs">${esc(p.group)} · ${esc(p.time)}</div></div>
+    </div>
+    <p class="mb12">${esc(p.text)}</p>
+    <div class="row between">
+      <div class="row gap12"><span class="muted fs-sm row gap4" style="cursor:pointer" onclick="toast('Obrigado pela tua reação')">${svg('heart')} ${p.reacts}</span>
+      <span class="muted fs-sm row gap4" style="cursor:pointer" onclick="toast('Respostas em breve nesta versão')">${svg('chat')} ${p.replies} respostas</span></div>
+      ${p.tag?`<span class="badge badge-line">${esc(p.tag)}</span>`:''}
+    </div>
+  </div>`;
+}
+function commGroups(){
+  return `<div class="grid g2">${GROUPS.map(g=>{const joined=S.joinedGroups.includes(g.id);return `<div class="card card-pad row between wrap gap12">
+    <div class="row gap12"><div class="av av-md" style="background:${g.color}1a;font-size:1.3rem">${g.flag}</div>
+    <div><div class="fw6">${esc(g.name)}</div><div class="muted fs-sm">${g.members.toLocaleString('pt-PT')} membros · ${esc(g.city)}</div></div></div>
+    <button class="btn ${joined?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleGroup('${g.id}')">${joined?'Membro ✓':'Seguir'}</button>
+  </div>`}).join('')}</div>`;
+}
+function toggleGroup(id){const i=S.joinedGroups.indexOf(id);if(i>=0){S.joinedGroups.splice(i,1);toast('Deixaste o grupo')}else{S.joinedGroups.push(id);toast('Entraste no grupo ✓')}save();go('community')}
+function newPost(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb16">Publicar na comunidade</h2>
+  <div class="field"><label>Grupo</label><select class="select">${GROUPS.map(g=>`<option>${esc(g.name)}</option>`).join('')}</select></div>
+  <div class="field"><label>A tua pergunta ou partilha</label><textarea class="input" placeholder="Escreve com respeito. Perguntas claras ajudam a comunidade a responder-te melhor."></textarea></div>
+  <div class="callout callout-info mb16">${svg('shield')}<div>A comunidade é moderada. Conteúdo abusivo ou spam é removido.</div></div>
+  <button class="btn btn-primary btn-block btn-lg" onclick="closeModal();toast('Publicação enviada para moderação ✓')">${svg('send')} Publicar</button></div>`)}
+
+/* ============================================================
+   SERVIÇOS
+   ============================================================ */
+let svcF='';
+ROUTES.services=()=>{
+  const list=SERVICES.filter(s=>!svcF||s.cat===svcF);
+  return `${pageHead('Serviços','Tudo o que precisas, num só sítio.','Bancos, saúde, telecomunicações, associações e apoio social — perto de ti.')}
+  <div class="row wrap gap6 mb24"><span class="chip ${!svcF?'on':''}" onclick="svcF='';go('services')">Todos</span>
+  ${SERVICE_CATS.map(c=>`<span class="chip ${svcF===c?'on':''}" onclick="svcF='${svcF===c?'':c}';go('services')">${esc(c)}</span>`).join('')}</div>
+  ${list.length?`<div class="grid g3">${list.map(serviceCard).join('')}</div>`:emptyState('service','Sem serviços nesta categoria','Estamos a mapear mais serviços continuamente.',`<button class="btn btn-ghost" onclick="svcF='';go('services')">Ver todos</button>`)}`;
+};
+function openService(id){const s=SERVICES.find(x=>x.id===id);if(!s)return;
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <div class="av av-lg" style="background:var(--surface-2);color:var(--ink-2);border-radius:16px;width:52px;height:52px">${svg(s.icon)}</div>
+  <div class="row gap6 mt12 wrap"><h2 class="h2">${esc(s.name)}</h2>${s.verified?`<span class="verified">${svg('shield')} Verificado</span>`:''}</div>
+  <div class="muted mb16">${esc(s.cat)} · ${esc(s.city)}</div>
+  <p class="mb16">${esc(s.desc)}</p>
+  <button class="btn btn-primary btn-block" onclick="closeModal();go('map')">${svg('map')} Ver no mapa</button></div>`)}
+
+/* ============================================================
+   MAPA
+   ============================================================ */
+let mapLayer='homes';
+ROUTES.map=()=>{
+  const layers=[['homes','Casas','home2'],['jobs','Emprego','work'],['pros','Profissionais','law'],['services','Serviços','service'],['events','Eventos','event']];
+  return `${pageHead('Mapa','O que existe à tua volta.','')}
+  <div class="row wrap gap6 mb16">${layers.map(([k,l,ic])=>`<span class="chip ${mapLayer===k?'on':''}" onclick="mapLayer='${k}';go('map')">${svg(ic)} ${l}</span>`).join('')}</div>
+  <div class="mapwrap" style="height:min(58vh,520px)">
+    ${mapPins()}
+    <div style="position:absolute;left:16px;bottom:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;box-shadow:var(--sh)"><div class="fw6 fs-sm">${esc(S.city)} e arredores</div><div class="muted fs-xs">${mapItems().length} resultados nesta camada</div></div>
+    <div style="position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;opacity:.25"></div>
+  </div>
+  <p class="muted fs-xs mt12">${svg('info')} Mapa ilustrativo para demonstração. Toca num marcador para ver detalhes.</p>`;
+};
+function mapItems(){
+  if(mapLayer==='homes')return HOMES.map(h=>({x:h.x,y:h.y,id:h.id,open:'openHome',label:h.price+'€'}));
+  if(mapLayer==='jobs')return JOBS.slice(0,6).map((j,i)=>({x:15+i*13,y:30+(i%3)*18,id:j.id,open:'openJob',label:''}));
+  if(mapLayer==='pros')return PROS.map((p,i)=>({x:20+i*15,y:35+(i%2)*22,id:p.id,open:'openPro',label:''}));
+  if(mapLayer==='services')return SERVICES.map((s,i)=>({x:18+i*13,y:28+(i%3)*20,id:s.id,open:'openService',label:''}));
+  return EVENTS.map((e,i)=>({x:16+i*13,y:32+(i%3)*18,id:e.id,open:'openEvent',label:''}));
+}
+function mapPins(){const ic={homes:'home2',jobs:'work',pros:'law',services:'service',events:'event'}[mapLayer];
+  return mapItems().map(m=>`<div class="mappin" style="left:${m.x}%;top:${m.y}%" onclick="${m.open}('${m.id}')"><div class="p">${svg(ic)}</div>${m.label?`<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-size:.66rem;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap">${esc(m.label)}</div>`:''}</div>`).join('')}
+
+/* ============================================================
+   PERFIL
+   ============================================================ */
+ROUTES.profile=()=>{
+  const sit=S.situations.map(id=>{const s=SITUATIONS.find(x=>x.id===id);return s?s.label:''}).filter(Boolean);
+  const rows=[
+    ['plan','Meu plano','compass',`${planDoneCount()}/${PLAN.length} passos`],
+    ['docs','Os meus documentos','doc',`${Object.values(S.docChecks).reduce((a,c)=>a+Object.values(c).filter(Boolean).length,0)} itens marcados`],
+    ['applications','As minhas candidaturas','briefcase',`${Object.keys(S.appliedJobs).length} enviadas`],
+    ['savedHomes','Casas guardadas','heart',`${S.savedHomes.length} guardadas`],
+    ['calendar','Eventos guardados','event',`${S.savedEvents.length} no calendário`],
+    ['contacted','Profissionais contactados','law',`${S.contactedPros.length} contactos`],
+  ];
+  return `
+  <div class="card card-pad mb24" style="background:linear-gradient(135deg,var(--clay-tint),var(--surface))">
+    <div class="row gap16 wrap">
+      <div class="av av-lg" style="width:80px;height:80px;background:var(--clay);color:#fff">${initials(S.name)}</div>
+      <div style="flex:1;min-width:200px"><h1 class="h1">${esc(S.name)}</h1>
+      <div class="row gap12 wrap muted mt4"><span class="row gap4">${countryFlag()} ${esc(countryName())}</span><span class="row gap4">${svg('pin')} ${esc(S.city)}</span></div>
+      <div class="row wrap gap6 mt12">${sit.slice(0,3).map(s=>`<span class="badge badge-line">${esc(s)}</span>`).join('')}</div></div>
+      <button class="btn btn-ghost" onclick="editProfile()">Editar perfil</button>
+    </div>
+  </div>
+  <div class="section-head"><h2 class="h2">A tua atividade</h2></div>
+  <div class="grid g2 mb24">${rows.map(([r,l,ic,meta])=>`<div class="card card-pad row between card-hover" onclick="go('${r==='contacted'?'contacted':r}')">
+    <div class="row gap12"><div class="av av-md" style="background:var(--surface-2);border-radius:12px;color:var(--ink-2)">${svg(ic)}</div>
+    <div><div class="fw6">${l}</div><div class="muted fs-sm">${meta}</div></div></div>${svg('chevr')}</div>`).join('')}</div>
+
+  <div class="section-head"><h2 class="h2">Definições</h2></div>
+  <div class="card">
+    <div class="row between card-pad" style="padding:16px 20px;cursor:pointer" onclick="toggleTheme()"><div class="row gap12">${svg(S.theme==='dark'?'moon':'sun')}<span class="fw5">Tema ${S.theme==='dark'?'escuro':'claro'}</span></div><div class="seg"><button class="${S.theme==='light'?'on':''}">Claro</button><button class="${S.theme==='dark'?'on':''}">Escuro</button></div></div>
+    <hr class="divider">
+    <div class="row between card-pad" style="padding:16px 20px;cursor:pointer" onclick="privacyModal()"><div class="row gap12">${svg('shield')}<span class="fw5">Privacidade e dados (RGPD)</span></div>${svg('chevr')}</div>
+    <hr class="divider">
+    <div class="row between card-pad" style="padding:16px 20px;cursor:pointer" onclick="openNotifs()"><div class="row gap12">${svg('bell')}<span class="fw5">Notificações</span></div>${svg('chevr')}</div>
+    <hr class="divider">
+    <div class="row between card-pad" style="padding:16px 20px;cursor:pointer" onclick="resetApp()"><div class="row gap12" style="color:var(--danger)">${svg('logout')}<span class="fw5">Recomeçar (terminar sessão)</span></div>${svg('chevr')}</div>
+  </div>
+  <p class="muted fs-xs tc mt24">${esc(BRAND)} · onde Portugal começa a fazer sentido · versão de demonstração</p>`;
+};
+ROUTES.contacted=()=>{
+  const list=S.contactedPros.map(id=>PROS.find(x=>x.id===id)).filter(Boolean);
+  return `<button class="btn btn-quiet btn-sm mb16" onclick="go('profile')">${svg('chevl')} Voltar ao perfil</button>
+  ${pageHead('Profissionais contactados','Os teus pedidos de consulta.','')}
+  ${list.length?`<div class="grid g2">${list.map(proCard).join('')}</div>`:emptyState('law','Ainda sem contactos','Quando pedires uma consulta, o profissional aparece aqui.',`<button class="btn btn-primary" onclick="go('pros')">Ver profissionais</button>`)}`;
+};
+function editProfile(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb16">Editar perfil</h2>
+  <div class="field"><label>Nome</label><input class="input" id="epName" value="${esc(S.name)}"></div>
+  <div class="field"><label>Cidade</label><select class="select" id="epCity">${CITIES.map(c=>`<option ${c===S.city?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
+  <div class="field"><label>País de origem</label><select class="select" id="epCountry">${COUNTRIES.map(c=>`<option value="${c.id}" ${c.id===S.country?'selected':''}>${c.flag} ${esc(c.name)}</option>`).join('')}</select></div>
+  <button class="btn btn-primary btn-block btn-lg mt8" onclick="saveProfile()">Guardar alterações</button></div>`)}
+function saveProfile(){S.name=el('epName').value.trim()||S.name;S.city=el('epCity').value;S.country=el('epCountry').value;save();closeModal();renderShell();go('profile');toast('Perfil atualizado ✓')}
+function privacyModal(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <div class="av av-lg" style="background:var(--sage-soft);color:var(--sage);border-radius:16px;width:52px;height:52px">${svg('shield')}</div>
+  <h2 class="h2 mt12 mb8">Privacidade e dados</h2>
+  <p class="muted mb16">Os teus dados são teus. Aqui controlas o que fazemos com eles.</p>
+  <div class="stack gap8">
+    <button class="btn btn-ghost btn-block" style="justify-content:space-between" onclick="toast('Exportação preparada (demonstração)')">Exportar os meus dados (JSON) ${svg('arrow')}</button>
+    <button class="btn btn-ghost btn-block" style="justify-content:space-between" onclick="toast('Preferências guardadas')">Gerir consentimentos ${svg('arrow')}</button>
+    <button class="btn btn-block" style="justify-content:space-between;color:var(--danger);background:var(--danger-soft)" onclick="closeModal();resetApp()">Eliminar a minha conta ${svg('arrow')}</button>
+  </div>
+  <p class="muted fs-xs mt16">Esta plataforma está a ser construída em conformidade com o RGPD.</p></div>`)}
+function resetApp(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb8">Recomeçar?</h2><p class="muted mb24">Isto limpa os teus dados de demonstração neste dispositivo e volta ao início.</p>
+  <div class="row gap8"><button class="btn btn-ghost flex1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary flex1" style="background:var(--danger)" onclick="doReset()">Recomeçar</button></div></div>`)}
+function doReset(){try{localStorage.removeItem(LS)}catch(e){}location.reload()}
+
+/* ============================================================
+   NOTIFICAÇÕES
+   ============================================================ */
+function openNotifs(){
+  openModal(`<div class="modal-pad" style="padding-bottom:12px"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <div class="row between mb16"><h2 class="h2">Notificações</h2>${unread()?`<button class="btn btn-quiet btn-sm" onclick="markAllRead()">Marcar lidas</button>`:''}</div>
+  <div class="stack gap8">${S.notifs.map(n=>`<div class="card card-pad row gap12 card-hover" style="padding:14px;background:${n.unread?'var(--clay-tint)':'var(--surface)'}" onclick="goNotif('${n.id}')">
+    <div class="av av-md" style="background:color-mix(in srgb,${n.color} 15%,transparent);color:${n.color};border-radius:12px">${svg(n.icon)}</div>
+    <div style="flex:1"><div class="row between"><span class="fw6 fs-sm">${esc(n.title)}</span>${n.unread?'<span style="width:8px;height:8px;background:var(--clay);border-radius:50%;flex:none"></span>':''}</div>
+    <div class="muted fs-sm">${esc(n.body)}</div><div class="muted fs-xs mt4">${esc(n.time)}</div></div>
+  </div>`).join('')}</div>
+  <div class="callout callout-info mt16">${svg('bell')}<div>Podes configurar que notificações queres receber nas definições.</div></div></div>`)}
+function goNotif(id){const n=S.notifs.find(x=>x.id===id);if(n){n.unread=false;save();closeModal();renderShell();if(n.go)go(n.go)}}
+function markAllRead(){S.notifs.forEach(n=>n.unread=false);save();renderShell();openNotifs()}
+
+/* ============================================================
+   PESQUISA GLOBAL (⌘K)
+   ============================================================ */
+function searchIndex(){
+  const idx=[];
+  DOCS.forEach(d=>idx.push({cat:'Documentação',t:d.title,s:d.cat,ic:'doc',go:()=>openDoc(d.id)}));
+  JOBS.forEach(j=>idx.push({cat:'Trabalho',t:j.role,s:j.company+' · '+j.city,ic:'work',go:()=>openJob(j.id)}));
+  HOMES.forEach(h=>idx.push({cat:'Casa',t:h.title,s:h.price+'€ · '+h.city,ic:'home2',go:()=>openHome(h.id)}));
+  PROS.forEach(p=>idx.push({cat:'Profissionais',t:p.name,s:p.prof+' · '+p.spec[0],ic:'law',go:()=>openPro(p.id)}));
+  EVENTS.forEach(e=>idx.push({cat:'Eventos',t:e.title,s:e.city+' · '+e.cat,ic:'event',go:()=>openEvent(e.id)}));
+  SERVICES.forEach(s=>idx.push({cat:'Serviços',t:s.name,s:s.cat,ic:'service',go:()=>openService(s.id)}));
+  NAV.forEach(n=>idx.push({cat:'Ir para',t:n.label,s:'',ic:n.icon,go:()=>go(n.r)}));
+  idx.push({cat:'Ir para',t:'Assistente',s:'Perguntar em linguagem natural',ic:'spark',go:()=>aiOpen()});
+  return idx;
+}
+let cmdkSel=0,cmdkResults=[];
+function openCmdk(){el('cmdk').classList.add('on');el('scrim').classList.add('on');document.body.style.overflow='hidden';
+  el('cmdk').innerHTML=`<div class="cmdk-in">${svg('search')}<input id="cmdkInput" placeholder="Pesquisar: advogado imigração, quarto em Setúbal, tratar NIF…" oninput="cmdkFilter(this.value)" onkeydown="cmdkKey(event)"><button class="btn btn-quiet btn-icon" onclick="closeCmdk()">${svg('x')}</button></div><div class="cmdk-res" id="cmdkRes"></div>`;
+  cmdkFilter('');setTimeout(()=>el('cmdkInput').focus(),50);
+}
+function closeCmdk(){el('cmdk').classList.remove('on');if(!el('modal').classList.contains('on')){el('scrim').classList.remove('on');document.body.style.overflow=''}}
+function cmdkFilter(q){
+  const idx=searchIndex();q=(q||'').toLowerCase().trim();
+  cmdkResults=q?idx.filter(i=>(i.t+' '+i.s+' '+i.cat).toLowerCase().includes(q)).slice(0,20):idx.filter(i=>i.cat==='Ir para');
+  cmdkSel=0;
+  const res=el('cmdkRes');
+  if(!cmdkResults.length){res.innerHTML=`<div class="state" style="padding:40px 20px"><div class="ill">${svg('search')}</div><h3 class="h3">Sem resultados para "${esc(q)}"</h3><p class="muted fs-sm">Tenta outras palavras. Registamos o que procuras e não encontras para melhorar a Bússola.</p></div>`;return}
+  const groups={};cmdkResults.forEach((r,i)=>{(groups[r.cat]=groups[r.cat]||[]).push({r,i})});
+  res.innerHTML=Object.entries(groups).map(([cat,items])=>`<div class="cmdk-cat">${esc(cat)}</div>${items.map(({r,i})=>`<div class="cmdk-row ${i===cmdkSel?'sel':''}" data-i="${i}" onclick="cmdkGo(${i})"><span style="color:var(--ink-3);width:18px">${svg(r.ic)}</span><div style="flex:1"><div class="fw5 fs-sm">${esc(r.t)}</div>${r.s?`<div class="muted fs-xs">${esc(r.s)}</div>`:''}</div>${svg('arrow','')}</div>`).join('')}`).join('');
+}
+function cmdkKey(e){
+  if(e.key==='ArrowDown'){e.preventDefault();cmdkSel=Math.min(cmdkSel+1,cmdkResults.length-1);cmdkPaint()}
+  else if(e.key==='ArrowUp'){e.preventDefault();cmdkSel=Math.max(cmdkSel-1,0);cmdkPaint()}
+  else if(e.key==='Enter'){e.preventDefault();cmdkGo(cmdkSel)}
+}
+function cmdkPaint(){$$('.cmdk-row').forEach(r=>{const on=+r.dataset.i===cmdkSel;r.classList.toggle('sel',on);if(on)r.scrollIntoView({block:'nearest'})})}
+function cmdkGo(i){const r=cmdkResults[i];if(!r)return;closeCmdk();setTimeout(()=>r.go(),120)}
+
+/* ============================================================
+   ASSISTENTE — camada de IA ancorada (grounded)
+   ------------------------------------------------------------
+   Princípio: sobre procedimentos oficiais, o assistente SÓ pode
+   dizer o que está no conteúdo validado da plataforma (DOCS e
+   restantes dados). Não gera texto livre sobre requisitos legais,
+   por isso não os pode inventar. Quando o caso exige análise
+   profissional, encaminha em vez de opinar.
+
+   Para ligar um modelo real: ver aiAskModel() no fim do bloco.
+   ============================================================ */
+let AI_OPEN=false, AI_MSGS=[], AI_H=[], AI_BUSY=false;
+const aiNorm=s=>String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^\w\s€]/g,' ').replace(/\s+/g,' ').trim();
+const aiHas=(q,ws)=>ws.some(w=>q.includes(aiNorm(w)));
+const aiDoc=id=>DOCS.find(d=>d.id===id);
+function aiHandler(fn){AI_H.push(fn);return AI_H.length-1}
+
+/* ---------- Painel ---------- */
+function aiToggle(){AI_OPEN?aiClose():aiOpen()}
+function aiOpen(){
+  AI_OPEN=true;el('aiPanel').classList.add('on');el('aiFab').classList.add('hide');
+  if(!AI_MSGS.length)aiGreet();
+  aiRender();setTimeout(()=>{const t=el('aiIn');if(t&&window.innerWidth>900)t.focus()},260);
+}
+function aiClose(){AI_OPEN=false;el('aiPanel').classList.remove('on');el('aiFab').classList.remove('hide')}
+function aiGreet(){
+  const nome=firstName();
+  const feito=planDoneCount(),falta=PLAN.find(p=>!S.planDone[p.id]);
+  AI_MSGS.push({r:'bot',a:{
+    text:`<p>Olá${nome?', '+esc(nome):''}. <b>Como posso ajudar?</b></p>`+
+      `<p>Posso explicar-te processos de documentação, encontrar trabalho e casa na tua zona, ou ajudar-te a falar com um profissional.</p>`+
+      (falta?`<p class="muted fs-sm">O teu plano vai em ${feito} de ${PLAN.length} passos — o próximo é <b>${esc(falta.title)}</b>.</p>`:''),
+    sugs:['Cheguei ontem a Portugal. O que devo tratar primeiro?','Quero procurar trabalho em '+(S.city||'Lisboa'),'Preciso encontrar um quarto até 500€','Quero falar com um advogado']
+  }});
+}
+function aiRender(){
+  const p=el('aiPanel');
+  p.innerHTML=`
+    <div class="ai-head">
+      <div class="ai-avatar">${svg('compass')}</div>
+      <div style="flex:1;min-width:0">
+        <div class="fw6" style="font-size:.95rem">Assistente da Bússola</div>
+        <div class="muted fs-xs">Responde com base no conteúdo verificado</div>
+      </div>
+      <button class="btn btn-quiet btn-icon" onclick="aiReset()" title="Recomeçar conversa">${svg('reload')}</button>
+      <button class="btn btn-quiet btn-icon" onclick="aiClose()" aria-label="Fechar">${svg('x')}</button>
+    </div>
+    <div class="ai-body" id="aiBody">
+      ${AI_MSGS.map(aiMsgHTML).join('')}
+      ${AI_BUSY?`<div class="ai-typing"><i></i><i></i><i></i></div>`:''}
+    </div>
+    <div class="ai-foot">
+      <div class="ai-input">
+        <textarea id="aiIn" rows="1" placeholder="Escreve a tua pergunta…" oninput="aiGrow(this)"
+          onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();aiSend()}"></textarea>
+        <button class="btn btn-primary btn-icon" onclick="aiSend()" aria-label="Enviar">${svg('send')}</button>
+      </div>
+      <p class="muted fs-xs mt8" style="text-align:center">Orientação, não aconselhamento jurídico.</p>
+    </div>`;
+  aiScroll();
+}
+function aiMsgHTML(m){
+  if(m.r==='user')return `<div class="ai-msg user">${esc(m.t)}</div>`;
+  const a=m.a;
+  return `<div class="ai-msg bot"><div class="ai-bubble">
+    ${a.text||''}
+    ${a.cards&&a.cards.length?`<div class="ai-cards">${a.cards.map(c=>`
+      <div class="ai-card" onclick="AI_H[${c.h}]()">
+        <div class="aic-ic">${svg(c.ic)}</div>
+        <div style="flex:1;min-width:0"><div class="aic-t">${esc(c.t)}</div><div class="aic-s">${esc(c.s)}</div></div>
+        ${svg('chevr','')}
+      </div>`).join('')}</div>`:''}
+    ${a.warn?`<div class="ai-warn">${svg('info')}<div>${a.warn}</div></div>`:''}
+    ${a.note?`<div class="ai-note">${svg('shield')}<div>${a.note}</div></div>`:''}
+    ${a.acts&&a.acts.length?`<div class="ai-acts">${a.acts.map(x=>`<button class="ai-act ${x.soft?'soft':''}" onclick="AI_H[${x.h}]()">${x.l}</button>`).join('')}</div>`:''}
+    ${a.src?`<div class="ai-src">${svg('shield')} ${esc(a.src)}</div>`:''}
+  </div>
+  ${a.sugs&&a.sugs.length?`<div class="ai-sugs mt12">${a.sugs.map(s=>`<button class="ai-sug" onclick="aiAsk('${esc(s).replace(/'/g,"\\'")}')">${esc(s)}</button>`).join('')}</div>`:''}
+  </div>`;
+}
+function aiGrow(t){t.style.height='auto';t.style.height=Math.min(t.scrollHeight,110)+'px'}
+function aiScroll(){const b=el('aiBody');if(b)b.scrollTop=b.scrollHeight}
+function aiReset(){AI_MSGS=[];AI_H=[];aiGreet();aiRender()}
+function aiSend(){const t=el('aiIn');if(!t)return;const v=t.value.trim();if(!v)return;t.value='';t.style.height='auto';aiAsk(v)}
+function aiAsk(q){
+  if(AI_BUSY)return;
+  AI_MSGS.push({r:'user',t:q});AI_BUSY=true;aiRender();
+  setTimeout(()=>{
+    const a=aiAnswer(q);
+    AI_BUSY=false;AI_MSGS.push({r:'bot',a});aiRender();
+  },430+Math.random()*260);
+}
+
+/* ---------- Extractores ---------- */
+function aiCityOf(q){const n=aiNorm(q);return CITIES.find(c=>n.includes(aiNorm(c)))||null}
+function aiPriceOf(q){const m=aiNorm(q).match(/(\d{2,4})\s*(?:€|euros?|eur)?/);if(!m)return null;const v=+m[1];return v>=80&&v<=3000?v:null}
+
+/* ---------- Construtores de resposta ancorada ---------- */
+const AI_DISCLAIMER='Esta informação é orientação com base no conteúdo verificado da Bússola. Para o teu caso concreto, fala com um profissional qualificado.';
+function aiDocAnswer(id,lead){
+  const d=aiDoc(id);if(!d)return aiUnknown('');
+  return {
+    text:`${lead?`<p>${lead}</p>`:''}<p><b>${esc(d.title)}</b> — ${esc(d.summary)}</p>`+
+      `<p class="fs-sm muted" style="margin-top:9px"><b>O que precisas de levar:</b></p>`+
+      `<ul>${d.need.slice(0,5).map(n=>`<li><span>${svg('check')}</span>${esc(n)}</li>`).join('')}</ul>`+
+      `<p class="fs-sm" style="margin-top:10px"><b>Onde tratar:</b> ${esc(d.where)}</p>`+
+      `<p class="fs-sm"><b>Custo:</b> ${esc(d.cost)}</p>`+
+      `<p class="fs-sm"><b>Prazos:</b> ${esc(d.deadline)}</p>`,
+    cards:[{ic:d.icon,t:d.title,s:'Ver o processo completo, passo a passo e checklist',h:aiHandler(()=>{aiClose();openDoc(d.id)})}],
+    acts:[{l:'Encontrar apoio jurídico',h:aiHandler(()=>{aiClose();go('pros')}),soft:true}],
+    warn:AI_DISCLAIMER,
+    src:'Centro de documentação · '+d.cat
+  };
+}
+function aiJobsAnswer(q){
+  const city=aiCityOf(q)||S.city;
+  let list=JOBS.filter(j=>j.city===city);
+  const alargou=!list.length; if(alargou)list=JOBS.slice();
+  const semExp=list.filter(j=>!j.exp);
+  const top=(semExp.length?semExp:list).slice(0,3);
+  return {
+    text:`<p>${alargou?`Não encontrei vagas em <b>${esc(city)}</b> neste momento, por isso alarguei a pesquisa.`:`Encontrei <b>${list.length} ${list.length===1?'vaga':'vagas'}</b> em ${esc(city)}.`}</p>`+
+      (semExp.length?`<p class="fs-sm">${semExp.length} ${semExp.length===1?'não exige':'não exigem'} experiência — costuma ser o melhor ponto de partida para quem chegou há pouco.</p>`:''),
+    cards:top.map(j=>({ic:'work',t:j.role,s:`${j.company} · ${j.city} · ${j.salary}`,h:aiHandler(()=>{aiClose();openJob(j.id)})})),
+    acts:[{l:'Ver todas as vagas',h:aiHandler(()=>{aiClose();jobF={q:'',q2:'',sector:'',noexp:false};go('jobs')})},
+          {l:'Só sem experiência',h:aiHandler(()=>{aiClose();jobF={q:'',q2:'',sector:'',noexp:true};go('jobs')}),soft:true}],
+    note:'Nunca pagues para te candidatares a um emprego. Nenhuma empresa séria cobra por uma vaga.',
+    src:'Bolsa de trabalho da Bússola'
+  };
+}
+function aiHomesAnswer(q){
+  const city=aiCityOf(q)||S.city, max=aiPriceOf(q);
+  let list=HOMES.filter(h=>(!city||h.city===city)&&(!max||h.price<=max));
+  let nota='';
+  if(!list.length&&max){list=HOMES.filter(h=>h.price<=max);nota=`Não encontrei nada em ${esc(city)} até ${max}€, mas há opções noutras zonas.`}
+  if(!list.length){list=HOMES.slice().sort((a,b)=>a.price-b.price);nota='Não encontrei nada dentro desses critérios — aqui ficam as opções mais baratas disponíveis.'}
+  return {
+    text:`<p>${nota||`Encontrei <b>${list.length} ${list.length===1?'opção':'opções'}</b>${city?' em '+esc(city):''}${max?' até '+max+'€':''}.`}</p>`,
+    cards:list.slice(0,3).map(h=>({ic:'home2',t:h.title,s:`${h.price}€/mês · ${h.area}, ${h.city}${h.verified?' · Verificado':''}`,h:aiHandler(()=>{aiClose();openHome(h.id)})})),
+    acts:[{l:'Ver toda a habitação',h:aiHandler(()=>{aiClose();homeF={q:'',type:'',max:0};go('homes')})},
+          {l:'Como evitar burlas',h:aiHandler(()=>{aiClose();scamGuide()}),soft:true}],
+    note:'Regra que te protege sempre: nunca pagues caução, sinal ou reserva antes de veres a casa em pessoa.',
+    src:'Anúncios de habitação da Bússola'
+  };
+}
+function aiProsAnswer(q,motivo){
+  const n=aiNorm(q);
+  let list=PROS.slice();
+  if(aiHas(n,['nacionalidade']))list=PROS.filter(p=>p.spec.includes('Nacionalidade'));
+  else if(aiHas(n,['familia','reagrupamento','esposa','marido','filho','filhos']))list=PROS.filter(p=>p.spec.includes('Reagrupamento familiar'));
+  else if(aiHas(n,['trabalho','contrato','despedi','patrao','salario']))list=PROS.filter(p=>p.spec.includes('Direito do Trabalho'));
+  if(!list.length)list=PROS.slice();
+  const local=list.filter(p=>p.city===S.city);
+  const top=(local.length?local:list).slice(0,3);
+  return {
+    text:`<p>${motivo||'Posso ajudar-te a encontrar apoio jurídico.'}</p>`+
+      `<p class="fs-sm">Estes profissionais têm as credenciais confirmadas pela equipa da Bússola${local.length?` e atendem em ${esc(S.city)}`:''}.</p>`,
+    cards:top.map(p=>({ic:'law',t:p.name,s:`${p.prof} · ${p.city} · ${p.price}`,h:aiHandler(()=>{aiClose();openPro(p.id)})})),
+    acts:[{l:'Ver todos os profissionais',h:aiHandler(()=>{aiClose();proF={q:'',spec:'',mode:''};go('pros')})}],
+    src:'Diretório de profissionais verificados'
+  };
+}
+function aiEscalate(q){
+  return {
+    text:`<p><b>Esta situação pode depender do teu caso.</b> Posso ajudar-te a encontrar um profissional.</p>`+
+      `<p>Não te vou dar uma resposta jurídica, porque prazos, recursos e situações irregulares dependem de detalhes que só um advogado ou solicitador pode avaliar contigo — e uma resposta errada aqui podia prejudicar-te a sério.</p>`,
+    cards:PROS.filter(p=>p.spec.includes('Direito de Imigração')).slice(0,2).map(p=>({
+      ic:'law',t:p.name,s:`${p.prof} · ${p.city} · ${p.avail}`,h:aiHandler(()=>{aiClose();openPro(p.id)})})),
+    acts:[{l:'Ver apoio jurídico',h:aiHandler(()=>{aiClose();proF={q:'',spec:'Direito de Imigração',mode:''};go('pros')})},
+          {l:'Serviços de apoio gratuito',h:aiHandler(()=>{aiClose();svcF='Apoio social';go('services')}),soft:true}],
+    note:'Há apoio gratuito: os balcões CNAIM têm atendimento e mediadores culturais sem custo.',
+    src:'Encaminhamento para profissional qualificado'
+  };
+}
+function aiUnknown(q){
+  if(q&&q.trim()){S.aiUnknown=(S.aiUnknown||[]);S.aiUnknown.push({q:q.trim(),t:Date.now()});save()}
+  return {
+    text:`<p><b>Ainda não sei responder a isso.</b></p>`+
+      `<p>Prefiro dizer-te que não sei do que arriscar dar-te informação errada — sobretudo em assuntos que podem afectar a tua situação legal.</p>`+
+      `<p class="fs-sm muted">Registámos a tua pergunta. É assim que decidimos o que acrescentar à Bússola a seguir.</p>`,
+    acts:[{l:'Falar com um profissional',h:aiHandler(()=>{aiClose();go('pros')})},
+          {l:'Ver a documentação',h:aiHandler(()=>{aiClose();docCatFilter='';go('docs')}),soft:true},
+          {l:'Perguntar à comunidade',h:aiHandler(()=>{aiClose();commTab='feed';go('community')}),soft:true}],
+    sugs:['O que devo tratar primeiro?','Como peço o NIF?','Quero procurar trabalho']
+  };
+}
+
+/* ---------- Motor de intenções ---------- */
+function aiAnswer(raw){
+  const q=aiNorm(raw);
+  if(!q)return aiUnknown('');
+
+  /* 1. Casos que exigem profissional — sempre primeiro */
+  /* radicais curtos de propósito: falhar aqui é pior do que encaminhar a mais */
+  if(aiHas(q,['deport','expuls','indeferi','recus','recorr','recurso','tribunal','detid','detenc','juiz',
+              'ilegal','irregular','sem documentos','sem papeis','perdi o prazo','prazo expir','expirou','caduc',
+              'multa','coima','contraordenac','processo contra','notificad','notificac','despacho','intimac',
+              'mandaram me sair','tenho de sair','vou ser mandado','o meu caso','o meu processo','fui parado']))
+    return aiEscalate(raw);
+
+  /* 2. Saudações e capacidades */
+  if(aiHas(q,['ola','ole','bom dia','boa tarde','boa noite','oi ']) && q.length<26)
+    return {text:`<p>Olá${firstName()?', '+esc(firstName()):''}. Diz-me o que precisas de resolver e eu trato de te apontar o caminho.</p>`,
+      sugs:['O que devo tratar primeiro?','Quero procurar trabalho','Preciso de casa','Quero falar com um advogado']};
+  if(aiHas(q,['o que sabes','o que podes','ajuda','como funcionas','o que fazes']))
+    return {text:`<p>Posso ajudar-te com:</p><ul>`+
+      `<li><span>${svg('check')}</span><b>Documentação</b> — NIF, NISS, título de residência, reagrupamento, nacionalidade, saúde, carta de condução</li>`+
+      `<li><span>${svg('check')}</span><b>Trabalho</b> — vagas na tua zona, incluindo sem experiência</li>`+
+      `<li><span>${svg('check')}</span><b>Casa</b> — quartos e apartamentos dentro do teu orçamento</li>`+
+      `<li><span>${svg('check')}</span><b>Profissionais</b> — advogados e solicitadores verificados</li>`+
+      `<li><span>${svg('check')}</span><b>Eventos e comunidade</b> — o que acontece perto de ti</li></ul>`+
+      `<p class="fs-sm muted" style="margin-top:10px">Sobre procedimentos oficiais respondo só com o que está verificado na plataforma. Se não souber, digo que não sei.</p>`,
+      src:'Capacidades do assistente'};
+
+  /* 3. Primeiros passos / plano */
+  if(aiHas(q,['cheguei','acabei de chegar','primeiro','por onde comeco','por onde começar','recem chegado','aterrei','o que devo tratar','o que fazer primeiro'])){
+    const falta=PLAN.find(p=>!S.planDone[p.id])||PLAN[0];
+    return {
+      text:`<p>Bem-vindo. A ordem que funciona melhor para quem chega é esta:</p>`+
+        `<ul>${PLAN.map((p,i)=>`<li><span>${S.planDone[p.id]?svg('check'):'<b>'+p.n+'</b>'}</span><b>${esc(p.title)}</b> — ${esc(p.desc)}</li>`).join('')}</ul>`+
+        `<p style="margin-top:10px">Começa pelo <b>NIF</b>: é gratuito, tratas dele no mesmo dia nas Finanças, e quase tudo o resto depende dele — arrendar casa, assinar contrato de trabalho, abrir conta.</p>`,
+      cards:[{ic:'card',t:'Como pedir o NIF',s:'Gratuito · atribuído no próprio dia',h:aiHandler(()=>{aiClose();openDoc('nif')})},
+             {ic:'compass',t:'O teu plano de chegada',s:`Próximo passo: ${falta.title}`,h:aiHandler(()=>{aiClose();go('plan')})}],
+      warn:AI_DISCLAIMER,
+      src:'Plano de chegada · Centro de documentação'
+    };
+  }
+  if(aiHas(q,['meu plano','o plano','progresso','em que passo']))
+    return {text:`<p>Vais em <b>${planDoneCount()} de ${PLAN.length}</b> passos.</p>`+
+      `<ul>${PLAN.map(p=>`<li><span>${S.planDone[p.id]?svg('check'):svg('clock')}</span>${esc(p.title)}</li>`).join('')}</ul>`,
+      acts:[{l:'Abrir o meu plano',h:aiHandler(()=>{aiClose();go('plan')})}],src:'O teu plano'};
+
+  /* 4. Documentação — ancorada em DOCS */
+  if(aiHas(q,['nif','contribuinte','financas','numero fiscal']))
+    return aiDocAnswer('nif','O NIF é normalmente o primeiro documento a tratar.');
+  if(aiHas(q,['niss','seguranca social','descontos']))
+    return aiDocAnswer('niss','Precisas do NISS para trabalhar com contrato.');
+  if(aiHas(q,['residencia','aima','sef','titulo','regularizar','legalizar','autorizacao'])){
+    const a=aiDocAnswer('aima-res','Os pedidos de residência são tratados pela AIMA — o SEF já não existe.');
+    return a;
+  }
+  if(aiHas(q,['reagrupamento','trazer a familia','trazer familia','minha esposa','meu marido','meus filhos','trazer o meu']))
+    return aiDocAnswer('reagr','O reagrupamento familiar permite reunires a tua família contigo.');
+  if(aiHas(q,['nacionalidade','passaporte portugues','ser portugues','cidadania']))
+    return aiDocAnswer('nacio','A nacionalidade tem requisitos de tempo de residência e de língua.');
+  if(aiHas(q,['saude','medico','centro de saude','utente','sns','hospital','doente']))
+    return aiDocAnswer('sns','O acesso a cuidados de saúde é um direito.');
+  if(aiHas(q,['carta de conducao','conduzir','carta de condu','imt','conducao']))
+    return aiDocAnswer('carta','Há prazos a cumprir depois de fixares residência.');
+  if(aiHas(q,['documento','documentacao','papeis','legalizacao']))
+    return {text:`<p>O centro de documentação tem ${DOCS.length} processos explicados passo a passo, cada um com a sua checklist.</p>`,
+      cards:DOCS.slice(0,4).map(d=>({ic:d.icon,t:d.title,s:d.cat,h:aiHandler(()=>{aiClose();openDoc(d.id)})})),
+      acts:[{l:'Ver tudo',h:aiHandler(()=>{aiClose();docCatFilter='';go('docs')})}],
+      warn:AI_DISCLAIMER,src:'Centro de documentação'};
+
+  /* 5. Burlas — antes de trabalho/casa: a segurança tem precedência
+        sobre a intenção aparente ("querem enganar-me com um quarto") */
+  if(aiHas(q,['burla','golpe','aldrab','enganar','engan','pediram me dinheiro','pediu me dinheiro','desconfio','desconfiar','fraude','roubar','suspeito','parece me estranho','e seguro']))
+    return {text:`<p>Fizeste bem em perguntar. Estes são os sinais mais comuns de burla:</p>`+
+      `<ul>${['Pedem sinal ou caução antes de te deixarem ver a casa','Preço muito abaixo do mercado para a zona','Só comunicam por mensagem e recusam encontro presencial','Pedem transferência para o estrangeiro ou por aplicações informais','Metem pressa para decidires "hoje"','Cobram-te para te candidatares a um emprego']
+        .map(t=>`<li><span>${svg('warn')}</span>${esc(t)}</li>`).join('')}</ul>`+
+      `<p style="margin-top:10px">Se algum destes sinais aparecer, <b>pára e não pagues nada</b>.</p>`,
+      acts:[{l:'Guia completo',h:aiHandler(()=>{aiClose();scamGuide()})},
+            {l:'Denunciar um anúncio',h:aiHandler(()=>{aiClose();go('homes')}),soft:true}],
+      note:'Se já perdeste dinheiro, podes apresentar queixa às autoridades. Um profissional ou um balcão CNAIM pode orientar-te sobre como.',
+      src:'Guia de segurança da Bússola'};
+
+  /* 6. Trabalho */
+  if(aiHas(q,['trabalho','emprego','vaga','vagas','trabalhar','contratar','contrato de trabalho','ganhar dinheiro','estagio']))
+    return aiJobsAnswer(raw);
+
+  /* 6. Casa */
+  if(aiHas(q,['casa','quarto','arrendar','arrendamento','apartamento','alojamento','viver','morar','t1','t2','renda']))
+    return aiHomesAnswer(raw);
+
+  /* 7. Profissionais */
+  if(aiHas(q,['advogado','advogada','solicitador','apoio juridico','juridico','consulta']))
+    return aiProsAnswer(raw,'Claro. Aqui tens profissionais verificados que podem ajudar-te.');
+
+  /* 9. Serviços */
+  if(aiHas(q,['banco','conta bancaria','cartao sim','telemovel','internet','telecomunicacoes','servico','associacao','apoio social','cnaim'])){
+    const list=SERVICES.filter(s=>s.city===S.city||s.city==='Nacional');
+    return {text:`<p>Estes serviços costumam ser os primeiros de que precisas${S.city?' em '+esc(S.city):''}.</p>`,
+      cards:(list.length?list:SERVICES).slice(0,3).map(s=>({ic:s.icon,t:s.name,s:`${s.cat} · ${s.city}`,h:aiHandler(()=>{aiClose();openService(s.id)})})),
+      acts:[{l:'Ver todos os serviços',h:aiHandler(()=>{aiClose();svcF='';go('services')})}],
+      src:'Diretório de serviços'};
+  }
+
+  /* 10. Eventos e comunidade */
+  if(aiHas(q,['evento','eventos','festa','musica','kizomba','acontece','fazer no fim de semana']))
+    return {text:`<p>Isto é o que está a acontecer nos próximos dias.</p>`,
+      cards:EVENTS.slice(0,3).map(e=>({ic:'event',t:e.title,s:`${fmtDate(e.date)} · ${e.city} · ${e.price}`,h:aiHandler(()=>{aiClose();openEvent(e.id)})})),
+      acts:[{l:'Ver todos os eventos',h:aiHandler(()=>{aiClose();evF='';go('events')})}],src:'Agenda da Bússola'};
+  if(aiHas(q,['comunidade','conhecer pessoas','grupo','grupos','sozinho','sozinha','amigos','conterraneos']))
+    return {text:`<p>Não tens de passar por isto sozinho. Estes grupos são dos mais activos:</p>`,
+      cards:GROUPS.slice(0,3).map(g=>({ic:'people',t:g.name,s:`${g.members.toLocaleString('pt-PT')} membros · ${g.city}`,h:aiHandler(()=>{aiClose();commTab='groups';go('community')})})),
+      acts:[{l:'Entrar na comunidade',h:aiHandler(()=>{aiClose();commTab='feed';go('community')})}],src:'Comunidade da Bússola'};
+
+  /* 11. Estudar / negócio — encaminhamento honesto */
+  if(aiHas(q,['estudar','universidade','curso','escola','equivalencia','faculdade']))
+    return {text:`<p>Ainda não tenho conteúdo verificado sobre estudos e equivalências — é uma das áreas que vamos acrescentar.</p>`+
+      `<p>Entretanto, os balcões de apoio ao migrante orientam sobre equivalências de habilitações, e há formação certificada de português.</p>`,
+      acts:[{l:'Ver serviços de apoio',h:aiHandler(()=>{aiClose();svcF='Apoio social';go('services')})},
+            {l:'Perguntar à comunidade',h:aiHandler(()=>{aiClose();commTab='feed';go('community')}),soft:true}],
+      src:'Área ainda em construção'};
+  if(aiHas(q,['negocio','abrir empresa','empresa','empreender','atividade','trabalhar por conta propria','recibos verdes']))
+    return {text:`<p>Ainda não tenho um guia verificado sobre abertura de actividade — prefiro não improvisar sobre obrigações fiscais.</p>`+
+      `<p>Há contabilistas na plataforma e um grupo de empreendedores PALOP com gente que já passou por isso.</p>`,
+      cards:SERVICES.filter(s=>s.cat==='Contabilidade').map(s=>({ic:s.icon,t:s.name,s:`${s.cat} · ${s.city}`,h:aiHandler(()=>{aiClose();openService(s.id)})})),
+      acts:[{l:'Empreendedores PALOP',h:aiHandler(()=>{aiClose();commTab='groups';go('community')}),soft:true}],
+      src:'Área ainda em construção'};
+
+  /* 12. Não sabe — honesto */
+  return aiUnknown(raw);
+}
+
+/* ------------------------------------------------------------
+   COSTURA PARA MODELO REAL
+   ------------------------------------------------------------
+   Quando existir backend, criar uma Edge Function `ai-assistant`
+   (a chave NUNCA no frontend) e trocar aiAsk() para chamar isto.
+   O contexto enviado é o conteúdo verificado — o modelo reescreve,
+   resume e desambigua, mas não inventa: o system prompt obriga-o a
+   responder só a partir do contexto e a encaminhar quando não houver.
+------------------------------------------------------------ */
+function aiBuildContext(q){
+  return {
+    pergunta:q,
+    utilizador:{cidade:S.city,pais:countryName(),situacoes:S.situations,plano:`${planDoneCount()}/${PLAN.length}`},
+    documentacao:DOCS.map(d=>({id:d.id,titulo:d.title,cat:d.cat,resumo:d.summary,precisa:d.need,passos:d.steps,onde:d.where,custo:d.cost,prazos:d.deadline,alerta:d.alert,faq:d.faq})),
+    trabalho:JOBS.map(j=>({id:j.id,cargo:j.role,empresa:j.company,cidade:j.city,salario:j.salary,semExperiencia:!j.exp})),
+    habitacao:HOMES.map(h=>({id:h.id,titulo:h.title,cidade:h.city,preco:h.price,tipo:h.type,verificado:h.verified})),
+    profissionais:PROS.map(p=>({id:p.id,nome:p.name,prof:p.prof,cidade:p.city,especialidades:p.spec,idiomas:p.langs})),
+    regras:[
+      'Responder apenas com base no contexto fornecido.',
+      'Nunca inventar requisitos legais, prazos, custos ou documentos.',
+      'Se a resposta não estiver no contexto, dizer que não sabe e encaminhar.',
+      'Se a pergunta exigir análise do caso concreto, responder: "Esta situação pode depender do teu caso. Posso ajudar-te a encontrar um profissional."',
+      'Português europeu. Tratamento por tu. Linguagem simples.'
+    ]
+  };
+}
+async function aiAskModel(q){
+  const r=await fetch('/api/ai-assistant',{method:'POST',headers:{'Content-Type':'application/json'},
+    body:JSON.stringify(aiBuildContext(q))});
+  if(!r.ok)throw new Error('assistente indisponível');
+  return r.json();
+}
+
+/* ============================================================
+   ARRANQUE
+   ============================================================ */
+boot();
+</script>
+</body>
+</html>

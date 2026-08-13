@@ -1,0 +1,5 @@
+# Bússola — configuração do projeto Supabase
+project_id = "wtbskvimckdsypmuyxen"
+
+[functions.ai-assistant]
+verify_jwt = true

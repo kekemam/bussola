@@ -1,0 +1,677 @@
+<!DOCTYPE html>
+<html lang="pt-PT" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F4EF">
+<title>Bússola — onde Portugal começa a fazer sentido</title>
+<meta name="description" content="O teu guia de integração em Portugal. Documentação, trabalho, casa, apoio jurídico e comunidade — organizados num plano feito para ti. Para quem chega de Angola, Cabo Verde, Guiné-Bissau, Moçambique e São Tomé e Príncipe.">
+<meta property="og:title" content="Bússola — onde Portugal começa a fazer sentido">
+<meta property="og:description" content="O teu guia de integração em Portugal: documentação, trabalho, casa, apoio jurídico e comunidade.">
+<meta property="og:locale" content="pt_PT">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BÚSSOLA — Landing
+   ============================================================ */
+:root{
+  --paper:#F7F4EF; --surface:#FDFCFA; --surface-2:#F1ECE3; --surface-3:#E9E3D7;
+  --ink:#1C1A16; --ink-2:#57534A; --ink-3:#8A8478; --line:#E7E1D6; --line-2:#EFEAE0;
+  --clay:#C25A3A; --clay-deep:#A8432A; --clay-soft:#F3E4DB; --clay-tint:#FBF1EB;
+  --sage:#3E6B5A; --sage-soft:#E4EEE8; --gold:#B4842B; --gold-soft:#F6EDD8;
+  --sky:#37618E; --sky-soft:#E3EAF2;
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,-apple-system,sans-serif;
+  --r-sm:8px; --r:14px; --r-lg:20px; --r-xl:28px; --r-full:999px;
+  --sh-sm:0 1px 2px rgba(28,26,22,.05);
+  --sh:0 8px 30px -12px rgba(28,26,22,.18);
+  --sh-lg:0 30px 70px -24px rgba(28,26,22,.3);
+  --max:1160px; --ease:cubic-bezier(.22,.61,.36,1);
+}
+[data-theme="dark"]{
+  --paper:#16140F; --surface:#1E1B15; --surface-2:#26221A; --surface-3:#2F2A21;
+  --ink:#F3EFE6; --ink-2:#B8B2A4; --ink-3:#867F70; --line:#302B22; --line-2:#2A251D;
+  --clay:#E0794F; --clay-deep:#C25A3A; --clay-soft:#3A2419; --clay-tint:#241812;
+  --sage:#6FA98F; --sage-soft:#1E2C25; --gold:#D0A150; --gold-soft:#2B2415;
+  --sky:#6E9CCB; --sky-soft:#1B2531;
+  --sh-sm:0 1px 2px rgba(0,0,0,.3); --sh:0 8px 30px -12px rgba(0,0,0,.5); --sh-lg:0 30px 70px -24px rgba(0,0,0,.65);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-text-size-adjust:100%}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;letter-spacing:-.011em;overflow-x:hidden}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;line-height:1.1;letter-spacing:-.025em;color:var(--ink)}
+.display{font-size:clamp(2.6rem,7vw,4.6rem);line-height:1;letter-spacing:-.035em}
+.h1{font-size:clamp(2rem,4.6vw,3.1rem)}
+.h2{font-size:clamp(1.5rem,3vw,2.1rem)}
+.h3{font-size:1.16rem;font-weight:600;letter-spacing:-.02em}
+.eyebrow{font-family:var(--sans);font-size:.74rem;font-weight:600;letter-spacing:.15em;text-transform:uppercase;color:var(--ink-3)}
+.lead{font-size:clamp(1.02rem,1.5vw,1.2rem);color:var(--ink-2);line-height:1.55}
+.muted{color:var(--ink-3)}
+a{color:inherit;text-decoration:none}
+.i{width:1.15em;height:1.15em;flex:none;vertical-align:middle}
+svg{stroke-linecap:round;stroke-linejoin:round}
+img{max-width:100%}
+
+.wrap{max-width:var(--max);margin:0 auto;padding:0 clamp(20px,5vw,32px)}
+.sec{padding:clamp(64px,10vw,116px) 0}
+.sec-sm{padding:clamp(44px,7vw,72px) 0}
+.center{text-align:center}
+.row{display:flex;gap:14px;align-items:center} .wrapf{flex-wrap:wrap} .between{justify-content:space-between}
+.stack{display:flex;flex-direction:column}
+.grid{display:grid;gap:20px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}.mb32{margin-bottom:32px}.mb48{margin-bottom:48px}
+.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}.mt32{margin-top:32px}.mt48{margin-top:48px}
+.mxa{margin-left:auto;margin-right:auto} .mla{margin-left:auto}
+.fs-sm{font-size:.9rem}.fs-xs{font-size:.8rem}.fw6{font-weight:600}.fw5{font-weight:550}
+.clay{color:var(--clay)}.sage{color:var(--sage)}.gold{color:var(--gold)}.sky{color:var(--sky)}
+.maxw{max-width:62ch}.maxw-s{max-width:52ch}
+
+/* botões */
+.btn{font-family:var(--sans);font-size:.95rem;font-weight:550;display:inline-flex;align-items:center;justify-content:center;gap:.5em;
+  padding:.85em 1.5em;border-radius:var(--r-full);border:1px solid transparent;cursor:pointer;line-height:1;white-space:nowrap;
+  transition:transform .18s var(--ease),background .2s,border-color .2s,color .2s,box-shadow .2s}
+.btn:active{transform:scale(.97)}
+.btn-primary{background:var(--clay);color:#fff;box-shadow:var(--sh-sm)}
+.btn-primary:hover{background:var(--clay-deep);box-shadow:var(--sh)}
+.btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink)}
+.btn-ghost:hover{border-color:var(--ink-3)}
+.btn-quiet{background:transparent;color:var(--ink-2)} .btn-quiet:hover{color:var(--ink)}
+.btn-lg{padding:1em 1.8em;font-size:1.02rem}
+.btn-sm{padding:.6em 1.05em;font-size:.86rem}
+.btn-icon{padding:.55em;width:2.5em;height:2.5em;border-radius:var(--r)}
+
+.badge{display:inline-flex;align-items:center;gap:.4em;font-size:.78rem;font-weight:600;padding:.42em .85em;border-radius:var(--r-full)}
+.badge-clay{background:var(--clay-soft);color:var(--clay-deep)}
+.badge-sage{background:var(--sage-soft);color:var(--sage)}
+.badge-line{background:var(--surface);border:1px solid var(--line);color:var(--ink-2)}
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+.card-pad{padding:26px}
+
+/* NAV */
+.nav{position:sticky;top:0;z-index:60;background:color-mix(in srgb,var(--paper) 82%,transparent);backdrop-filter:saturate(180%) blur(16px);border-bottom:1px solid transparent;transition:border-color .3s,background .3s}
+.nav.stuck{border-bottom-color:var(--line)}
+.nav-in{height:72px;display:flex;align-items:center;gap:12px}
+.brand{display:flex;align-items:center;gap:.55em;font-family:var(--serif);font-size:1.3rem;font-weight:600;letter-spacing:-.02em}
+.nav-links{display:flex;gap:4px;margin-left:22px}
+.nav-links a{padding:.5em .85em;border-radius:var(--r-full);font-size:.92rem;font-weight:500;color:var(--ink-2);transition:background .18s,color .18s}
+.nav-links a:hover{background:var(--surface-2);color:var(--ink)}
+.nav-cta{margin-left:auto;display:flex;gap:8px;align-items:center}
+.burger{display:none}
+.mobmenu{display:none;position:fixed;inset:72px 0 auto;background:var(--paper);border-bottom:1px solid var(--line);padding:16px 20px 24px;z-index:55;animation:slideDown .28s var(--ease)}
+.mobmenu.on{display:block}
+.mobmenu a{display:block;padding:.85em .4em;font-weight:550;border-bottom:1px solid var(--line-2)}
+@keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:none}}
+
+/* HERO */
+.hero{position:relative;padding:clamp(48px,8vw,88px) 0 clamp(56px,9vw,104px);overflow:hidden}
+.hero::before{content:"";position:absolute;top:-30%;right:-10%;width:60vw;height:60vw;max-width:760px;max-height:760px;
+  background:radial-gradient(circle,var(--clay-soft),transparent 62%);opacity:.7;pointer-events:none;z-index:0}
+.hero::after{content:"";position:absolute;bottom:-20%;left:-15%;width:44vw;height:44vw;max-width:540px;max-height:540px;
+  background:radial-gradient(circle,var(--sage-soft),transparent 65%);opacity:.55;pointer-events:none;z-index:0}
+.hero-in{position:relative;z-index:1;display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(28px,5vw,56px);align-items:center}
+.hero h1{margin:18px 0 20px}
+.flags{display:flex;gap:6px;font-size:1.05rem;line-height:1}
+.hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
+.hero-note{display:flex;gap:18px;flex-wrap:wrap;margin-top:24px;color:var(--ink-3);font-size:.86rem}
+.hero-note span{display:inline-flex;align-items:center;gap:.4em}
+
+/* mockup do telemóvel */
+.phone{width:min(310px,88vw);margin:0 auto;border-radius:38px;background:var(--surface);border:1px solid var(--line);
+  box-shadow:var(--sh-lg);padding:11px;position:relative;transform:rotate(-1.6deg);transition:transform .6s var(--ease)}
+.phone:hover{transform:rotate(0deg) translateY(-4px)}
+.phone-scr{background:var(--paper);border-radius:28px;overflow:hidden;border:1px solid var(--line-2)}
+.phone-top{height:26px;display:flex;align-items:center;justify-content:center}
+.phone-top i{width:64px;height:5px;border-radius:99px;background:var(--line);display:block}
+.phone-body{padding:4px 18px 22px}
+.pl-step{display:flex;gap:11px;align-items:flex-start;padding:10px 0}
+.pl-node{width:26px;height:26px;border-radius:99px;display:flex;align-items:center;justify-content:center;
+  font-family:var(--serif);font-size:.74rem;font-weight:600;flex:none;border:2px solid var(--line);color:var(--ink-3);background:var(--surface)}
+.pl-step.done .pl-node{background:var(--sage);border-color:var(--sage);color:#fff}
+.pl-step.now .pl-node{background:var(--clay);border-color:var(--clay);color:#fff;box-shadow:0 0 0 4px var(--clay-soft)}
+.pl-t{font-family:var(--serif);font-size:.94rem;font-weight:600;line-height:1.25}
+.pl-s{font-size:.74rem;color:var(--ink-3);line-height:1.35}
+.float-card{position:absolute;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);
+  box-shadow:var(--sh);padding:11px 14px;font-size:.8rem;font-weight:550;display:flex;align-items:center;gap:.55em;animation:floaty 5s ease-in-out infinite}
+.fc-1{top:14%;left:-14%;color:var(--sage)}
+.fc-2{bottom:16%;right:-12%;color:var(--clay);animation-delay:1.6s}
+@keyframes floaty{0%,100%{transform:translateY(0)}50%{transform:translateY(-9px)}}
+
+/* reveal — só esconde se o JS estiver activo (sem JS, tudo visível) */
+.js .rv{opacity:0;transform:translateY(22px);transition:opacity .7s var(--ease),transform .7s var(--ease)}
+.js .rv.in{opacity:1;transform:none}
+
+/* faixa de países */
+.strip{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--surface);padding:22px 0}
+.strip-in{display:flex;gap:clamp(18px,4vw,44px);align-items:center;justify-content:center;flex-wrap:wrap}
+.strip-item{display:flex;align-items:center;gap:.5em;font-weight:550;font-size:.94rem;color:var(--ink-2)}
+.strip-item b{font-size:1.15rem;line-height:1}
+
+/* pilares */
+.pillar{padding:26px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);transition:border-color .22s,box-shadow .22s,transform .22s var(--ease)}
+.pillar:hover{border-color:var(--ink-3);box-shadow:var(--sh);transform:translateY(-3px)}
+.pillar .pic{width:44px;height:44px;border-radius:13px;display:flex;align-items:center;justify-content:center;margin-bottom:16px}
+.pillar .pic svg{width:21px;height:21px}
+.pillar h3{margin-bottom:7px}
+.pillar p{font-size:.92rem;color:var(--ink-2);line-height:1.5}
+
+/* bloco alternado */
+.alt{display:grid;grid-template-columns:1fr 1fr;gap:clamp(28px,6vw,68px);align-items:center}
+.alt.rev>div:first-child{order:2}
+
+/* mockup checklist */
+.mock{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);box-shadow:var(--sh);padding:22px;position:relative}
+.mock-bar{display:flex;gap:5px;margin-bottom:16px}
+.mock-bar i{width:9px;height:9px;border-radius:99px;background:var(--line);display:block}
+.ck{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--line-2)}
+.ck:last-child{border-bottom:0}
+.ck-b{width:20px;height:20px;border-radius:6px;border:2px solid var(--line);flex:none;display:flex;align-items:center;justify-content:center;margin-top:1px}
+.ck-b svg{width:12px;height:12px;color:#fff;opacity:0}
+.ck.on .ck-b{background:var(--sage);border-color:var(--sage)} .ck.on .ck-b svg{opacity:1}
+.ck.on .ck-t{color:var(--ink-3);text-decoration:line-through}
+.ck-t{font-size:.92rem;font-weight:500}
+
+/* confiança */
+.trust{padding:24px;border-radius:var(--r-lg);background:var(--surface);border:1px solid var(--line)}
+.trust .tic{width:38px;height:38px;border-radius:11px;display:flex;align-items:center;justify-content:center;margin-bottom:14px}
+.trust h3{font-size:1.04rem;margin-bottom:6px}
+.trust p{font-size:.9rem;color:var(--ink-2);line-height:1.5}
+
+/* planos B2B */
+.plan{padding:28px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);display:flex;flex-direction:column;transition:border-color .22s,box-shadow .22s,transform .22s var(--ease)}
+.plan:hover{border-color:var(--ink-3);box-shadow:var(--sh);transform:translateY(-3px)}
+.plan .pr{font-family:var(--serif);font-size:2.1rem;font-weight:600;letter-spacing:-.02em;line-height:1}
+.plan .pr small{font-family:var(--sans);font-size:.82rem;font-weight:500;color:var(--ink-3);letter-spacing:0}
+.plan ul{list-style:none;margin:18px 0;display:flex;flex-direction:column;gap:9px;flex:1}
+.plan li{display:flex;gap:9px;font-size:.9rem;color:var(--ink-2);line-height:1.45}
+.plan li svg{width:16px;height:16px;flex:none;margin-top:3px}
+
+/* FAQ */
+.faq{border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);overflow:hidden}
+.faq-i{border-bottom:1px solid var(--line-2)} .faq-i:last-child{border-bottom:0}
+.faq-q{display:flex;align-items:center;justify-content:space-between;gap:16px;padding:19px 24px;cursor:pointer;font-weight:600;font-size:1rem;transition:background .18s}
+.faq-q:hover{background:var(--surface-2)}
+.faq-q svg{transition:transform .3s var(--ease);color:var(--ink-3)}
+.faq-i.on .faq-q svg{transform:rotate(180deg)}
+.faq-a{max-height:0;overflow:hidden;transition:max-height .38s var(--ease)}
+.faq-i.on .faq-a{max-height:340px}
+.faq-a p{padding:0 24px 20px;color:var(--ink-2);font-size:.94rem;max-width:70ch}
+
+/* CTA final */
+.cta{background:var(--ink);color:var(--paper);border-radius:var(--r-xl);padding:clamp(38px,6vw,68px);text-align:center;position:relative;overflow:hidden}
+.cta::before{content:"";position:absolute;top:-40%;left:50%;transform:translateX(-50%);width:120%;height:120%;
+  background:radial-gradient(circle,rgba(194,90,58,.34),transparent 58%);pointer-events:none}
+.cta>*{position:relative;z-index:1}
+.cta h2{color:var(--paper)}
+.cta .lead{color:rgba(255,255,255,.72)}
+[data-theme="dark"] .cta{background:var(--surface-2);border:1px solid var(--line)}
+.btn-onDark{background:var(--paper);color:var(--ink)} .btn-onDark:hover{opacity:.9}
+.btn-outDark{background:transparent;border-color:rgba(255,255,255,.28);color:var(--paper)}
+.btn-outDark:hover{border-color:var(--paper)}
+
+/* footer */
+.foot{border-top:1px solid var(--line);padding:56px 0 34px;background:var(--surface)}
+.foot-grid{display:grid;grid-template-columns:1.6fr repeat(3,1fr);gap:36px}
+.foot h4{font-family:var(--sans);font-size:.76rem;font-weight:650;letter-spacing:.12em;text-transform:uppercase;color:var(--ink-3);margin-bottom:14px}
+.foot a{display:block;padding:5px 0;font-size:.92rem;color:var(--ink-2);transition:color .18s}
+.foot a:hover{color:var(--ink)}
+.foot-bot{margin-top:40px;padding-top:22px;border-top:1px solid var(--line-2);display:flex;justify-content:space-between;gap:16px;flex-wrap:wrap;font-size:.85rem;color:var(--ink-3)}
+
+@media (max-width:900px){
+  .nav-links{display:none}
+  .burger{display:inline-flex}
+  .hero-in{grid-template-columns:1fr;gap:44px}
+  .hero-visual{order:2}
+  .alt,.alt.rev{grid-template-columns:1fr}
+  .alt.rev>div:first-child{order:0}
+  .g4{grid-template-columns:repeat(2,1fr)}
+  .g3{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr 1fr;gap:28px}
+  .hide-m{display:none!important}
+  .float-card{display:none}
+}
+@media (max-width:560px){
+  .g4,.g2{grid-template-columns:1fr}
+  .foot-grid{grid-template-columns:1fr}
+  .hero-cta .btn{width:100%}
+}
+</style>
+<script>document.documentElement.classList.add('js')</script>
+</head>
+<body>
+
+<!-- ══════════ NAV ══════════ -->
+<header class="nav" id="nav">
+  <div class="wrap nav-in">
+    <a href="#top" class="brand">
+      <svg width="30" height="30" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--clay)" stroke-width="2.6"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--clay)"/><circle cx="20" cy="20" r="2" fill="var(--paper)"/></svg>
+      Bússola
+    </a>
+    <nav class="nav-links">
+      <a href="#como">Como funciona</a>
+      <a href="#areas">O que resolves</a>
+      <a href="#confianca">Confiança</a>
+      <a href="#profissionais">Para profissionais</a>
+      <a href="#perguntas">Perguntas</a>
+    </nav>
+    <div class="nav-cta">
+      <button class="btn btn-quiet btn-icon hide-m" onclick="toggleTheme()" aria-label="Alternar tema" id="themeBtn"></button>
+      <a href="/app" class="btn btn-quiet btn-sm hide-m">Entrar</a>
+      <a href="/app" class="btn btn-primary btn-sm">Começar — é grátis</a>
+      <button class="btn btn-ghost btn-icon burger" onclick="document.getElementById('mm').classList.toggle('on')" aria-label="Menu">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+      </button>
+    </div>
+  </div>
+</header>
+<div class="mobmenu" id="mm">
+  <a href="#como" onclick="closeMM()">Como funciona</a>
+  <a href="#areas" onclick="closeMM()">O que resolves</a>
+  <a href="#confianca" onclick="closeMM()">Confiança</a>
+  <a href="#profissionais" onclick="closeMM()">Para profissionais</a>
+  <a href="#perguntas" onclick="closeMM()">Perguntas</a>
+  <a href="/app" onclick="closeMM()" class="clay fw6">Entrar na Bússola →</a>
+</div>
+
+<!-- ══════════ HERO ══════════ -->
+<section class="hero" id="top">
+  <div class="wrap hero-in">
+    <div>
+      <div class="row wrapf" style="gap:10px">
+        <span class="badge badge-clay">Para a comunidade PALOP em Portugal</span>
+        <span class="flags" aria-label="Angola, Cabo Verde, Guiné-Bissau, Moçambique, São Tomé e Príncipe">🇦🇴 🇨🇻 🇬🇼 🇲🇿 🇸🇹</span>
+      </div>
+      <h1 class="display">Onde Portugal<br>começa a fazer<br><span class="clay">sentido.</span></h1>
+      <p class="lead maxw-s">Chegar é só o princípio. A Bússola organiza o que vem a seguir — documentação, casa, trabalho e as pessoas certas — num plano feito para a tua situação.</p>
+      <div class="hero-cta">
+        <a href="/app" class="btn btn-primary btn-lg">Criar o meu plano
+          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a href="#como" class="btn btn-ghost btn-lg">Ver como funciona</a>
+      </div>
+      <div class="hero-note">
+        <span><svg class="i sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 12 5 5L20 6"/></svg> Gratuito para quem chega</span>
+        <span><svg class="i sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 12 5 5L20 6"/></svg> Em português claro</span>
+        <span><svg class="i sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m4 12 5 5L20 6"/></svg> Sem intermediários</span>
+      </div>
+    </div>
+
+    <div class="hero-visual" style="position:relative">
+      <div class="phone">
+        <div class="phone-scr">
+          <div class="phone-top"><i></i></div>
+          <div class="phone-body">
+            <div class="eyebrow" style="font-size:.62rem">O teu plano em Portugal</div>
+            <div style="font-family:var(--serif);font-size:1.24rem;font-weight:600;margin:6px 0 4px;letter-spacing:-.02em">Bom dia, Domingas</div>
+            <div class="fs-xs muted mb12">2 de 5 passos concluídos</div>
+            <div style="height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden;margin-bottom:14px">
+              <i style="display:block;height:100%;width:40%;background:var(--clay);border-radius:99px"></i></div>
+            <div class="pl-step done"><div class="pl-node"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="width:12px;height:12px"><path d="m4 12 5 5L20 6"/></svg></div>
+              <div><div class="pl-t">Organizar a documentação</div><div class="pl-s">NIF, NISS e número de utente</div></div></div>
+            <div class="pl-step done"><div class="pl-node"><svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" style="width:12px;height:12px"><path d="m4 12 5 5L20 6"/></svg></div>
+              <div><div class="pl-t">Encontrar alojamento</div><div class="pl-s">Quarto em Almada · 380€</div></div></div>
+            <div class="pl-step now"><div class="pl-node">03</div>
+              <div><div class="pl-t">Procurar emprego</div><div class="pl-s">7 vagas perto de ti</div></div></div>
+            <div class="pl-step"><div class="pl-node">04</div>
+              <div><div class="pl-t">Serviços essenciais</div><div class="pl-s">Banco, saúde, transportes</div></div></div>
+            <div class="pl-step"><div class="pl-node">05</div>
+              <div><div class="pl-t">Construir a tua rede</div><div class="pl-s">Grupos e eventos</div></div></div>
+          </div>
+        </div>
+      </div>
+      <div class="float-card fc-1">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 3 4 6v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg>
+        Advogada verificada
+      </div>
+      <div class="float-card fc-2">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+        Sem experiência necessária
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FAIXA ══════════ -->
+<div class="strip">
+  <div class="wrap strip-in">
+    <span class="fs-sm muted hide-m">Feita para quem vem de</span>
+    <span class="strip-item"><b>🇦🇴</b> Angola</span>
+    <span class="strip-item"><b>🇨🇻</b> Cabo Verde</span>
+    <span class="strip-item"><b>🇬🇼</b> Guiné-Bissau</span>
+    <span class="strip-item"><b>🇲🇿</b> Moçambique</span>
+    <span class="strip-item"><b>🇸🇹</b> São Tomé e Príncipe</span>
+  </div>
+</div>
+
+<!-- ══════════ PROBLEMA ══════════ -->
+<section class="sec">
+  <div class="wrap">
+    <div class="rv" style="max-width:74ch">
+      <div class="eyebrow mb16">Porque existimos</div>
+      <h2 class="h1 mb24">A informação existe. Só que está espalhada por dez sítios diferentes — e nenhum deles fala contigo.</h2>
+      <p class="lead">Um portal para o NIF. Outro para a Segurança Social. Um grupo de mensagens para a casa. Um primo que conhece alguém. Pelo meio, quem se aproveita de quem ainda não sabe as regras.</p>
+      <p class="lead mt16">A Bússola junta tudo num sítio só e diz-te <b class="clay">o que fazer a seguir</b> — pela tua situação, na tua cidade, na tua língua.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ COMO FUNCIONA ══════════ -->
+<section class="sec" id="como" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="center mb48 rv">
+      <div class="eyebrow mb12">Como funciona</div>
+      <h2 class="h1 mb16">Três minutos para deixares de andar às voltas.</h2>
+      <p class="lead mxa maxw">Respondes a quatro perguntas simples. A Bússola gera o teu plano de chegada e acompanha-te em cada passo.</p>
+    </div>
+    <div class="grid g3">
+      <div class="card card-pad rv">
+        <div class="badge badge-clay mb16">Passo 1</div>
+        <h3 class="h3 mb8">Diz-nos onde estás</h3>
+        <p class="fs-sm muted">País de origem, cidade em Portugal e o que precisas de resolver agora — documentação, casa, trabalho, estudar ou abrir negócio.</p>
+      </div>
+      <div class="card card-pad rv" style="transition-delay:.1s">
+        <div class="badge badge-clay mb16">Passo 2</div>
+        <h3 class="h3 mb8">Recebes o teu plano</h3>
+        <p class="fs-sm muted">Cinco etapas por ordem de importância, com o primeiro passo já pronto a começar. Sem trinta menus, sem jargão jurídico.</p>
+      </div>
+      <div class="card card-pad rv" style="transition-delay:.2s">
+        <div class="badge badge-clay mb16">Passo 3</div>
+        <h3 class="h3 mb8">Avanças ao teu ritmo</h3>
+        <p class="fs-sm muted">Marcas o que já trataste, guardas vagas e casas, falas com profissionais verificados e encontras quem já passou pelo mesmo.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ ÁREAS ══════════ -->
+<section class="sec" id="areas">
+  <div class="wrap">
+    <div class="center mb48 rv">
+      <div class="eyebrow mb12">O que resolves aqui</div>
+      <h2 class="h1 mb16">Tudo o que precisas, sem procurar em dez sítios.</h2>
+    </div>
+    <div class="grid g4">
+      <div class="pillar rv"><div class="pic" style="background:var(--clay-soft);color:var(--clay-deep)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/></svg></div>
+        <h3 class="h3">Documentação</h3><p>NIF, NISS, título de residência, reagrupamento familiar, nacionalidade. Passo a passo, com checklist.</p></div>
+
+      <div class="pillar rv" style="transition-delay:.06s"><div class="pic" style="background:var(--sage-soft);color:var(--sage)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></div>
+        <h3 class="h3">Trabalho</h3><p>Vagas reais por cidade e setor, incluindo muitas que não exigem experiência. Candidata-te e acompanha o estado.</p></div>
+
+      <div class="pillar rv" style="transition-delay:.12s"><div class="pic" style="background:var(--gold-soft);color:var(--gold)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M4 11 12 5l8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/></svg></div>
+        <h3 class="h3">Casa</h3><p>Quartos, apartamentos e alojamento temporário, com anunciantes verificados e alertas contra burlas.</p></div>
+
+      <div class="pillar rv" style="transition-delay:.18s"><div class="pic" style="background:var(--sky-soft);color:var(--sky)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v18"/><path d="M6 7h12"/><path d="m5 7-2 5a3 3 0 0 0 6 0z"/><path d="m19 7-2 5a3 3 0 0 0 6 0z"/><path d="M8 21h8"/></svg></div>
+        <h3 class="h3">Apoio jurídico</h3><p>Advogados e solicitadores com credenciais confirmadas, muitos deles a falar crioulo. Pedes consulta em minutos.</p></div>
+
+      <div class="pillar rv"><div class="pic" style="background:var(--clay-soft);color:var(--clay-deep)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></div>
+        <h3 class="h3">Eventos</h3><p>Música, gastronomia, formação e encontros da comunidade — o que está a acontecer perto de ti esta semana.</p></div>
+
+      <div class="pillar rv" style="transition-delay:.06s"><div class="pic" style="background:var(--sage-soft);color:var(--sage)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 6a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6"/></svg></div>
+        <h3 class="h3">Comunidade</h3><p>Grupos por país e cidade. Perguntas respondidas por quem já passou pelo mesmo — não por um robô.</p></div>
+
+      <div class="pillar rv" style="transition-delay:.12s"><div class="pic" style="background:var(--gold-soft);color:var(--gold)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></div>
+        <h3 class="h3">Serviços</h3><p>Bancos, saúde, telecomunicações, associações e apoio social — com o que precisas de levar a cada um.</p></div>
+
+      <div class="pillar rv" style="transition-delay:.18s"><div class="pic" style="background:var(--sky-soft);color:var(--sky)">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m9 4-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
+        <h3 class="h3">Mapa</h3><p>Tudo o que existe à tua volta num mapa só: serviços, casas, empregos, associações e eventos.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ DOCUMENTAÇÃO ══════════ -->
+<section class="sec" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap alt">
+    <div class="rv">
+      <div class="eyebrow mb12">Centro de documentação</div>
+      <h2 class="h1 mb16">Cada processo explicado como se fosse alguém a explicar-te.</h2>
+      <p class="lead mb24">Para quem é. O que precisas de levar. Onde tratar. Quanto custa. O que correr mal. E uma checklist que guarda o teu progresso entre visitas.</p>
+      <div class="stack" style="gap:12px">
+        <div class="row" style="gap:11px;align-items:flex-start">
+          <svg class="i sage" style="margin-top:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 12 5 5L20 6"/></svg>
+          <p class="fs-sm"><b>Sempre atualizado ao presente.</b> O SEF já não existe — os processos de residência são tratados pela AIMA, e é isso que vais ler aqui.</p></div>
+        <div class="row" style="gap:11px;align-items:flex-start">
+          <svg class="i sage" style="margin-top:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 12 5 5L20 6"/></svg>
+          <p class="fs-sm"><b>Ligação directa às entidades oficiais.</b> AIMA, Finanças, Segurança Social, SNS, IMT e IRN — sem sites intermediários.</p></div>
+        <div class="row" style="gap:11px;align-items:flex-start">
+          <svg class="i sage" style="margin-top:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 12 5 5L20 6"/></svg>
+          <p class="fs-sm"><b>Avisos onde costuma haver abuso.</b> Dizemos-te o que é gratuito, para não pagares a quem te tenta cobrar por isso.</p></div>
+      </div>
+      <a href="/app" class="btn btn-ghost mt32">Ver os processos
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+    </div>
+    <div class="rv" style="transition-delay:.12s">
+      <div class="mock">
+        <div class="mock-bar"><i></i><i></i><i></i></div>
+        <span class="badge badge-line mb12">Regularização</span>
+        <h3 style="font-family:var(--serif);font-size:1.3rem;font-weight:600;margin-bottom:6px">Autorização de Residência</h3>
+        <p class="fs-sm muted mb16">A tua checklist · 4 de 7</p>
+        <div class="ck on"><span class="ck-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m4 12 5 5L20 6"/></svg></span><span class="ck-t">Passaporte válido</span></div>
+        <div class="ck on"><span class="ck-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m4 12 5 5L20 6"/></svg></span><span class="ck-t">Comprovativo de entrada legal</span></div>
+        <div class="ck on"><span class="ck-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m4 12 5 5L20 6"/></svg></span><span class="ck-t">NIF atribuído</span></div>
+        <div class="ck on"><span class="ck-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m4 12 5 5L20 6"/></svg></span><span class="ck-t">NISS atribuído</span></div>
+        <div class="ck"><span class="ck-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m4 12 5 5L20 6"/></svg></span><span class="ck-t">Registo criminal</span></div>
+        <div class="ck"><span class="ck-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m4 12 5 5L20 6"/></svg></span><span class="ck-t">Comprovativo de morada</span></div>
+        <div class="ck"><span class="ck-b"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3"><path d="m4 12 5 5L20 6"/></svg></span><span class="ck-t">Meios de subsistência</span></div>
+        <div style="display:flex;gap:10px;padding:13px 15px;border-radius:var(--r);background:var(--sky-soft);color:var(--sky);font-size:.84rem;margin-top:16px;line-height:1.45">
+          <svg class="i" style="margin-top:2px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg>
+          <span>Esta informação é orientação. Para o teu caso concreto, fala com um profissional qualificado.</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CONFIANÇA ══════════ -->
+<section class="sec" id="confianca">
+  <div class="wrap">
+    <div class="center mb48 rv">
+      <div class="eyebrow mb12">Confiança e segurança</div>
+      <h2 class="h1 mb16">Construída para proteger quem está mais exposto.</h2>
+      <p class="lead mxa maxw">Quem acaba de chegar é quem mais arrisca perder dinheiro, tempo ou direitos. Isso definiu as regras da plataforma.</p>
+    </div>
+    <div class="grid g4">
+      <div class="trust rv"><div class="tic" style="background:var(--sage-soft);color:var(--sage)">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 4 6v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/></svg></div>
+        <h3>Profissionais verificados</h3><p>Advogados, solicitadores, imobiliárias e associações só recebem o selo depois de a nossa equipa confirmar as credenciais.</p></div>
+
+      <div class="trust rv" style="transition-delay:.06s"><div class="tic" style="background:var(--clay-soft);color:var(--clay-deep)">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3 2 20h20z"/><path d="M12 9v5M12 17.5v.5"/></svg></div>
+        <h3>Guia contra burlas</h3><p>Regras claras no arrendamento: nunca pagar antes de visitar. Qualquer anúncio pode ser denunciado em dois toques.</p></div>
+
+      <div class="trust rv" style="transition-delay:.12s"><div class="tic" style="background:var(--sky-soft);color:var(--sky)">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg></div>
+        <h3>Nunca fingimos ser advogados</h3><p>Damos orientação, não aconselhamento jurídico. Quando o teu caso precisa de um profissional, dizemos-to — e ajudamos a encontrá-lo.</p></div>
+
+      <div class="trust rv" style="transition-delay:.18s"><div class="tic" style="background:var(--gold-soft);color:var(--gold)">
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
+        <h3>Os teus dados são teus</h3><p>Exportas ou apagas a tua conta quando quiseres. Não vendemos os teus dados nem os partilhamos sem o teu consentimento.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ PROFISSIONAIS / B2B ══════════ -->
+<section class="sec" id="profissionais" style="background:var(--surface);border-top:1px solid var(--line);border-bottom:1px solid var(--line)">
+  <div class="wrap">
+    <div class="center mb48 rv">
+      <div class="eyebrow mb12">Para profissionais e empresas</div>
+      <h2 class="h1 mb16">Chega a quem precisa mesmo de si.</h2>
+      <p class="lead mxa maxw">A app é e continuará gratuita para quem chega. Quem quer chegar a esta comunidade — com respeito e transparência — tem um painel próprio.</p>
+    </div>
+    <div class="grid g4 mb32">
+      <div class="plan rv">
+        <div class="eyebrow mb12" style="color:var(--clay)">Advogados e solicitadores</div>
+        <div class="pr">29€ <small>/mês</small></div>
+        <ul>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Perfil no diretório com selo verificado</li>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Pedidos de consulta ilimitados</li>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Agenda, mensagens e avaliações</li>
+        </ul>
+        <a href="/painel" class="btn btn-ghost btn-block" style="width:100%">Ver o painel</a>
+      </div>
+      <div class="plan rv" style="transition-delay:.06s">
+        <div class="eyebrow mb12" style="color:var(--sky)">Empresas</div>
+        <div class="pr">39€ <small>/mês</small></div>
+        <ul>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Vagas ilimitadas</li>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Candidaturas organizadas por estado</li>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Mensagens directas com candidatos</li>
+        </ul>
+        <a href="/painel" class="btn btn-ghost btn-block" style="width:100%">Ver o painel</a>
+      </div>
+      <div class="plan rv" style="transition-delay:.12s">
+        <div class="eyebrow mb12" style="color:var(--sage)">Imobiliárias e senhorios</div>
+        <div class="pr">49€ <small>/mês</small></div>
+        <ul>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Até 20 anúncios activos</li>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Estatísticas por imóvel</li>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Contactos de interessados verificados</li>
+        </ul>
+        <a href="/painel" class="btn btn-ghost btn-block" style="width:100%">Ver o painel</a>
+      </div>
+      <div class="plan rv" style="transition-delay:.18s">
+        <div class="eyebrow mb12" style="color:var(--gold)">Organizadores</div>
+        <div class="pr">19€ <small>/mês</small></div>
+        <ul>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Eventos ilimitados</li>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Gestão de participantes</li>
+          <li><svg class="sage" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="m4 12 5 5L20 6"/></svg> Página pública de organizador</li>
+        </ul>
+        <a href="/painel" class="btn btn-ghost btn-block" style="width:100%">Ver o painel</a>
+      </div>
+    </div>
+    <p class="center fs-sm muted rv">Associações sem fins lucrativos e projectos de apoio a migrantes têm acesso gratuito. <a href="#perguntas" class="clay fw6">Fala connosco</a>.</p>
+  </div>
+</section>
+
+<!-- ══════════ FAQ ══════════ -->
+<section class="sec" id="perguntas">
+  <div class="wrap" style="max-width:840px">
+    <div class="center mb48 rv">
+      <div class="eyebrow mb12">Perguntas</div>
+      <h2 class="h1">O que costumam perguntar-nos.</h2>
+    </div>
+    <div class="faq rv">
+      <div class="faq-i"><div class="faq-q" onclick="this.parentNode.classList.toggle('on')">A Bússola é gratuita?
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></div>
+        <div class="faq-a"><p>Sim. Toda a experiência principal — plano de chegada, documentação, pesquisa de trabalho e casa, comunidade e eventos — é gratuita para quem chega e para quem já cá vive. Quem paga são os profissionais, empresas, imobiliárias e organizadores que querem chegar a esta comunidade.</p></div></div>
+
+      <div class="faq-i"><div class="faq-q" onclick="this.parentNode.classList.toggle('on')">Preciso de já ter documentos para me registar?
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></div>
+        <div class="faq-a"><p>Não. Para criar conta basta dizeres de onde vens, onde estás e o que precisas de resolver. Aliás, a Bússola foi pensada precisamente para quem <i>ainda não</i> tem os documentos tratados — é esse o primeiro passo do plano.</p></div></div>
+
+      <div class="faq-i"><div class="faq-q" onclick="this.parentNode.classList.toggle('on')">A informação sobre documentação é oficial?
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></div>
+        <div class="faq-a"><p>Organizamos e explicamos os processos em linguagem clara, e ligamos sempre às entidades oficiais (AIMA, Finanças, Segurança Social, SNS, IMT, IRN) para confirmares. Não somos uma entidade pública nem substituímos aconselhamento jurídico: quando o teu caso exige análise profissional, dizemos-to.</p></div></div>
+
+      <div class="faq-i"><div class="faq-q" onclick="this.parentNode.classList.toggle('on')">Como sei que um anúncio de casa não é burla?
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></div>
+        <div class="faq-a"><p>Identificamos os anunciantes verificados, os anúncios passam por moderação e qualquer pessoa pode denunciar. Mas a regra que mais te protege é simples e vale sempre: <b>nunca pagues caução, sinal ou reserva antes de veres a casa em pessoa</b>.</p></div></div>
+
+      <div class="faq-i"><div class="faq-q" onclick="this.parentNode.classList.toggle('on')">Só serve para os países PALOP?
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></div>
+        <div class="faq-a"><p>Começámos por Angola, Cabo Verde, Guiné-Bissau, Moçambique e São Tomé e Príncipe porque é a comunidade que melhor conhecemos e onde a língua partilhada permite ir mais fundo. A plataforma está construída para acolher outros países e outras cidades a seguir.</p></div></div>
+
+      <div class="faq-i"><div class="faq-q" onclick="this.parentNode.classList.toggle('on')">O que acontece aos meus dados?
+        <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="m6 9 6 6 6-6"/></svg></div>
+        <div class="faq-a"><p>Usamo-los apenas para personalizar o que te mostramos. Podes exportar tudo o que temos sobre ti ou apagar a conta a qualquer momento, directamente nas definições. Não vendemos dados a terceiros.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ CTA ══════════ -->
+<section class="sec-sm">
+  <div class="wrap">
+    <div class="cta rv">
+      <h2 class="h1 mb16">O primeiro passo é sempre o mais difícil.<br>Este não tem de ser.</h2>
+      <p class="lead mxa mb32" style="max-width:56ch">Cria o teu plano em três minutos e descobre exactamente o que tratar a seguir.</p>
+      <div class="row" style="justify-content:center;flex-wrap:wrap">
+        <a href="/app" class="btn btn-onDark btn-lg">Começar agora — é grátis
+          <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
+        <a href="/painel" class="btn btn-outDark btn-lg">Sou profissional</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════ FOOTER ══════════ -->
+<footer class="foot">
+  <div class="wrap">
+    <div class="foot-grid">
+      <div>
+        <a href="#top" class="brand mb16" style="display:inline-flex">
+          <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--clay)" stroke-width="2.6"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--clay)"/><circle cx="20" cy="20" r="2" fill="var(--surface)"/></svg>
+          Bússola</a>
+        <p class="fs-sm muted" style="max-width:34ch">O teu guia de integração em Portugal. Feito com e para a comunidade PALOP.</p>
+        <div class="flags mt16">🇦🇴 🇨🇻 🇬🇼 🇲🇿 🇸🇹</div>
+      </div>
+      <div><h4>Plataforma</h4>
+        <a href="/app">Entrar na Bússola</a><a href="#como">Como funciona</a><a href="#areas">O que resolves</a><a href="#confianca">Confiança e segurança</a></div>
+      <div><h4>Profissionais</h4>
+        <a href="/painel">Painel do profissional</a><a href="/painel">Publicar vagas</a><a href="/painel">Anunciar imóveis</a><a href="/painel">Promover eventos</a></div>
+      <div><h4>Legal</h4>
+        <a href="#perguntas">Perguntas frequentes</a><a href="#" onclick="return legal('Termos e condições')">Termos e condições</a>
+        <a href="#" onclick="return legal('Política de privacidade')">Política de privacidade</a><a href="#" onclick="return legal('Política de cookies')">Cookies</a></div>
+    </div>
+    <div class="foot-bot">
+      <span>© 2026 Bússola. Todos os direitos reservados.</span>
+      <span>A Bússola presta orientação e não substitui aconselhamento jurídico profissional.</span>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* nav sticky */
+const nav=document.getElementById('nav');
+addEventListener('scroll',()=>nav.classList.toggle('stuck',scrollY>8),{passive:true});
+function closeMM(){document.getElementById('mm').classList.remove('on')}
+
+/* tema */
+function icoSun(){return '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/></svg>'}
+function icoMoon(){return '<svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/></svg>'}
+function paintTheme(){const d=document.documentElement.dataset.theme==='dark';
+  document.getElementById('themeBtn').innerHTML=d?icoSun():icoMoon();
+  const m=document.querySelector('meta[name=theme-color]');if(m)m.content=d?'#16140F':'#F7F4EF'}
+function toggleTheme(){const d=document.documentElement.dataset.theme==='dark';
+  document.documentElement.dataset.theme=d?'light':'dark';
+  try{localStorage.setItem('bussola_theme',d?'light':'dark')}catch(e){}
+  paintTheme()}
+try{const t=localStorage.getItem('bussola_theme');
+  if(t)document.documentElement.dataset.theme=t;
+  else if(matchMedia('(prefers-color-scheme:dark)').matches)document.documentElement.dataset.theme='dark';
+}catch(e){}
+paintTheme();
+
+/* reveal ao scroll — sem IntersectionObserver, para funcionar em qualquer contexto */
+const els=[...document.querySelectorAll('.rv')];
+function reveal(){
+  const h=innerHeight;
+  for(let i=els.length-1;i>=0;i--){
+    if(els[i].getBoundingClientRect().top < h-56){els[i].classList.add('in');els.splice(i,1)}
+  }
+}
+if(matchMedia('(prefers-reduced-motion:reduce)').matches){
+  els.forEach(e=>e.classList.add('in'));els.length=0;
+}else{
+  let tick=false;
+  const onScroll=()=>{if(!tick){tick=true;requestAnimationFrame(()=>{reveal();tick=false})}};
+  addEventListener('scroll',onScroll,{passive:true});
+  addEventListener('resize',onScroll,{passive:true});
+  reveal();
+  /* rede de segurança: se algo correr mal, nada fica invisível */
+  setTimeout(reveal,400);
+  setTimeout(()=>{els.forEach(e=>e.classList.add('in'));els.length=0},4000);
+}
+
+function legal(t){alert(t+' — documento a publicar antes do lançamento público.');return false}
+</script>
+</body>
+</html>

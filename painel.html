@@ -1,0 +1,1024 @@
+<!DOCTYPE html>
+<html lang="pt-PT" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#F7F4EF">
+<title>Bússola · Painel profissional</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ============================================================
+   BÚSSOLA · PAINÉIS (profissional · empresa · anunciante · organizador)
+   ============================================================ */
+:root{
+  --paper:#F7F4EF; --surface:#FDFCFA; --surface-2:#F1ECE3; --surface-3:#E9E3D7;
+  --ink:#1C1A16; --ink-2:#57534A; --ink-3:#8A8478; --line:#E7E1D6; --line-2:#EFEAE0;
+  --clay:#C25A3A; --clay-deep:#A8432A; --clay-soft:#F3E4DB; --clay-tint:#FBF1EB;
+  --sage:#3E6B5A; --sage-soft:#E4EEE8; --gold:#B4842B; --gold-soft:#F6EDD8;
+  --sky:#37618E; --sky-soft:#E3EAF2; --danger:#B23A2E; --danger-soft:#F6E3E0;
+  --accent:var(--clay); --accent-soft:var(--clay-soft); --accent-tint:var(--clay-tint);
+  --serif:'Fraunces',Georgia,serif; --sans:'Inter',system-ui,sans-serif;
+  --r-sm:8px; --r:12px; --r-lg:18px; --r-xl:24px; --r-full:999px;
+  --sh-sm:0 1px 2px rgba(28,26,22,.05); --sh:0 4px 20px -8px rgba(28,26,22,.16); --sh-lg:0 24px 60px -20px rgba(28,26,22,.26);
+  --nav-w:252px; --max:1280px; --ease:cubic-bezier(.22,.61,.36,1);
+}
+[data-theme="dark"]{
+  --paper:#16140F; --surface:#1E1B15; --surface-2:#26221A; --surface-3:#2F2A21;
+  --ink:#F3EFE6; --ink-2:#B8B2A4; --ink-3:#867F70; --line:#302B22; --line-2:#2A251D;
+  --clay:#E0794F; --clay-deep:#C25A3A; --clay-soft:#3A2419; --clay-tint:#241812;
+  --sage:#6FA98F; --sage-soft:#1E2C25; --gold:#D0A150; --gold-soft:#2B2415;
+  --sky:#6E9CCB; --sky-soft:#1B2531; --danger:#E27366; --danger-soft:#331B18;
+  --sh-sm:0 1px 2px rgba(0,0,0,.3); --sh:0 6px 24px -8px rgba(0,0,0,.5); --sh-lg:0 24px 60px -20px rgba(0,0,0,.6);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:var(--sans);background:var(--paper);color:var(--ink);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased;letter-spacing:-.011em}
+@media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
+h1,h2,h3,h4{font-family:var(--serif);font-weight:500;line-height:1.15;letter-spacing:-.02em}
+.h1{font-size:clamp(1.5rem,3vw,2rem)} .h2{font-size:1.35rem} .h3{font-size:1.06rem;font-weight:600}
+.eyebrow{font-family:var(--sans);font-size:.7rem;font-weight:600;letter-spacing:.13em;text-transform:uppercase;color:var(--ink-3)}
+.muted{color:var(--ink-3)} .fw6{font-weight:600} .fw5{font-weight:550}
+.num{font-family:var(--serif);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
+a{color:inherit;text-decoration:none}
+.i{width:1.15em;height:1.15em;flex:none;vertical-align:middle}
+svg{stroke-linecap:round;stroke-linejoin:round}
+
+.btn{font-family:var(--sans);font-size:.86rem;font-weight:550;display:inline-flex;align-items:center;justify-content:center;gap:.5em;padding:.62em 1.05em;border-radius:var(--r-full);border:1px solid transparent;cursor:pointer;transition:transform .16s var(--ease),background .18s,border-color .18s,color .18s;white-space:nowrap;background:none;color:var(--ink);line-height:1}
+.btn:active{transform:scale(.97)} .btn .i{width:1.1em;height:1.1em}
+.btn-primary{background:var(--accent);color:#fff} .btn-primary:hover{filter:brightness(.93)}
+.btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink)} .btn-ghost:hover{border-color:var(--ink-3)}
+.btn-quiet{background:transparent;color:var(--ink-2)} .btn-quiet:hover{background:var(--surface-2);color:var(--ink)}
+.btn-sage{background:var(--sage-soft);color:var(--sage)} .btn-sage:hover{background:var(--sage);color:#fff}
+.btn-danger{background:var(--danger-soft);color:var(--danger)} .btn-danger:hover{background:var(--danger);color:#fff}
+.btn-sm{padding:.46em .8em;font-size:.8rem} .btn-xs{padding:.34em .62em;font-size:.75rem}
+.btn-icon{padding:.5em;width:2.3em;height:2.3em;border-radius:var(--r)} .btn-block{width:100%}
+
+.pill{display:inline-flex;align-items:center;gap:.4em;font-size:.72rem;font-weight:600;padding:.3em .6em;border-radius:var(--r-full);white-space:nowrap}
+.pill .dot{width:6px;height:6px;border-radius:50%;background:currentColor}
+.pill-ok{background:var(--sage-soft);color:var(--sage)}
+.pill-pend{background:var(--gold-soft);color:var(--gold)}
+.pill-anal{background:var(--sky-soft);color:var(--sky)}
+.pill-rej{background:var(--danger-soft);color:var(--danger)}
+.pill-off{background:var(--surface-3);color:var(--ink-2)}
+.tag{display:inline-flex;align-items:center;gap:.35em;font-size:.72rem;font-weight:550;padding:.28em .58em;border-radius:var(--r-sm);background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
+
+.shell{display:flex;min-height:100vh}
+.sidebar{width:var(--nav-w);flex:none;position:fixed;inset:0 auto 0 0;background:var(--surface);border-right:1px solid var(--line);display:flex;flex-direction:column;z-index:40}
+.sb-brand{display:flex;align-items:center;gap:.55em;padding:16px 16px 10px;font-family:var(--serif);font-size:1.15rem;font-weight:600}
+/* selector de papel */
+.role-sel{margin:0 12px 8px;border:1px solid var(--line);border-radius:var(--r);background:var(--surface-2);padding:9px 11px;cursor:pointer;position:relative;transition:border-color .18s}
+.role-sel:hover{border-color:var(--ink-3)}
+.role-sel .rl{font-size:.66rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-3)}
+.role-sel .rn{font-weight:600;font-size:.88rem;display:flex;align-items:center;gap:.4em;margin-top:2px}
+.role-menu{position:absolute;top:calc(100% + 6px);left:0;right:0;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);box-shadow:var(--sh-lg);z-index:60;overflow:hidden;display:none}
+.role-menu.on{display:block}
+.role-menu>div{padding:10px 12px;font-size:.84rem;display:flex;align-items:center;gap:.6em;cursor:pointer;line-height:1.25}
+.role-menu>div:hover{background:var(--surface-2)}
+.role-menu>div>div{min-width:0}
+.sb-nav{flex:1;overflow-y:auto;padding:6px 10px 16px}
+.sb-item{display:flex;align-items:center;gap:.7em;padding:.56em .7em;border-radius:var(--r);color:var(--ink-2);font-weight:500;font-size:.86rem;cursor:pointer;transition:all .14s var(--ease);margin-bottom:1px}
+.sb-item .i{width:17px;height:17px;opacity:.8}
+.sb-item:hover{background:var(--surface-2);color:var(--ink)}
+.sb-item.on{background:var(--ink);color:var(--paper)} .sb-item.on .i{opacity:1}
+.sb-item .c{margin-left:auto;font-size:.68rem;font-weight:700;background:var(--accent);color:#fff;min-width:17px;height:17px;padding:0 5px;border-radius:var(--r-full);display:flex;align-items:center;justify-content:center}
+.sb-item.on .c{background:var(--paper);color:var(--ink)}
+.sb-foot{border-top:1px solid var(--line);padding:10px}
+.sb-user{display:flex;align-items:center;gap:.6em;padding:.5em;border-radius:var(--r)}
+
+.main{flex:1;margin-left:var(--nav-w);min-width:0;display:flex;flex-direction:column}
+.topbar{height:58px;position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--paper) 84%,transparent);backdrop-filter:saturate(180%) blur(14px);border-bottom:1px solid var(--line);display:flex;align-items:center;gap:12px;padding:0 clamp(16px,3vw,30px)}
+.content{flex:1;padding:clamp(18px,3vw,30px);max-width:var(--max);width:100%;margin:0 auto;animation:fadeUp .4s var(--ease)}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.page-head{display:flex;align-items:flex-end;justify-content:space-between;gap:16px;flex-wrap:wrap;margin-bottom:20px}
+
+.av{border-radius:var(--r-full);object-fit:cover;background:var(--surface-2);flex:none;display:flex;align-items:center;justify-content:center;font-weight:600;color:var(--ink-2);overflow:hidden}
+.av-xs{width:26px;height:26px;font-size:.66rem}
+.av-sm{width:34px;height:34px;font-size:.76rem}
+.av-md{width:44px;height:44px;font-size:.9rem}
+.av-lg{width:64px;height:64px;font-size:1.2rem;font-family:var(--serif)}
+
+.card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg)}
+.card-pad{padding:20px}
+.card-hover{cursor:pointer;transition:border-color .18s,box-shadow .18s,transform .18s var(--ease)}
+.card-hover:hover{border-color:var(--ink-3);box-shadow:var(--sh);transform:translateY(-2px)}
+.grid{display:grid;gap:16px}
+.g2{grid-template-columns:repeat(2,1fr)} .g3{grid-template-columns:repeat(3,1fr)} .g4{grid-template-columns:repeat(4,1fr)}
+.row{display:flex;gap:12px;align-items:center} .wrap{flex-wrap:wrap} .between{justify-content:space-between}
+.stack{display:flex;flex-direction:column} .flex1{flex:1} .mla{margin-left:auto}
+.section{margin-top:24px} .divider{height:1px;background:var(--line);border:0}
+.gap4{gap:4px}.gap6{gap:6px}.gap8{gap:8px}.gap16{gap:16px}
+.mb4{margin-bottom:4px}.mb8{margin-bottom:8px}.mb12{margin-bottom:12px}.mb16{margin-bottom:16px}.mb24{margin-bottom:24px}
+.mt4{margin-top:4px}.mt8{margin-top:8px}.mt12{margin-top:12px}.mt16{margin-top:16px}.mt24{margin-top:24px}
+.fs-sm{font-size:.82rem}.fs-xs{font-size:.74rem}.tc{text-align:center}.tr{text-align:right}
+.clay{color:var(--clay)}.sage{color:var(--sage)}.danger{color:var(--danger)}.sky{color:var(--sky)}.gold{color:var(--gold)}
+.accent{color:var(--accent)}.hide{display:none!important}
+.line-clamp2{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+
+.stat{padding:18px;border:1px solid var(--line);border-radius:var(--r-lg);background:var(--surface);position:relative}
+.stat .ic{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-bottom:12px}
+.stat .v{font-family:var(--serif);font-size:1.8rem;font-weight:600;line-height:1;letter-spacing:-.02em}
+.stat .l{color:var(--ink-3);font-size:.8rem;margin-top:5px}
+.stat .d{position:absolute;top:18px;right:18px;font-size:.74rem;font-weight:650}
+.up{color:var(--sage)} .down{color:var(--danger)}
+
+/* tabelas */
+.tbl-wrap{border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--surface)}
+.tbl-scroll{overflow-x:auto}
+table{width:100%;border-collapse:collapse;font-size:.85rem}
+thead th{text-align:left;font-size:.68rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:12px 16px;border-bottom:1px solid var(--line);white-space:nowrap;background:var(--surface)}
+tbody td{padding:13px 16px;border-bottom:1px solid var(--line-2);vertical-align:middle}
+tbody tr:last-child td{border-bottom:0}
+tbody tr:hover{background:var(--surface-2)}
+.t-actions{display:flex;gap:5px;justify-content:flex-end}
+.tbl-head{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:14px 16px;border-bottom:1px solid var(--line)}
+
+.input,.select{font-family:var(--sans);font-size:.86rem;color:var(--ink);width:100%;padding:.6em .85em;border:1px solid var(--line);border-radius:var(--r);background:var(--surface);transition:border-color .16s,box-shadow .16s}
+.input:focus,.select:focus{outline:none;border-color:var(--accent);box-shadow:0 0 0 3px var(--accent-soft)}
+.input::placeholder{color:var(--ink-3)}
+.field{display:flex;flex-direction:column;gap:.35em;margin-bottom:12px}
+.field label{font-size:.78rem;font-weight:550;color:var(--ink-2)}
+textarea.input{resize:vertical;min-height:80px}
+.search-wrap{position:relative;display:flex;align-items:center}
+.search-wrap .i{position:absolute;left:12px;width:16px;height:16px;color:var(--ink-3);pointer-events:none}
+.search-wrap .input{padding-left:36px}
+
+.chip{display:inline-flex;align-items:center;gap:.35em;font-size:.78rem;font-weight:500;padding:.4em .8em;border-radius:var(--r-full);background:var(--surface);border:1px solid var(--line);color:var(--ink-2);cursor:pointer;transition:all .15s;white-space:nowrap}
+.chip:hover{border-color:var(--ink-3);color:var(--ink)}
+.chip.on{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.tabs{display:flex;gap:2px;border-bottom:1px solid var(--line);overflow-x:auto;scrollbar-width:none}
+.tabs::-webkit-scrollbar{display:none}
+.tab{padding:.65em .95em;font-weight:550;font-size:.86rem;color:var(--ink-3);cursor:pointer;border-bottom:2px solid transparent;margin-bottom:-1px;white-space:nowrap}
+.tab.on{color:var(--ink);border-color:var(--accent)}
+
+/* KANBAN candidaturas */
+.kan{display:grid;grid-template-columns:repeat(5,minmax(190px,1fr));gap:12px;overflow-x:auto;padding-bottom:6px}
+.kan-col{background:var(--surface-2);border-radius:var(--r-lg);padding:10px;min-height:120px}
+.kan-col h4{font-family:var(--sans);font-size:.74rem;font-weight:650;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3);padding:2px 4px 10px;display:flex;justify-content:space-between}
+.kan-card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:11px;margin-bottom:8px;cursor:pointer;transition:box-shadow .18s,transform .18s var(--ease)}
+.kan-card:hover{box-shadow:var(--sh);transform:translateY(-1px)}
+
+/* AGENDA / calendário */
+.agenda{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+.ag-day{background:var(--surface-2);border-radius:var(--r);padding:10px;min-height:150px}
+.ag-day .dh{text-align:center;padding-bottom:8px;border-bottom:1px solid var(--line)}
+.ag-day .dh .dn{font-size:.68rem;text-transform:uppercase;letter-spacing:.08em;color:var(--ink-3)}
+.ag-day .dh .dd{font-family:var(--serif);font-size:1.2rem;font-weight:600}
+.ag-day.today .dh .dd{color:var(--accent)}
+.slot{background:var(--surface);border:1px solid var(--line);border-left:3px solid var(--accent);border-radius:var(--r-sm);padding:7px 8px;margin-top:8px;font-size:.75rem;cursor:pointer;transition:transform .15s}
+.slot:hover{transform:translateX(2px)}
+.slot .st{font-weight:650} .slot .sn{color:var(--ink-3);font-size:.7rem}
+
+/* MENSAGENS */
+.msg-wrap{display:grid;grid-template-columns:290px 1fr;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--surface);height:calc(100vh - 190px);min-height:440px}
+.conv-list{border-right:1px solid var(--line);overflow-y:auto}
+.conv{display:flex;gap:10px;padding:13px 14px;border-bottom:1px solid var(--line-2);cursor:pointer;transition:background .14s}
+.conv:hover{background:var(--surface-2)}
+.conv.on{background:var(--accent-tint);border-left:3px solid var(--accent);padding-left:11px}
+.conv .cn{font-weight:600;font-size:.85rem;display:flex;justify-content:space-between;gap:6px}
+.conv .cp{color:var(--ink-3);font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.unread-dot{width:8px;height:8px;background:var(--accent);border-radius:50%;flex:none;align-self:center}
+.thread{display:flex;flex-direction:column;min-width:0}
+.thread-head{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.thread-body{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
+.bub{max-width:74%;padding:10px 13px;border-radius:16px;font-size:.86rem;line-height:1.45;position:relative}
+.bub .tm{font-size:.66rem;opacity:.6;margin-top:4px}
+.bub.them{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px;align-self:flex-start}
+.bub.me{background:var(--accent);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+.bub.auto{background:var(--sage-soft);color:var(--sage);align-self:center;font-size:.78rem;max-width:88%;text-align:center;border-radius:10px}
+.composer{padding:12px 14px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:flex-end}
+.composer textarea{flex:1;border:1px solid var(--line);border-radius:16px;padding:9px 13px;font-family:var(--sans);font-size:.86rem;resize:none;background:var(--surface);color:var(--ink);max-height:110px;min-height:38px}
+.composer textarea:focus{outline:none;border-color:var(--accent)}
+
+.callout{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:.84rem;line-height:1.5}
+.callout .i{width:18px;height:18px;flex:none;margin-top:1px}
+.callout-info{background:var(--sky-soft);color:var(--sky)}
+.callout-warn{background:var(--gold-soft);color:var(--gold)}
+.callout-sage{background:var(--sage-soft);color:var(--sage)}
+.callout-accent{background:var(--accent-tint);color:var(--accent)}
+
+.progrow{display:flex;align-items:center;gap:12px;padding:8px 0}
+.progrow .pl{width:130px;font-size:.82rem;flex:none}
+.progrow .pt{flex:1;height:8px;background:var(--surface-2);border-radius:var(--r-full);overflow:hidden}
+.progrow .pt i{display:block;height:100%;background:var(--accent);border-radius:var(--r-full);transition:width .8s var(--ease)}
+.progrow .pv{width:48px;text-align:right;font-size:.8rem;font-weight:600}
+.bars{display:flex;align-items:flex-end;gap:8px;height:120px}
+.bars .b{flex:1;display:flex;flex-direction:column;align-items:center;gap:6px;height:100%;justify-content:flex-end}
+.bars .b .bar{width:100%;max-width:32px;background:var(--accent);border-radius:5px 5px 2px 2px}
+.bars .b .lb{font-size:.66rem;color:var(--ink-3)}
+
+.state{text-align:center;padding:48px 20px;max-width:400px;margin:0 auto}
+.state .ill{width:52px;height:52px;margin:0 auto 14px;color:var(--ink-3);opacity:.6}
+.state .ill svg{width:100%;height:100%}
+
+.toasts{position:fixed;bottom:24px;left:50%;transform:translateX(-50%);z-index:200;display:flex;flex-direction:column;gap:10px;align-items:center;pointer-events:none}
+.toast{background:var(--ink);color:var(--paper);padding:.8em 1.15em;border-radius:var(--r-full);font-size:.86rem;font-weight:500;box-shadow:var(--sh-lg);display:flex;align-items:center;gap:.55em;animation:tin .35s var(--ease)}
+.toast.err{background:var(--danger)} .toast.ok2{background:var(--sage)}
+@keyframes tin{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+.scrim{position:fixed;inset:0;background:rgba(20,17,12,.44);backdrop-filter:blur(3px);z-index:100;opacity:0;pointer-events:none;transition:opacity .28s}
+.scrim.on{opacity:1;pointer-events:auto}
+.modal{position:fixed;z-index:110;background:var(--surface);border:1px solid var(--line);border-radius:var(--r-xl);box-shadow:var(--sh-lg);width:min(560px,94vw);max-height:88vh;overflow-y:auto;left:50%;top:50%;transform:translate(-50%,-46%) scale(.98);opacity:0;pointer-events:none;transition:all .3s var(--ease)}
+.modal.on{transform:translate(-50%,-50%) scale(1);opacity:1;pointer-events:auto}
+.modal-pad{padding:24px} .modal-x{position:absolute;top:14px;right:14px}
+
+.menu-btn{display:none}
+@media (max-width:960px){
+  .sidebar{transform:translateX(-100%);transition:transform .3s var(--ease);box-shadow:var(--sh-lg)}
+  .sidebar.open{transform:none}
+  .main{margin-left:0} .menu-btn{display:inline-flex}
+  .g4{grid-template-columns:repeat(2,1fr)} .g3,.g2{grid-template-columns:1fr}
+  .content{padding:16px}
+  .msg-wrap{grid-template-columns:1fr;height:auto}
+  .conv-list{border-right:0;border-bottom:1px solid var(--line);max-height:220px}
+  .thread-body{min-height:300px}
+  .agenda{grid-template-columns:1fr;gap:10px} .ag-day{min-height:auto}
+  .modal{top:auto;bottom:0;left:0;transform:translateY(100%);width:100%;border-radius:var(--r-xl) var(--r-xl) 0 0;max-width:100%}
+  .modal.on{transform:translateY(0)}
+  .hide-m,.lbl-m{display:none!important}
+}
+@media (max-width:560px){.g4{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="shell">
+  <aside class="sidebar" id="sidebar"></aside>
+  <div class="main">
+    <header class="topbar" id="topbar"></header>
+    <main class="content" id="view"></main>
+  </div>
+</div>
+<div id="scrim" class="scrim"></div>
+<div id="modal" class="modal"><div id="modalBody"></div></div>
+<div id="toasts" class="toasts"></div>
+<script>
+/* ============================================================
+   BÚSSOLA · PAINÉIS MULTI-ROLE
+   ============================================================ */
+const I={
+  grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
+  inbox:'<path d="M3 12h5l2 3h4l2-3h5"/><path d="M5 5h14l2 7v7H3v-7z"/>',
+  cal:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/>',
+  chat:'<path d="M21 12a8 8 0 0 1-11.5 7.2L3 21l1.8-6.5A8 8 0 1 1 21 12z"/>',
+  star:'<path d="m12 3 2.9 5.9 6.5.9-4.7 4.6 1.1 6.4L12 18l-5.8 3 1.1-6.4L2.6 9.8l6.5-.9z"/>',
+  user:'<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  card:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 10h18M7 15h4"/>',
+  work:'<rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/>',
+  users:'<circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 6a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6"/>',
+  home:'<path d="M4 11 12 5l8 6"/><path d="M6 10v9h12v-9"/><path d="M10 19v-5h4v5"/>',
+  eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
+  heart:'<path d="M12 21s-7.5-4.8-10-9.5C.7 8.6 2.3 5 5.5 5 8 5 9.5 7 12 7s4-2 6.5-2c3.2 0 4.8 3.6 3.5 6.5C19.5 16.2 12 21 12 21z"/>',
+  event:'<rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18M8 14h3"/>',
+  ticket:'<path d="M4 8V6h16v2a2 2 0 0 0 0 4v2H4v-2a2 2 0 0 0 0-4z"/><path d="M12 6v2M12 12v2"/>',
+  law:'<path d="M12 3v18"/><path d="M6 7h12"/><path d="m5 7-2 5a3 3 0 0 0 6 0z"/><path d="m19 7-2 5a3 3 0 0 0 6 0z"/><path d="M8 21h8"/>',
+  building:'<rect x="4" y="3" width="16" height="18" rx="2"/><path d="M9 8h.01M15 8h.01M9 12h.01M15 12h.01M10 21v-4h4v4"/>',
+  check:'<path d="m4 12 5 5L20 6"/>', x:'<path d="M6 6 18 18M18 6 6 18"/>',
+  chevr:'<path d="m9 6 6 6-6 6"/>', chevd:'<path d="m6 9 6 6 6-6"/>',
+  arrow:'<path d="M5 12h14M13 6l6 6-6 6"/>',
+  up:'<path d="M12 19V5M6 11l6-6 6 6"/>', down:'<path d="M12 5v14M6 13l6 6 6-6"/>',
+  plus:'<path d="M12 5v14M5 12h14"/>', menu:'<path d="M3 6h18M3 12h18M3 18h18"/>',
+  search:'<circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>',
+  send:'<path d="M22 2 11 13M22 2l-7 20-4-9-9-4z"/>',
+  clip:'<path d="M21 11l-9 9a5 5 0 0 1-7-7l9-9a3.5 3.5 0 0 1 5 5l-9 9a2 2 0 0 1-3-3l8-8"/>',
+  ban:'<circle cx="12" cy="12" r="9"/><path d="m5.6 5.6 12.8 12.8"/>',
+  flag:'<path d="M4 21V4M4 4c3-1.5 7 1.5 10 0s6-1 6-1v11s-3 .5-6 1-7-1.5-10 0"/>',
+  warn:'<path d="M12 3 2 20h20z"/><path d="M12 9v5M12 17.5v.5"/>',
+  info:'<circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/>',
+  shield:'<path d="M12 3 4 6v6c0 5 3.5 7.5 8 9 4.5-1.5 8-4 8-9V6z"/><path d="m9 12 2 2 4-4"/>',
+  euro:'<path d="M18 8a6 6 0 1 0 0 8"/><path d="M5 10h7M5 14h6"/>',
+  clock:'<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
+  pin:'<path d="M12 21s7-6 7-12a7 7 0 0 0-14 0c0 6 7 12 7 12z"/><circle cx="12" cy="9" r="2.5"/>',
+  chart:'<path d="M4 20V4M4 20h16"/><rect x="7" y="12" width="3" height="5"/><rect x="12" y="8" width="3" height="9"/><rect x="17" y="5" width="3" height="12"/>',
+  file:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/>',
+  dl:'<path d="M12 3v12M7 11l5 5 5-5M5 21h14"/>',
+  sun:'<circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M2 12h2M20 12h2M5 5l1.5 1.5M17.5 17.5 19 19M19 5l-1.5 1.5M6.5 17.5 5 19"/>',
+  moon:'<path d="M20 14A8 8 0 1 1 10 4a6 6 0 0 0 10 10z"/>',
+  logout:'<path d="M15 4h4v16h-4"/><path d="M10 12h9M15 8l4 4-4 4"/>',
+  swap:'<path d="M7 4v13M4 14l3 3 3-3M17 20V7M14 10l3-3 3 3"/>',
+  pause:'<circle cx="12" cy="12" r="9"/><path d="M10 9v6M14 9v6"/>',
+  trash:'<path d="M4 7h16M9 7V4h6v3M6 7l1 14h10l1-14"/>',
+  edit:'<path d="M9 5H5v14h14v-9"/><path d="m15 3 6 6-8 8-4 1 1-4z"/>',
+};
+function svg(n,c){return `<svg class="i ${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${I[n]||''}</svg>`}
+const el=id=>document.getElementById(id);
+const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
+const stars=r=>{let s='';for(let i=1;i<=5;i++)s+=`<span style="color:${i<=Math.round(r)?'var(--gold)':'var(--line)'}">${svg('star')}</span>`;return `<span class="row" style="gap:1px">${s}</span>`};
+
+/* ============================================================
+   PAPÉIS
+   ============================================================ */
+const ROLES={
+  pro:{id:'pro',label:'Advogada',who:'Dra. Helena Baptista',sub:'Advogada · Lisboa',accent:'#C25A3A',soft:'#F3E4DB',tint:'#FBF1EB',ic:'law',plan:'Plano Profissional · 29€/mês'},
+  empresa:{id:'empresa',label:'Empresa',who:'Edifer Obras',sub:'Construção · Almada',accent:'#37618E',soft:'#E3EAF2',tint:'#EFF3F8',ic:'building',plan:'Plano Empresa · 39€/mês'},
+  anunciante:{id:'anunciante',label:'Imobiliária',who:'Sado Habitat',sub:'Imobiliária · Setúbal',accent:'#3E6B5A',soft:'#E4EEE8',tint:'#EFF5F2',ic:'home',plan:'Plano Imobiliária · 49€/mês'},
+  organizador:{id:'organizador',label:'Organizador',who:'Associação Kianda',sub:'Associação cultural · Lisboa',accent:'#B4842B',soft:'#F6EDD8',tint:'#FAF4E7',ic:'event',plan:'Plano Organizador · 19€/mês'},
+};
+const NAVS={
+  pro:[{r:'dash',l:'Visão geral',ic:'grid'},{r:'pedidos',l:'Pedidos recebidos',ic:'inbox',c:()=>PEDIDOS.filter(p=>p.status==='novo').length},
+       {r:'agenda',l:'Consultas',ic:'cal'},{r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},
+       {r:'reviews',l:'Avaliações',ic:'star'},{r:'perfil',l:'Perfil público',ic:'user'},{r:'faturacao',l:'Faturação',ic:'card'}],
+  empresa:[{r:'dash',l:'Visão geral',ic:'grid'},{r:'vagas',l:'Vagas',ic:'work'},
+       {r:'candidaturas',l:'Candidaturas',ic:'users',c:()=>CANDS.filter(c=>c.st==='Nova').length},
+       {r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},{r:'perfil',l:'Perfil da empresa',ic:'building'},{r:'faturacao',l:'Faturação',ic:'card'}],
+  anunciante:[{r:'dash',l:'Visão geral',ic:'grid'},{r:'anuncios',l:'Anúncios',ic:'home'},
+       {r:'interessados',l:'Interessados',ic:'users',c:()=>LEADS.filter(l=>l.novo).length},
+       {r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},{r:'perfil',l:'Perfil',ic:'building'},{r:'faturacao',l:'Faturação',ic:'card'}],
+  organizador:[{r:'dash',l:'Visão geral',ic:'grid'},{r:'eventos',l:'Eventos',ic:'event'},
+       {r:'participantes',l:'Participantes',ic:'users'},{r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},
+       {r:'perfil',l:'Perfil',ic:'user'},{r:'faturacao',l:'Faturação',ic:'card'}],
+};
+
+/* ============================================================
+   SEED
+   ============================================================ */
+/* --- Profissional --- */
+let PEDIDOS=[
+  {id:'r1',name:'Domingas Teca',country:'🇦🇴',city:'Setúbal',subject:'Título de residência',status:'novo',time:'há 2 h',
+   text:'Cheguei de Angola há 3 meses com visto de procura de trabalho. Já tenho contrato assinado e quero pedir o título de residência, mas não sei se posso fazê-lo sem sair do país. Pode ajudar-me?'},
+  {id:'r2',name:'Nelson Baldé',country:'🇬🇼',city:'Barreiro',subject:'Reagrupamento familiar',status:'novo',time:'há 5 h',
+   text:'Tenho título de residência válido e quero trazer a minha esposa e o meu filho de 6 anos. Queria saber que documentos preciso e quanto tempo demora normalmente.'},
+  {id:'r3',name:'Jandira Monteiro',country:'🇨🇻',city:'Amadora',subject:'Nacionalidade portuguesa',status:'aceite',time:'ontem',
+   text:'Vivo em Portugal há 6 anos com residência legal contínua. Queria perceber se já reúno condições para pedir a nacionalidade e o que preciso preparar.'},
+  {id:'r4',name:'Aderito Neves',country:'🇸🇹',city:'Porto',subject:'Renovação de título',status:'concluido',time:'há 4 dias',
+   text:'O meu título expira no próximo mês e queria tratar da renovação com apoio, para não falhar prazos.'},
+];
+let CONSULTAS=[
+  {id:'c1',d:12,day:'2ª',t:'10:00',dur:'45 min',who:'Jandira Monteiro',type:'Nacionalidade',mode:'Presencial'},
+  {id:'c2',d:12,day:'2ª',t:'15:30',dur:'30 min',who:'Paulo Semedo',type:'Primeira consulta',mode:'Online'},
+  {id:'c3',d:13,day:'3ª',t:'11:00',dur:'45 min',who:'Domingas Teca',type:'Título de residência',mode:'Online'},
+  {id:'c4',d:14,day:'4ª',t:'09:30',dur:'60 min',who:'Família Baldé',type:'Reagrupamento',mode:'Presencial'},
+  {id:'c5',d:15,day:'5ª',t:'14:00',dur:'30 min',who:'Carla Sanca',type:'Seguimento',mode:'Online'},
+];
+const REVIEWS=[
+  {who:'Jandira M.',country:'🇨🇻',r:5,time:'há 1 semana',t:'Explicou-me tudo com paciência e numa linguagem que eu percebi. Saí da consulta a saber exatamente o que fazer. Recomendo muito.'},
+  {who:'Aderito N.',country:'🇸🇹',r:5,time:'há 2 semanas',t:'Tratou da minha renovação sem stress. Respondeu sempre às mensagens no mesmo dia.'},
+  {who:'Paulo S.',country:'🇦🇴',r:4,time:'há 3 semanas',t:'Muito profissional e honesta — disse-me logo o que era possível e o que não era. Só demorou um pouco a agendar.'},
+  {who:'Carla S.',country:'🇬🇼',r:5,time:'há 1 mês',t:'Senti-me tratada com respeito, coisa que nem sempre acontece. Fez toda a diferença no meu processo.'},
+];
+/* --- Empresa --- */
+let VAGAS=[
+  {id:'v1',role:'Servente / Ajudante de construção',city:'Almada',salary:'1.000€–1.200€',type:'Tempo inteiro',status:'live',apps:41,views:1240,posted:'11 Ago'},
+  {id:'v2',role:'Pedreiro',city:'Almada',salary:'1.300€–1.500€',type:'Tempo inteiro',status:'live',apps:18,views:680,posted:'8 Ago'},
+  {id:'v3',role:'Encarregado de obra',city:'Seixal',salary:'1.800€–2.100€',type:'Tempo inteiro',status:'live',apps:6,views:410,posted:'5 Ago'},
+  {id:'v4',role:'Carpinteiro de cofragem',city:'Almada',salary:'1.400€',type:'Tempo inteiro',status:'draft',apps:0,views:0,posted:'—'},
+];
+let CANDS=[
+  {id:'a1',name:'Nelson Baldé',country:'🇬🇼',city:'Barreiro',vaga:'Servente / Ajudante',exp:'2 anos em construção',st:'Nova',time:'há 1 h'},
+  {id:'a2',name:'Tomás Chissano',country:'🇲🇿',city:'Almada',vaga:'Servente / Ajudante',exp:'Sem experiência',st:'Nova',time:'há 3 h'},
+  {id:'a3',name:'Paulo Semedo',country:'🇨🇻',city:'Seixal',vaga:'Pedreiro',exp:'8 anos, Cabo Verde',st:'Em análise',time:'ontem'},
+  {id:'a4',name:'Mário Fonseca',country:'🇦🇴',city:'Almada',vaga:'Servente / Ajudante',exp:'1 ano',st:'Em análise',time:'ontem'},
+  {id:'a5',name:'Ivo Delgado',country:'🇨🇻',city:'Lisboa',vaga:'Encarregado de obra',exp:'12 anos, chefia de equipa',st:'Entrevista',time:'há 2 dias'},
+  {id:'a6',name:'Bruno Tavares',country:'🇬🇼',city:'Almada',vaga:'Pedreiro',exp:'5 anos',st:'Entrevista',time:'há 3 dias'},
+  {id:'a7',name:'Aníbal Costa',country:'🇦🇴',city:'Seixal',vaga:'Pedreiro',exp:'6 anos',st:'Oferta',time:'há 4 dias'},
+  {id:'a8',name:'Rui Barros',country:'🇲🇿',city:'Lisboa',vaga:'Servente / Ajudante',exp:'Sem experiência',st:'Rejeitada',time:'há 5 dias'},
+];
+const CAND_STATES=['Nova','Em análise','Entrevista','Oferta','Rejeitada'];
+/* --- Anunciante --- */
+let ANUNCIOS=[
+  {id:'n1',title:'T1 renovado — Bela Vista',city:'Setúbal',price:750,type:'Apartamento',status:'live',views:2140,favs:86,leads:12,posted:'11 Ago'},
+  {id:'n2',title:'T2 com varanda — Monte Belo',city:'Setúbal',price:880,type:'Apartamento',status:'live',views:1620,favs:54,leads:8,posted:'9 Ago'},
+  {id:'n3',title:'Quarto individual — Bocage',city:'Setúbal',price:390,type:'Quarto',status:'live',views:3080,favs:141,leads:24,posted:'6 Ago'},
+  {id:'n4',title:'T3 familiar — Azeitão',city:'Setúbal',price:1150,type:'Casa',status:'pend',views:0,favs:0,leads:0,posted:'12 Ago'},
+];
+let LEADS=[
+  {id:'l1',name:'Preciosa Lopes',country:'🇦🇴',anuncio:'Quarto individual — Bocage',msg:'Boa tarde, o quarto ainda está disponível? Posso visitar esta semana?',time:'há 40 min',novo:true},
+  {id:'l2',name:'Carla Sanca',country:'🇬🇼',anuncio:'T1 renovado — Bela Vista',msg:'Tenho contrato de trabalho e recibos. É possível agendar visita para sábado?',time:'há 2 h',novo:true},
+  {id:'l3',name:'Domingas Teca',country:'🇦🇴',anuncio:'T1 renovado — Bela Vista',msg:'As despesas de água e luz estão incluídas no valor?',time:'há 6 h',novo:false},
+  {id:'l4',name:'Tomás Chissano',country:'🇲🇿',anuncio:'T2 com varanda — Monte Belo',msg:'Aceitam agregado familiar com duas crianças?',time:'ontem',novo:false},
+];
+/* --- Organizador --- */
+let MEUS_EVENTOS=[
+  {id:'e1',title:'Noite de Kizomba & Semba',date:'15 Ago 2026',time:'22:00',venue:'B.Leza, Cais do Sodré',price:'10€',status:'live',going:184,views:4120,cap:250},
+  {id:'e2',title:'Roda de Conversa: Primeiros meses',date:'22 Ago 2026',time:'17:00',venue:'Sede da Associação, Lisboa',price:'Gratuito',status:'live',going:46,views:980,cap:60},
+  {id:'e3',title:'Festa de Aniversário da Associação',date:'5 Set 2026',time:'20:00',venue:'A definir',price:'15€',status:'draft',going:0,views:0,cap:400},
+];
+const PARTICIPANTES=[
+  {name:'Jandira Monteiro',country:'🇨🇻',ev:'Noite de Kizomba & Semba',when:'há 2 h',st:'Confirmado'},
+  {name:'Nelson Baldé',country:'🇬🇼',ev:'Noite de Kizomba & Semba',when:'há 5 h',st:'Confirmado'},
+  {name:'Domingas Teca',country:'🇦🇴',ev:'Roda de Conversa: Primeiros meses',when:'ontem',st:'Confirmado'},
+  {name:'Aderito Neves',country:'🇸🇹',ev:'Noite de Kizomba & Semba',when:'ontem',st:'Confirmado'},
+  {name:'Preciosa Lopes',country:'🇦🇴',ev:'Roda de Conversa: Primeiros meses',when:'há 2 dias',st:'Confirmado'},
+];
+/* --- Mensagens (partilhado; por papel) --- */
+let CONVS={
+  pro:[
+    {id:'m1',who:'Domingas Teca',country:'🇦🇴',ctx:'Título de residência',unread:2,msgs:[
+      {s:'auto',t:'Conversa iniciada a partir de um pedido de consulta na Bússola.'},
+      {s:'them',t:'Boa tarde, Dra. Helena. Recebeu o meu pedido sobre o título de residência?',tm:'14:02'},
+      {s:'me',t:'Boa tarde, Domingas. Recebi sim. Já tem o contrato de trabalho assinado?',tm:'14:20'},
+      {s:'them',t:'Tenho, assinei na semana passada. Posso enviar-lhe?',tm:'14:24'},
+      {s:'them',t:'E preciso de mais alguma coisa além do contrato?',tm:'14:25'},
+    ]},
+    {id:'m2',who:'Nelson Baldé',country:'🇬🇼',ctx:'Reagrupamento familiar',unread:0,msgs:[
+      {s:'auto',t:'Conversa iniciada a partir de um pedido de consulta na Bússola.'},
+      {s:'them',t:'Bom dia. Queria trazer a minha família. Quanto costuma demorar?',tm:'09:10'},
+      {s:'me',t:'Bom dia, Nelson. Os prazos variam bastante. Vamos marcar uma consulta para eu ver a sua situação em concreto?',tm:'09:32'},
+      {s:'them',t:'Sim, por favor. Tenho disponibilidade a partir de quarta.',tm:'09:40'},
+    ]},
+    {id:'m3',who:'Jandira Monteiro',country:'🇨🇻',ctx:'Nacionalidade',unread:0,msgs:[
+      {s:'them',t:'Muito obrigada pela consulta de ontem. Fiquei muito mais tranquila.',tm:'11:15'},
+      {s:'me',t:'Ainda bem, Jandira. Vá reunindo os documentos e falamos para a semana.',tm:'11:40'},
+    ]},
+  ],
+  empresa:[
+    {id:'m1',who:'Nelson Baldé',country:'🇬🇼',ctx:'Servente / Ajudante',unread:1,msgs:[
+      {s:'auto',t:'Candidatura recebida através da Bússola.'},
+      {s:'me',t:'Bom dia, Nelson. Recebemos a sua candidatura. Tem disponibilidade para começar este mês?',tm:'08:40'},
+      {s:'them',t:'Bom dia. Tenho sim, posso começar quando precisarem.',tm:'09:05'},
+    ]},
+    {id:'m2',who:'Ivo Delgado',country:'🇨🇻',ctx:'Encarregado de obra',unread:0,msgs:[
+      {s:'me',t:'Boa tarde, Ivo. Podemos fazer a entrevista na quinta às 10h, no escritório do Feijó?',tm:'16:20'},
+      {s:'them',t:'Boa tarde. Perfeito, lá estarei. Obrigado pela oportunidade.',tm:'16:45'},
+    ]},
+  ],
+  anunciante:[
+    {id:'m1',who:'Preciosa Lopes',country:'🇦🇴',ctx:'Quarto — Bocage',unread:1,msgs:[
+      {s:'auto',t:'Contacto a partir do anúncio "Quarto individual — Bocage".'},
+      {s:'them',t:'Boa tarde, o quarto ainda está disponível? Posso visitar esta semana?',tm:'15:10'},
+    ]},
+    {id:'m2',who:'Carla Sanca',country:'🇬🇼',ctx:'T1 — Bela Vista',unread:0,msgs:[
+      {s:'them',t:'Tenho contrato de trabalho e recibos. Posso visitar sábado?',tm:'13:02'},
+      {s:'me',t:'Boa tarde, Carla. Sábado às 11h está bom para si?',tm:'13:30'},
+      {s:'them',t:'Está perfeito, obrigada!',tm:'13:33'},
+    ]},
+  ],
+  organizador:[
+    {id:'m1',who:'Jandira Monteiro',country:'🇨🇻',ctx:'Noite de Kizomba',unread:1,msgs:[
+      {s:'them',t:'Boa noite! O evento tem entrada para menores acompanhados?',tm:'21:12'},
+    ]},
+    {id:'m2',who:'Casa da Cultura',country:'🏛️',ctx:'Parceria',unread:0,msgs:[
+      {s:'them',t:'Temos interesse em acolher a próxima roda de conversa.',tm:'10:00'},
+      {s:'me',t:'Excelente! Enviamos proposta de datas até sexta.',tm:'10:25'},
+    ]},
+  ],
+};
+const FATURAS=[
+  {id:'FT 2026/1042',date:'10 Ago 2026',desc:'Subscrição mensal',amount:'29€',st:'Paga'},
+  {id:'FT 2026/0987',date:'10 Jul 2026',desc:'Subscrição mensal',amount:'29€',st:'Paga'},
+  {id:'FT 2026/0921',date:'10 Jun 2026',desc:'Subscrição mensal',amount:'29€',st:'Paga'},
+];
+
+/* ============================================================
+   ESTADO
+   ============================================================ */
+let P={role:'pro',route:'dash',theme:'light',conv:'m1'};
+try{const r=localStorage.getItem('bussola_painel');if(r)P=Object.assign(P,JSON.parse(r))}catch(e){}
+function save(){try{localStorage.setItem('bussola_painel',JSON.stringify(P))}catch(e){}}
+const R=()=>ROLES[P.role];
+function unread(){return (CONVS[P.role]||[]).reduce((a,c)=>a+(c.unread||0),0)}
+function applyTheme(){document.documentElement.setAttribute('data-theme',P.theme);const m=document.querySelector('meta[name=theme-color]');if(m)m.content=P.theme==='dark'?'#16140F':'#F7F4EF'}
+function applyAccent(){const r=R();document.documentElement.style.setProperty('--accent',r.accent);document.documentElement.style.setProperty('--accent-soft',r.soft);document.documentElement.style.setProperty('--accent-tint',P.theme==='dark'?'#241812':r.tint)}
+function toggleTheme(){P.theme=P.theme==='dark'?'light':'dark';applyTheme();applyAccent();save();renderShell();go(P.route)}
+function toast(msg,type){const t=document.createElement('div');t.className='toast'+(type?' '+type:'');t.innerHTML=`${type==='err'?svg('warn'):svg('check')}<span>${esc(msg)}</span>`;el('toasts').appendChild(t);setTimeout(()=>{t.style.transition='opacity .3s,transform .3s';t.style.opacity='0';t.style.transform='translateY(10px)';setTimeout(()=>t.remove(),300)},2600)}
+function openModal(h){el('modalBody').innerHTML=h;el('modal').classList.add('on');el('scrim').classList.add('on');document.body.style.overflow='hidden'}
+function closeModal(){el('modal').classList.remove('on');el('scrim').classList.remove('on');document.body.style.overflow=''}
+function pill(s){const M={live:['pill-ok','Publicado'],ok:['pill-ok','Ativo'],draft:['pill-off','Rascunho'],pend:['pill-pend','Em aprovação'],novo:['pill-anal','Novo'],aceite:['pill-ok','Aceite'],concluido:['pill-off','Concluído']};const[c,l]=M[s]||['pill-off',s];return `<span class="pill ${c}"><i class="dot"></i>${l}</span>`}
+
+/* ============================================================
+   SHELL
+   ============================================================ */
+function renderShell(){
+  const r=R();
+  el('sidebar').innerHTML=`
+    <div class="sb-brand">${mark(24)} <span>Bússola</span></div>
+    <div class="role-sel" onclick="event.stopPropagation();el('roleMenu').classList.toggle('on')">
+      <div class="rl">A ver como</div>
+      <div class="rn"><span style="color:${r.accent}">${svg(r.ic)}</span>${esc(r.who)} <span class="mla muted">${svg('chevd')}</span></div>
+      <div class="role-menu" id="roleMenu">
+        ${Object.values(ROLES).map(x=>`<div onclick="event.stopPropagation();setRole('${x.id}')"><span style="color:${x.accent}">${svg(x.ic)}</span>
+          <div><div class="fw6">${esc(x.who)}</div><div class="muted fs-xs">${esc(x.label)}</div></div>
+          ${x.id===P.role?`<span class="mla" style="color:${x.accent}">${svg('check')}</span>`:''}</div>`).join('')}
+      </div>
+    </div>
+    <nav class="sb-nav">
+      ${NAVS[P.role].map(n=>`<div class="sb-item ${P.route===n.r?'on':''}" data-r="${n.r}" onclick="go('${n.r}')">${svg(n.ic)}<span>${n.l}</span>${n.c&&n.c()?`<span class="c">${n.c()}</span>`:''}</div>`).join('')}
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-item" onclick="toggleTheme()">${svg(P.theme==='dark'?'sun':'moon')}<span>${P.theme==='dark'?'Tema claro':'Tema escuro'}</span></div>
+      <div class="sb-user">
+        <div class="av av-sm" style="background:${r.accent};color:#fff">${initials(r.who)}</div>
+        <div style="line-height:1.2;min-width:0"><div class="fw6 fs-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.who)}</div><div class="muted fs-xs">${esc(r.label)}</div></div>
+      </div>
+    </div>`;
+  el('topbar').innerHTML=`
+    <button class="btn btn-ghost btn-icon menu-btn" onclick="el('sidebar').classList.toggle('open')">${svg('menu')}</button>
+    <div class="row gap8 hide-m"><span class="pill pill-ok"><i class="dot"></i>Perfil verificado</span>
+      <span class="muted fs-sm">${esc(r.plan)}</span></div>
+    <div class="row gap8 mla">
+      <button class="btn btn-quiet btn-icon" onclick="go('msgs')" style="position:relative">${svg('chat')}${unread()?`<span style="position:absolute;top:5px;right:5px;width:8px;height:8px;background:var(--accent);border-radius:50%;border:2px solid var(--paper)"></span>`:''}</button>
+      <button class="btn btn-primary btn-sm" onclick="primaryAction()" title="${primaryLabel()}">${svg('plus')}<span class="lbl-m">${primaryLabel()}</span></button>
+    </div>`;
+}
+function mark(s){return `<svg width="${s}" height="${s}" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--accent)" stroke-width="2.6"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--accent)"/><circle cx="20" cy="20" r="2" fill="var(--surface)"/></svg>`}
+function primaryLabel(){return {pro:'Nova consulta',empresa:'Nova vaga',anunciante:'Novo anúncio',organizador:'Novo evento'}[P.role]}
+function primaryAction(){({pro:newConsulta,empresa:newVaga,anunciante:newAnuncio,organizador:newEvento})[P.role]()}
+function setRole(id){P.role=id;P.route='dash';P.conv=(CONVS[id][0]||{}).id;applyAccent();save();renderShell();go('dash');toast('A ver o painel de '+ROLES[id].who)}
+document.addEventListener('click',()=>{const m=el('roleMenu');if(m)m.classList.remove('on')});
+
+const V={};
+function go(route){
+  P.route=route;save();closeModal();
+  if(window.innerWidth<=960)el('sidebar').classList.remove('open');
+  $$('.sb-item[data-r]').forEach(i=>i.classList.toggle('on',i.dataset.r===route));
+  const key=P.role+':'+route;
+  const fn=V[key]||V[route]||V[P.role+':dash'];
+  el('view').innerHTML=fn?fn():'';
+  window.scrollTo(0,0);
+  el('view').style.animation='none';void el('view').offsetWidth;el('view').style.animation='';
+  if(route==='msgs')setTimeout(scrollThread,30);
+}
+function head(t,s,a){return `<div class="page-head"><div><h1 class="h1">${esc(t)}</h1>${s?`<p class="muted mt4">${esc(s)}</p>`:''}</div>${a?`<div class="row gap8 wrap">${a}</div>`:''}</div>`}
+function statTile(l,v,ic,c,d){return `<div class="stat">${d?`<div class="d ${d[0]==='+'?'up':'down'}">${d}</div>`:''}
+  <div class="ic" style="background:color-mix(in srgb,${c} 14%,transparent);color:${c}">${svg(ic)}</div>
+  <div class="v">${v}</div><div class="l">${l}</div></div>`}
+function tableWrap(title,meta,cols,rows,tools){
+  return `<div class="tbl-wrap"><div class="tbl-head"><div><div class="fw6">${esc(title)}</div><div class="muted fs-xs">${esc(meta)}</div></div>${tools?`<div class="row gap6 wrap">${tools}</div>`:''}</div>
+    <div class="tbl-scroll"><table><thead><tr>${cols.map(c=>`<th>${c}</th>`).join('')}</tr></thead>
+    <tbody>${rows||`<tr><td colspan="${cols.length}"><div class="tc muted" style="padding:32px 0">Sem registos.</div></td></tr>`}</tbody></table></div></div>`;
+}
+function emptyState(ic,t,m,cta){return `<div class="state"><div class="ill">${svg(ic)}</div><h3 class="h3 mb4">${esc(t)}</h3><p class="muted mb16">${esc(m)}</p>${cta||''}</div>`}
+
+/* ============================================================
+   PROFISSIONAL
+   ============================================================ */
+V['pro:dash']=()=>{
+  const novos=PEDIDOS.filter(p=>p.status==='novo');
+  const a=R().accent;
+  return `${head('Bom dia, Dra. Helena','Isto é o que precisa da sua atenção hoje.')}
+  <div class="grid g4 mb24">
+    ${statTile('Pedidos por responder',novos.length,'inbox',a,'+2')}
+    ${statTile('Consultas esta semana',CONSULTAS.length,'cal','var(--sky)')}
+    ${statTile('Avaliação média','4,9','star','var(--gold)','+0,1')}
+    ${statTile('Casos acompanhados','340','shield','var(--sage)','+12')}
+  </div>
+  <div class="grid" style="grid-template-columns:1.3fr 1fr;align-items:start">
+    <div class="card card-pad">
+      <div class="row between mb16"><div><div class="eyebrow mb4">Por responder</div><div class="h3">Pedidos recentes</div></div>
+        <button class="btn btn-quiet btn-sm" onclick="go('pedidos')">Ver todos ${svg('arrow')}</button></div>
+      ${novos.length?novos.map(p=>`<div class="row gap12" style="padding:12px 0;border-bottom:1px solid var(--line-2);cursor:pointer" onclick="openPedido('${p.id}')">
+        <div class="av av-sm">${p.country}</div>
+        <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(p.name)} · <span class="muted fw5">${esc(p.subject)}</span></div>
+        <div class="muted fs-xs line-clamp2">${esc(p.text)}</div></div>
+        <span class="muted fs-xs">${esc(p.time)}</span></div>`).join('')
+      :`<p class="muted">Sem pedidos por responder. Bom trabalho.</p>`}
+    </div>
+    <div class="card card-pad">
+      <div class="eyebrow mb4">Hoje</div><div class="h3 mb16">Próximas consultas</div>
+      ${CONSULTAS.slice(0,3).map(c=>`<div class="row gap12" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
+        <div style="text-align:center;flex:none"><div class="num fw6" style="color:${a}">${esc(c.t)}</div><div class="muted fs-xs">${esc(c.dur)}</div></div>
+        <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.who)}</div><div class="muted fs-xs">${esc(c.type)} · ${esc(c.mode)}</div></div></div>`).join('')}
+      <button class="btn btn-ghost btn-sm btn-block mt12" onclick="go('agenda')">${svg('cal')} Ver agenda</button>
+    </div>
+  </div>
+  <div class="callout callout-accent mt24">${svg('info')}<div>Responder em menos de 24 h aumenta significativamente a probabilidade de o cliente avançar. O seu tempo médio atual é de <b>3 h</b>.</div></div>`;
+};
+V['pro:pedidos']=()=>{
+  const rows=PEDIDOS.map(p=>`<tr>
+    <td><div class="row gap8"><div class="av av-sm">${p.country}</div>
+      <div><div class="fw6">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.city)}</div></div></div></td>
+    <td class="fs-sm">${esc(p.subject)}</td>
+    <td class="muted fs-sm">${esc(p.time)}</td>
+    <td>${pill(p.status)}</td>
+    <td><div class="t-actions"><button class="btn btn-ghost btn-xs" onclick="openPedido('${p.id}')">${svg('eye')} Ver caso</button></div></td>
+  </tr>`).join('');
+  return `${head('Pedidos recebidos','Pessoas que pediram a sua ajuda através da Bússola')}
+  ${tableWrap('Pedidos',`${PEDIDOS.length} no total · ${PEDIDOS.filter(p=>p.status==='novo').length} por responder`,
+    ['Pessoa','Assunto','Recebido','Estado',''],rows)}`;
+};
+function openPedido(id){
+  const p=PEDIDOS.find(x=>x.id===id);if(!p)return;
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="row gap12 mb16"><div class="av av-md">${p.country}</div>
+      <div><div class="h3">${esc(p.name)}</div><div class="muted fs-sm">${esc(p.city)} · ${esc(p.time)}</div></div></div>
+    <span class="tag mb12">${esc(p.subject)}</span>
+    <div class="card card-pad mb16" style="background:var(--surface-2)"><p class="fs-sm">${esc(p.text)}</p></div>
+    <div class="callout callout-warn mb16">${svg('shield')}<div>Não peça documentos sensíveis por mensagem. Trate a documentação em consulta ou por canal seguro.</div></div>
+    ${p.status==='novo'?`<div class="row gap8">
+      <button class="btn btn-ghost flex1" onclick="recusar('${p.id}')">Não posso aceitar</button>
+      <button class="btn btn-primary flex1" onclick="aceitar('${p.id}')">${svg('check')} Aceitar e responder</button></div>`
+    :`<button class="btn btn-ghost btn-block" onclick="closeModal();go('msgs')">${svg('chat')} Abrir conversa</button>`}
+  </div>`);
+}
+function aceitar(id){const p=PEDIDOS.find(x=>x.id===id);p.status='aceite';save();closeModal();renderShell();go('pedidos');toast('Pedido aceite — conversa aberta ✓','ok2')}
+function recusar(id){const p=PEDIDOS.find(x=>x.id===id);p.status='concluido';save();closeModal();renderShell();go('pedidos');toast('Pedido recusado com nota ao cliente')}
+function newConsulta(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb16">Marcar consulta</h2>
+  <div class="field"><label>Cliente</label><select class="select">${PEDIDOS.map(p=>`<option>${esc(p.name)}</option>`).join('')}</select></div>
+  <div class="row gap8"><div class="field flex1"><label>Data</label><input class="input" type="date" value="2026-08-14"></div>
+  <div class="field flex1"><label>Hora</label><input class="input" type="time" value="10:00"></div></div>
+  <div class="field"><label>Modalidade</label><select class="select"><option>Online</option><option>Presencial</option></select></div>
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Consulta marcada ✓','ok2')">Marcar consulta</button></div>`)}
+V['pro:agenda']=()=>{
+  const dias=[{d:12,n:'2ª feira',t:true},{d:13,n:'3ª feira'},{d:14,n:'4ª feira'},{d:15,n:'5ª feira'},{d:16,n:'6ª feira'}];
+  return `${head('Consultas','Semana de 12 a 16 de agosto de 2026',`
+    <button class="btn btn-ghost btn-sm" onclick="toast('Disponibilidade atualizada')">${svg('clock')} Definir disponibilidade</button>
+    <button class="btn btn-primary btn-sm" onclick="newConsulta()">${svg('plus')} Marcar consulta</button>`)}
+  <div class="agenda">
+    ${dias.map(d=>{const cs=CONSULTAS.filter(c=>c.d===d.d);
+      return `<div class="ag-day ${d.t?'today':''}"><div class="dh"><div class="dn">${d.n}</div><div class="dd">${d.d}</div></div>
+        ${cs.map(c=>`<div class="slot" onclick="toast('${esc(c.who)} · ${esc(c.type)}')">
+          <div class="st">${esc(c.t)}</div><div class="sn">${esc(c.who)}</div><div class="sn">${esc(c.mode)}</div></div>`).join('')
+        ||`<div class="muted fs-xs tc" style="padding:18px 0">Livre</div>`}</div>`}).join('')}
+  </div>
+  <div class="grid g3 mt24">
+    ${statTile('Consultas esta semana',CONSULTAS.length,'cal',R().accent)}
+    ${statTile('Online',CONSULTAS.filter(c=>c.mode==='Online').length,'chat','var(--sky)')}
+    ${statTile('Presenciais',CONSULTAS.filter(c=>c.mode==='Presencial').length,'pin','var(--sage)')}
+  </div>`;
+};
+V['pro:reviews']=()=>{
+  const media=(REVIEWS.reduce((a,r)=>a+r.r,0)/REVIEWS.length).toFixed(1).replace('.',',');
+  const dist=[5,4,3,2,1].map(n=>({n,c:REVIEWS.filter(r=>r.r===n).length}));
+  return `${head('Avaliações','O que os seus clientes dizem sobre si')}
+  <div class="grid" style="grid-template-columns:280px 1fr;align-items:start">
+    <div class="card card-pad tc">
+      <div class="num" style="font-size:3rem;line-height:1">${media}</div>
+      <div class="row" style="justify-content:center">${stars(4.9)}</div>
+      <div class="muted fs-sm mt8">${REVIEWS.length} avaliações verificadas</div>
+      <hr class="divider mt16 mb12">
+      ${dist.map(d=>`<div class="row gap8" style="padding:3px 0"><span class="fs-xs muted" style="width:12px">${d.n}</span>
+        <div class="pt" style="flex:1;height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden"><i style="display:block;height:100%;width:${Math.round(d.c/REVIEWS.length*100)}%;background:var(--gold)"></i></div>
+        <span class="fs-xs muted" style="width:16px;text-align:right">${d.c}</span></div>`).join('')}
+    </div>
+    <div class="stack" style="gap:12px">
+      ${REVIEWS.map(r=>`<div class="card card-pad">
+        <div class="row between mb8"><div class="row gap8"><div class="av av-sm">${r.country}</div>
+          <div><div class="fw6 fs-sm">${esc(r.who)}</div><div class="muted fs-xs">${esc(r.time)}</div></div></div>
+          ${stars(r.r)}</div>
+        <p class="fs-sm">${esc(r.t)}</p>
+        <button class="btn btn-quiet btn-xs mt8" onclick="toast('Resposta pública enviada')">Responder publicamente</button>
+      </div>`).join('')}
+    </div>
+  </div>
+  <div class="callout callout-sage mt24">${svg('shield')}<div>Só clientes com consulta concluída podem avaliar. As avaliações não podem ser apagadas — só respondidas.</div></div>`;
+};
+
+/* ============================================================
+   EMPRESA
+   ============================================================ */
+V['empresa:dash']=()=>{
+  const a=R().accent;const novas=CANDS.filter(c=>c.st==='Nova').length;
+  const totalApps=VAGAS.reduce((s,v)=>s+v.apps,0),totalViews=VAGAS.reduce((s,v)=>s+v.views,0);
+  return `${head('Bom dia, Edifer Obras','O estado do seu recrutamento hoje.')}
+  <div class="grid g4 mb24">
+    ${statTile('Vagas publicadas',VAGAS.filter(v=>v.status==='live').length,'work',a)}
+    ${statTile('Candidaturas novas',novas,'users','var(--clay)','+5')}
+    ${statTile('Total de candidaturas',totalApps,'inbox','var(--sage)','+12')}
+    ${statTile('Visualizações',totalViews.toLocaleString('pt-PT'),'eye','var(--gold)','+18%')}
+  </div>
+  <div class="grid" style="grid-template-columns:1.3fr 1fr;align-items:start">
+    <div class="card card-pad">
+      <div class="row between mb16"><div><div class="eyebrow mb4">A precisar de decisão</div><div class="h3">Candidaturas novas</div></div>
+        <button class="btn btn-quiet btn-sm" onclick="go('candidaturas')">Ver todas ${svg('arrow')}</button></div>
+      ${CANDS.filter(c=>c.st==='Nova').map(c=>`<div class="row gap12" style="padding:12px 0;border-bottom:1px solid var(--line-2);cursor:pointer" onclick="openCand('${c.id}')">
+        <div class="av av-sm">${c.country}</div>
+        <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.name)}</div><div class="muted fs-xs">${esc(c.vaga)} · ${esc(c.exp)}</div></div>
+        <span class="muted fs-xs">${esc(c.time)}</span></div>`).join('')}
+    </div>
+    <div class="card card-pad">
+      <div class="eyebrow mb4">Desempenho</div><div class="h3 mb16">Candidaturas por vaga</div>
+      ${VAGAS.filter(v=>v.status==='live').map(v=>`<div class="progrow"><div class="pl fs-sm">${esc(v.role.split(' / ')[0])}</div>
+        <div class="pt"><i style="width:${Math.round(v.apps/41*100)}%"></i></div><div class="pv">${v.apps}</div></div>`).join('')}
+      <button class="btn btn-ghost btn-sm btn-block mt12" onclick="go('vagas')">${svg('work')} Gerir vagas</button>
+    </div>
+  </div>
+  <div class="callout callout-accent mt24">${svg('info')}<div>Vagas que indicam claramente <b>"sem experiência necessária"</b> recebem em média 3× mais candidaturas nesta plataforma.</div></div>`;
+};
+V['empresa:vagas']=()=>{
+  const rows=VAGAS.map(v=>`<tr>
+    <td><div class="fw6">${esc(v.role)}</div><div class="muted fs-xs">${esc(v.city)} · ${esc(v.type)}</div></td>
+    <td class="fs-sm">${esc(v.salary)}</td>
+    <td class="num">${v.apps}</td><td class="num">${v.views.toLocaleString('pt-PT')}</td>
+    <td>${pill(v.status)}</td>
+    <td><div class="t-actions">
+      ${v.status==='draft'?`<button class="btn btn-sage btn-xs" onclick="pubVaga('${v.id}')">${svg('check')} Publicar</button>`
+      :`<button class="btn btn-quiet btn-icon" onclick="toast('Editor de vaga (demonstração)')">${svg('edit')}</button>
+        <button class="btn btn-quiet btn-icon" onclick="pauseVaga('${v.id}')" title="Despublicar">${svg('pause')}</button>`}
+    </div></td></tr>`).join('');
+  return `${head('Vagas','As suas ofertas de emprego na Bússola',`<button class="btn btn-primary btn-sm" onclick="newVaga()">${svg('plus')} Nova vaga</button>`)}
+  ${tableWrap('Vagas',`${VAGAS.length} registos`,['Vaga','Salário','Candidaturas','Visualizações','Estado',''],rows)}`;
+};
+function pubVaga(id){const v=VAGAS.find(x=>x.id===id);v.status='live';v.posted='12 Ago';go('vagas');toast('Vaga publicada ✓','ok2')}
+function pauseVaga(id){const v=VAGAS.find(x=>x.id===id);v.status='draft';go('vagas');toast('Vaga despublicada')}
+function newVaga(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb16">Nova vaga</h2>
+  <div class="field"><label>Cargo</label><input class="input" placeholder="Ex: Servente / Ajudante de construção"></div>
+  <div class="row gap8"><div class="field flex1"><label>Localização</label><input class="input" placeholder="Almada"></div>
+  <div class="field flex1"><label>Salário</label><input class="input" placeholder="1.000€–1.200€"></div></div>
+  <div class="field"><label>Tipo</label><select class="select"><option>Tempo inteiro</option><option>Part-time</option><option>Turnos</option></select></div>
+  <div class="field"><label>Descrição</label><textarea class="input" placeholder="Descreva a função, o ambiente e o que oferece."></textarea></div>
+  <div class="callout callout-sage mb16">${svg('info')}<div>Indique se aceita candidatos <b>sem experiência</b> — é o filtro mais usado por quem procura o primeiro emprego em Portugal.</div></div>
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Vaga submetida para aprovação ✓','ok2')">Publicar vaga</button></div>`)}
+V['empresa:candidaturas']=()=>{
+  return `${head('Candidaturas','Arraste o processo de cada candidato até à decisão')}
+  <div class="kan">
+    ${CAND_STATES.map(st=>{const list=CANDS.filter(c=>c.st===st);
+      return `<div class="kan-col"><h4>${st}<span>${list.length}</span></h4>
+      ${list.map(c=>`<div class="kan-card" onclick="openCand('${c.id}')">
+        <div class="row gap8 mb8"><div class="av av-xs">${c.country}</div><span class="fw6 fs-sm">${esc(c.name)}</span></div>
+        <div class="muted fs-xs">${esc(c.vaga)}</div><div class="muted fs-xs">${esc(c.exp)}</div>
+        <div class="muted fs-xs mt8">${esc(c.time)}</div></div>`).join('')
+      ||`<div class="muted fs-xs tc" style="padding:14px 0">—</div>`}</div>`}).join('')}
+  </div>`;
+};
+function openCand(id){
+  const c=CANDS.find(x=>x.id===id);if(!c)return;
+  const i=CAND_STATES.indexOf(c.st);
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="row gap12 mb16"><div class="av av-md">${c.country}</div>
+      <div><div class="h3">${esc(c.name)}</div><div class="muted fs-sm">${esc(c.city)} · candidatou-se ${esc(c.time)}</div></div></div>
+    <div class="grid g2 mb16" style="gap:10px">
+      ${[['Vaga',c.vaga],['Experiência',c.exp],['Estado',c.st],['Contacto','Através da Bússola']].map(([k,v])=>
+        `<div class="card card-pad" style="padding:12px 14px;background:var(--surface-2)"><div class="eyebrow mb4">${k}</div><div class="fw6 fs-sm">${esc(v)}</div></div>`).join('')}
+    </div>
+    <div class="callout callout-warn mb16">${svg('shield')}<div>Não pode pedir documentos de identificação ou dados pessoais sensíveis antes da contratação.</div></div>
+    <div class="eyebrow mb8">Mover para</div>
+    <div class="row gap6 wrap mb16">${CAND_STATES.map(s=>`<span class="chip ${s===c.st?'on':''}" onclick="moveCand('${c.id}','${s}')">${s}</span>`).join('')}</div>
+    <button class="btn btn-ghost btn-block" onclick="closeModal();go('msgs')">${svg('chat')} Enviar mensagem</button>
+  </div>`);
+}
+function moveCand(id,st){const c=CANDS.find(x=>x.id===id);c.st=st;save();closeModal();renderShell();go('candidaturas');toast('Candidatura movida para "'+st+'"',st==='Rejeitada'?'err':'ok2')}
+
+/* ============================================================
+   ANUNCIANTE DE HABITAÇÃO
+   ============================================================ */
+V['anunciante:dash']=()=>{
+  const a=R().accent;
+  const views=ANUNCIOS.reduce((s,x)=>s+x.views,0),favs=ANUNCIOS.reduce((s,x)=>s+x.favs,0),leads=ANUNCIOS.reduce((s,x)=>s+x.leads,0);
+  return `${head('Bom dia, Sado Habitat','Como estão os seus anúncios esta semana.')}
+  <div class="grid g4 mb24">
+    ${statTile('Anúncios ativos',ANUNCIOS.filter(x=>x.status==='live').length,'home',a)}
+    ${statTile('Visualizações',views.toLocaleString('pt-PT'),'eye','var(--sky)','+22%')}
+    ${statTile('Guardados',favs,'heart','var(--clay)','+9')}
+    ${statTile('Interessados',leads,'users','var(--gold)','+4')}
+  </div>
+  <div class="grid" style="grid-template-columns:1.3fr 1fr;align-items:start">
+    <div class="card card-pad">
+      <div class="row between mb16"><div><div class="eyebrow mb4">Novos contactos</div><div class="h3">Interessados recentes</div></div>
+        <button class="btn btn-quiet btn-sm" onclick="go('interessados')">Ver todos ${svg('arrow')}</button></div>
+      ${LEADS.slice(0,4).map(l=>`<div class="row gap12" style="padding:12px 0;border-bottom:1px solid var(--line-2);cursor:pointer" onclick="openLead('${l.id}')">
+        <div class="av av-sm">${l.country}</div>
+        <div style="flex:1;min-width:0"><div class="row gap6"><span class="fw6 fs-sm">${esc(l.name)}</span>${l.novo?'<span class="pill pill-anal"><i class="dot"></i>Novo</span>':''}</div>
+        <div class="muted fs-xs">${esc(l.anuncio)}</div><div class="muted fs-xs line-clamp2">${esc(l.msg)}</div></div>
+        <span class="muted fs-xs">${esc(l.time)}</span></div>`).join('')}
+    </div>
+    <div class="card card-pad">
+      <div class="eyebrow mb4">Desempenho</div><div class="h3 mb16">Visualizações por anúncio</div>
+      ${ANUNCIOS.filter(x=>x.status==='live').map(x=>`<div class="progrow"><div class="pl fs-sm">${esc(x.title.split('—')[0].trim())}</div>
+        <div class="pt"><i style="width:${Math.round(x.views/3080*100)}%"></i></div><div class="pv">${x.views}</div></div>`).join('')}
+      <button class="btn btn-ghost btn-sm btn-block mt12" onclick="go('anuncios')">${svg('home')} Gerir anúncios</button>
+    </div>
+  </div>
+  <div class="callout callout-warn mt24">${svg('shield')}<div>Anúncios de anunciantes <b>verificados</b> recebem mais contactos — e protegem quem procura casa. Mantenha os dados da agência atualizados.</div></div>`;
+};
+V['anunciante:anuncios']=()=>{
+  const rows=ANUNCIOS.map(x=>`<tr>
+    <td><div class="fw6">${esc(x.title)}</div><div class="muted fs-xs">${esc(x.type)} · ${esc(x.city)}</div></td>
+    <td class="num fw6">${x.price}€</td>
+    <td class="num">${x.views.toLocaleString('pt-PT')}</td><td class="num">${x.favs}</td><td class="num">${x.leads}</td>
+    <td>${pill(x.status)}</td>
+    <td><div class="t-actions">
+      <button class="btn btn-quiet btn-icon" onclick="toast('Editor de anúncio (demonstração)')">${svg('edit')}</button>
+      ${x.status==='live'?`<button class="btn btn-quiet btn-icon" onclick="pauseAnuncio('${x.id}')" title="Despublicar">${svg('pause')}</button>`:''}
+    </div></td></tr>`).join('');
+  return `${head('Anúncios','Os seus imóveis publicados na Bússola',`<button class="btn btn-primary btn-sm" onclick="newAnuncio()">${svg('plus')} Novo anúncio</button>`)}
+  ${tableWrap('Imóveis',`${ANUNCIOS.length} registos`,['Anúncio','Preço','Visualizações','Guardados','Interessados','Estado',''],rows)}`;
+};
+function pauseAnuncio(id){const x=ANUNCIOS.find(a=>a.id===id);x.status='draft';go('anuncios');toast('Anúncio despublicado')}
+function newAnuncio(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb16">Novo anúncio</h2>
+  <div class="field"><label>Título</label><input class="input" placeholder="Ex: T1 renovado perto do centro"></div>
+  <div class="row gap8"><div class="field flex1"><label>Tipo</label><select class="select"><option>Quarto</option><option>Apartamento</option><option>Casa</option><option>Alojamento temporário</option></select></div>
+  <div class="field flex1"><label>Renda mensal (€)</label><input class="input" type="number" placeholder="750"></div></div>
+  <div class="row gap8"><div class="field flex1"><label>Cidade</label><input class="input" placeholder="Setúbal"></div>
+  <div class="field flex1"><label>Caução</label><select class="select"><option>1 mês</option><option>2 meses</option><option>Sem caução</option></select></div></div>
+  <div class="field"><label>Descrição</label><textarea class="input" placeholder="Descreva o imóvel, a zona e as condições com honestidade."></textarea></div>
+  <div class="callout callout-warn mb16">${svg('warn')}<div>Anúncios com preços irrealistas ou sem morada aproximada são retidos para análise antes de publicar.</div></div>
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Anúncio submetido para aprovação ✓','ok2')">Submeter anúncio</button></div>`)}
+V['anunciante:interessados']=()=>{
+  const rows=LEADS.map(l=>`<tr>
+    <td><div class="row gap8"><div class="av av-sm">${l.country}</div>
+      <div><div class="row gap6"><span class="fw6">${esc(l.name)}</span>${l.novo?'<span class="pill pill-anal"><i class="dot"></i>Novo</span>':''}</div>
+      <div class="muted fs-xs">${esc(l.anuncio)}</div></div></div></td>
+    <td class="fs-sm" style="max-width:320px">${esc(l.msg)}</td>
+    <td class="muted fs-sm">${esc(l.time)}</td>
+    <td><div class="t-actions"><button class="btn btn-ghost btn-xs" onclick="openLead('${l.id}')">${svg('chat')} Responder</button></div></td>
+  </tr>`).join('');
+  return `${head('Interessados','Pessoas que contactaram sobre os seus imóveis')}
+  ${tableWrap('Contactos',`${LEADS.length} no total · ${LEADS.filter(l=>l.novo).length} por responder`,['Pessoa','Mensagem','Recebido',''],rows)}`;
+};
+function openLead(id){const l=LEADS.find(x=>x.id===id);if(!l)return;l.novo=false;
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="row gap12 mb12"><div class="av av-md">${l.country}</div>
+      <div><div class="h3">${esc(l.name)}</div><div class="muted fs-sm">${esc(l.anuncio)} · ${esc(l.time)}</div></div></div>
+    <div class="card card-pad mb16" style="background:var(--surface-2)"><p class="fs-sm">${esc(l.msg)}</p></div>
+    <div class="field"><label>A sua resposta</label><textarea class="input">Boa tarde, obrigado pelo interesse. O imóvel ainda está disponível. Podemos agendar visita esta semana.</textarea></div>
+    <div class="callout callout-warn mb16">${svg('shield')}<div>Nunca peça pagamentos antes da visita — é a regra que protege ambas as partes.</div></div>
+    <button class="btn btn-primary btn-block" onclick="closeModal();renderShell();go('interessados');toast('Resposta enviada ✓','ok2')">${svg('send')} Enviar resposta</button></div>`)}
+
+/* ============================================================
+   ORGANIZADOR
+   ============================================================ */
+V['organizador:dash']=()=>{
+  const a=R().accent;
+  const going=MEUS_EVENTOS.reduce((s,e)=>s+e.going,0),views=MEUS_EVENTOS.reduce((s,e)=>s+e.views,0);
+  return `${head('Bom dia, Associação Kianda','Os seus eventos e a comunidade que os segue.')}
+  <div class="grid g4 mb24">
+    ${statTile('Eventos publicados',MEUS_EVENTOS.filter(e=>e.status==='live').length,'event',a)}
+    ${statTile('Participantes',going,'users','var(--clay)','+38')}
+    ${statTile('Visualizações',views.toLocaleString('pt-PT'),'eye','var(--sky)','+26%')}
+    ${statTile('Taxa de ocupação','74%','chart','var(--sage)','+6%')}
+  </div>
+  <div class="grid" style="grid-template-columns:1.3fr 1fr;align-items:start">
+    <div class="card card-pad">
+      <div class="row between mb16"><div><div class="eyebrow mb4">A acontecer</div><div class="h3">Próximos eventos</div></div>
+        <button class="btn btn-quiet btn-sm" onclick="go('eventos')">Ver todos ${svg('arrow')}</button></div>
+      ${MEUS_EVENTOS.filter(e=>e.status==='live').map(e=>`<div class="row gap12" style="padding:12px 0;border-bottom:1px solid var(--line-2)">
+        <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(e.title)}</div><div class="muted fs-xs">${esc(e.date)} · ${esc(e.time)} · ${esc(e.venue)}</div>
+        <div class="row gap8 mt8"><div class="pt" style="flex:1;height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden"><i style="display:block;height:100%;width:${Math.round(e.going/e.cap*100)}%;background:${a}"></i></div>
+        <span class="fs-xs muted">${e.going}/${e.cap}</span></div></div></div>`).join('')}
+    </div>
+    <div class="card card-pad">
+      <div class="eyebrow mb4">Comunidade</div><div class="h3 mb16">Inscrições recentes</div>
+      ${PARTICIPANTES.slice(0,5).map(p=>`<div class="row gap8" style="padding:9px 0;border-bottom:1px solid var(--line-2)">
+        <div class="av av-xs">${p.country}</div><div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(p.name)}</div>
+        <div class="muted fs-xs">${esc(p.ev)}</div></div><span class="muted fs-xs">${esc(p.when)}</span></div>`).join('')}
+    </div>
+  </div>`;
+};
+V['organizador:eventos']=()=>{
+  const rows=MEUS_EVENTOS.map(e=>`<tr>
+    <td><div class="fw6">${esc(e.title)}</div><div class="muted fs-xs">${esc(e.venue)}</div></td>
+    <td class="fs-sm">${esc(e.date)}<div class="muted fs-xs">${esc(e.time)}</div></td>
+    <td class="fs-sm">${esc(e.price)}</td>
+    <td class="num">${e.going}/${e.cap}</td><td class="num">${e.views.toLocaleString('pt-PT')}</td>
+    <td>${pill(e.status)}</td>
+    <td><div class="t-actions">
+      ${e.status==='draft'?`<button class="btn btn-sage btn-xs" onclick="pubEvento('${e.id}')">${svg('check')} Publicar</button>`
+      :`<button class="btn btn-quiet btn-icon" onclick="toast('Editor de evento (demonstração)')">${svg('edit')}</button>`}
+    </div></td></tr>`).join('');
+  return `${head('Eventos','Os eventos da sua organização',`<button class="btn btn-primary btn-sm" onclick="newEvento()">${svg('plus')} Novo evento</button>`)}
+  ${tableWrap('Eventos',`${MEUS_EVENTOS.length} registos`,['Evento','Data','Preço','Participantes','Visualizações','Estado',''],rows)}`;
+};
+function pubEvento(id){const e=MEUS_EVENTOS.find(x=>x.id===id);e.status='live';go('eventos');toast('Evento submetido para aprovação ✓','ok2')}
+function newEvento(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb16">Novo evento</h2>
+  <div class="field"><label>Título</label><input class="input" placeholder="Ex: Noite de Kizomba & Semba"></div>
+  <div class="field"><label>Categoria</label><select class="select"><option>Música</option><option>Cultura</option><option>Comunidade</option><option>Networking</option><option>Negócios</option><option>Desporto</option><option>Formação</option><option>Gastronomia</option></select></div>
+  <div class="row gap8"><div class="field flex1"><label>Data</label><input class="input" type="date" value="2026-09-05"></div>
+  <div class="field flex1"><label>Hora</label><input class="input" type="time" value="20:00"></div></div>
+  <div class="row gap8"><div class="field flex1"><label>Local</label><input class="input" placeholder="Espaço, cidade"></div>
+  <div class="field flex1"><label>Preço</label><input class="input" placeholder="Gratuito ou 10€"></div></div>
+  <div class="field"><label>Descrição</label><textarea class="input" placeholder="O que vai acontecer e para quem é."></textarea></div>
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Evento submetido para aprovação ✓','ok2')">Submeter evento</button></div>`)}
+V['organizador:participantes']=()=>{
+  const rows=PARTICIPANTES.map(p=>`<tr>
+    <td><div class="row gap8"><div class="av av-sm">${p.country}</div><span class="fw6">${esc(p.name)}</span></div></td>
+    <td class="fs-sm">${esc(p.ev)}</td><td class="muted fs-sm">${esc(p.when)}</td>
+    <td><span class="pill pill-ok"><i class="dot"></i>${esc(p.st)}</span></td>
+    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="go('msgs')">${svg('chat')}</button></div></td></tr>`).join('');
+  return `${head('Participantes','Quem vai aos seus eventos',`
+    <button class="btn btn-ghost btn-sm" onclick="toast('Lista exportada (demonstração)')">${svg('dl')} Exportar lista</button>`)}
+  ${tableWrap('Inscrições',`${PARTICIPANTES.length} confirmadas`,['Pessoa','Evento','Inscrição','Estado',''],rows)}
+  <div class="callout callout-info mt16">${svg('shield')}<div>Só recebe o nome e o contacto de quem se inscreveu, e apenas para efeitos do evento. Não pode usar estes dados para outras comunicações sem consentimento.</div></div>`;
+};
+
+/* ============================================================
+   MENSAGENS (partilhado)
+   ============================================================ */
+V.msgs=()=>{
+  const list=CONVS[P.role]||[];
+  if(!list.length)return head('Mensagens','')+emptyState('chat','Ainda sem conversas','Quando alguém o contactar, a conversa aparece aqui.','');
+  if(!list.find(c=>c.id===P.conv))P.conv=list[0].id;
+  const c=list.find(x=>x.id===P.conv);
+  return `${head('Mensagens','Conversas com pessoas que o contactaram através da Bússola')}
+  <div class="msg-wrap">
+    <div class="conv-list">
+      ${list.map(x=>`<div class="conv ${x.id===P.conv?'on':''}" onclick="openConv('${x.id}')">
+        <div class="av av-sm">${x.country}</div>
+        <div style="flex:1;min-width:0"><div class="cn"><span>${esc(x.who)}</span>${x.unread?'<span class="unread-dot"></span>':''}</div>
+        <div class="cp">${esc(x.ctx)}</div>
+        <div class="cp">${esc((x.msgs[x.msgs.length-1]||{}).t||'')}</div></div>
+      </div>`).join('')}
+    </div>
+    <div class="thread">
+      <div class="thread-head">
+        <div class="av av-sm">${c.country}</div>
+        <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.who)}</div><div class="muted fs-xs">${esc(c.ctx)}</div></div>
+        <button class="btn btn-quiet btn-icon" title="Bloquear" onclick="blockConv()">${svg('ban')}</button>
+        <button class="btn btn-quiet btn-icon" title="Denunciar" onclick="reportConv()">${svg('flag')}</button>
+      </div>
+      <div class="thread-body" id="threadBody">
+        ${c.msgs.map(m=>m.s==='auto'?`<div class="bub auto">${svg('info')} ${esc(m.t)}</div>`
+          :`<div class="bub ${m.s==='me'?'me':'them'}">${esc(m.t)}${m.tm?`<div class="tm">${esc(m.tm)}</div>`:''}</div>`).join('')}
+      </div>
+      <div class="composer">
+        <button class="btn btn-quiet btn-icon" onclick="toast('Anexos disponíveis na versão final')">${svg('clip')}</button>
+        <textarea id="msgIn" placeholder="Escreva a sua mensagem…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
+        <button class="btn btn-primary btn-icon" onclick="sendMsg()">${svg('send')}</button>
+      </div>
+    </div>
+  </div>`;
+};
+function openConv(id){P.conv=id;const c=(CONVS[P.role]||[]).find(x=>x.id===id);if(c)c.unread=0;save();renderShell();go('msgs')}
+function scrollThread(){const b=el('threadBody');if(b)b.scrollTop=b.scrollHeight}
+function sendMsg(){
+  const inp=el('msgIn');if(!inp)return;const t=inp.value.trim();if(!t)return;
+  const c=(CONVS[P.role]||[]).find(x=>x.id===P.conv);if(!c)return;
+  const now=new Date();c.msgs.push({s:'me',t,tm:String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')});
+  inp.value='';go('msgs');toast('Mensagem enviada ✓','ok2');
+}
+function blockConv(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb8">Bloquear contacto?</h2><p class="muted mb24">Esta pessoa deixa de poder enviar-lhe mensagens. Pode desbloquear a qualquer momento nas definições.</p>
+  <div class="row gap8"><button class="btn btn-ghost flex1" onclick="closeModal()">Cancelar</button>
+  <button class="btn btn-danger flex1" onclick="closeModal();toast('Contacto bloqueado','err')">Bloquear</button></div></div>`)}
+function reportConv(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb8">Denunciar conversa</h2><p class="muted mb16">A equipa de moderação analisa todas as denúncias.</p>
+  <div class="stack gap8 mb16">${['Spam ou angariação','Assédio ou desrespeito','Tentativa de burla','Conteúdo impróprio','Outro'].map(r=>
+    `<label class="card card-pad row gap8" style="padding:12px 14px;cursor:pointer"><input type="radio" name="rep" style="accent-color:var(--accent)"><span class="fs-sm fw5">${r}</span></label>`).join('')}</div>
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Denúncia enviada para moderação ✓','ok2')">Enviar denúncia</button></div>`)}
+
+/* ============================================================
+   PERFIL + FATURAÇÃO (partilhados)
+   ============================================================ */
+V.perfil=()=>{
+  const r=R();
+  const campos={
+    pro:[['Nome','Dra. Helena Baptista'],['Profissão','Advogada'],['Cédula profissional','Verificada ✓'],['Cidade','Lisboa'],['Especialidades','Direito de Imigração · Nacionalidade'],['Idiomas','Português · Crioulo cabo-verdiano · Inglês'],['Preço base','60€ / consulta'],['Modalidade','Online e presencial']],
+    empresa:[['Empresa','Edifer Obras'],['Setor','Construção civil'],['NIF','Verificado ✓'],['Cidade','Almada'],['Dimensão','40–80 trabalhadores'],['Contacto','recrutamento@edifer.exemplo.pt'],['Sobre','Empresa de construção com obras na margem sul.']],
+    anunciante:[['Agência','Sado Habitat'],['Licença AMI','Verificada ✓'],['Cidade','Setúbal'],['Imóveis ativos','3'],['Contacto','geral@sadohabitat.exemplo.pt'],['Sobre','Mediação imobiliária na península de Setúbal.']],
+    organizador:[['Organização','Associação Kianda'],['Tipo','Associação cultural'],['NIPC','Verificado ✓'],['Cidade','Lisboa'],['Fundada em','2014'],['Sobre','Promoção da cultura angolana e cabo-verdiana em Portugal.']],
+  }[P.role];
+  return `${head('Perfil público','É assim que as pessoas o veem na Bússola',`
+    <button class="btn btn-ghost btn-sm" onclick="toast('Pré-visualização do perfil público')">${svg('eye')} Ver como público</button>
+    <button class="btn btn-primary btn-sm" onclick="toast('Alterações guardadas ✓','ok2')">Guardar alterações</button>`)}
+  <div class="grid" style="grid-template-columns:1fr 320px;align-items:start">
+    <div class="card card-pad">
+      <div class="h3 mb16">Informação</div>
+      ${campos.map(([k,v])=>`<div class="field"><label>${esc(k)}</label><input class="input" value="${esc(v)}"></div>`).join('')}
+    </div>
+    <div class="stack" style="gap:16px">
+      <div class="card card-pad tc">
+        <div class="av av-lg" style="margin:0 auto 12px;background:${r.accent};color:#fff">${initials(r.who)}</div>
+        <div class="fw6">${esc(r.who)}</div><div class="muted fs-sm">${esc(r.sub)}</div>
+        <span class="pill pill-ok mt12"><i class="dot"></i>Verificado</span>
+        <button class="btn btn-ghost btn-sm btn-block mt16" onclick="toast('Carregamento de fotografia (demonstração)')">Alterar fotografia</button>
+      </div>
+      <div class="card card-pad">
+        <div class="h3 mb12">Visibilidade</div>
+        ${[['Perfil visível na pesquisa',true],['Aceitar novos contactos',true],['Mostrar preços',P.role==='pro'],['Notificações por email',true]]
+          .map(([l,on])=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line-2)">
+            <span class="fs-sm">${l}</span><span class="pill ${on?'pill-ok':'pill-off'}"><i class="dot"></i>${on?'Sim':'Não'}</span></div>`).join('')}
+      </div>
+      <div class="callout callout-sage">${svg('shield')}<div>O selo <b>Verificado</b> é atribuído pela equipa da Bússola após confirmação dos documentos.</div></div>
+    </div>
+  </div>`;
+};
+V.faturacao=()=>{
+  const r=R();
+  const rows=FATURAS.map(f=>`<tr><td class="fw6">${esc(f.id)}</td><td class="muted fs-sm">${esc(f.date)}</td>
+    <td class="fs-sm">${esc(f.desc)}</td><td class="num fw6">${esc(f.amount)}</td>
+    <td><span class="pill pill-ok"><i class="dot"></i>${esc(f.st)}</span></td>
+    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Fatura ${esc(f.id)} descarregada')">${svg('dl')}</button></div></td></tr>`).join('');
+  return `${head('Faturação','O seu plano e histórico de pagamentos')}
+  <div class="grid g2 mb24" style="align-items:start">
+    <div class="card card-pad" style="border-color:var(--accent-soft);background:var(--accent-tint)">
+      <div class="eyebrow mb4" style="color:${r.accent}">Plano atual</div>
+      <div class="h2 mb8">${esc(r.plan.split(' · ')[0])}</div>
+      <div class="num mb16" style="font-size:2rem;color:${r.accent}">${esc(r.plan.split(' · ')[1])}</div>
+      <div class="stack gap6 mb16">
+        ${{pro:['Perfil público no diretório','Pedidos de consulta ilimitados','Agenda e mensagens','Selo de verificação'],
+           empresa:['Vagas ilimitadas','Acesso a candidatos','Mensagens e estatísticas','Perfil de empresa'],
+           anunciante:['Até 20 anúncios ativos','Destaque na pesquisa','Contactos ilimitados','Estatísticas por anúncio'],
+           organizador:['Eventos ilimitados','Gestão de participantes','Página de organizador','Estatísticas de alcance']}[P.role]
+          .map(x=>`<div class="row gap8 fs-sm"><span style="color:${r.accent};width:16px">${svg('check')}</span>${x}</div>`).join('')}
+      </div>
+      <div class="row gap8"><button class="btn btn-ghost btn-sm flex1" onclick="toast('Gestão de subscrição (demonstração)')">Gerir subscrição</button>
+      <button class="btn btn-quiet btn-sm" onclick="cancelSub()">Cancelar</button></div>
+    </div>
+    <div class="card card-pad">
+      <div class="h3 mb4">Método de pagamento</div><p class="muted fs-sm mb16">Próxima cobrança a 10 de setembro de 2026.</p>
+      <div class="card card-pad row gap12" style="padding:14px;background:var(--surface-2)">
+        ${svg('card')}<div style="flex:1"><div class="fw6 fs-sm">Cartão terminado em 4821</div><div class="muted fs-xs">Validade 09/28</div></div>
+        <button class="btn btn-quiet btn-xs" onclick="toast('Alteração de método de pagamento (demonstração)')">Alterar</button>
+      </div>
+      <div class="callout callout-info mt16">${svg('info')}<div>Os dados de pagamento são tratados por um fornecedor certificado. A Bússola não guarda o número do seu cartão.</div></div>
+    </div>
+  </div>
+  ${tableWrap('Faturas',`${FATURAS.length} documentos`,['Nº','Data','Descrição','Valor','Estado',''],rows)}`;
+};
+function cancelSub(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+  <h2 class="h2 mb8">Cancelar subscrição?</h2><p class="muted mb24">O seu perfil deixa de aparecer na pesquisa no fim do período já pago. Os seus dados são mantidos caso queira voltar.</p>
+  <div class="row gap8"><button class="btn btn-ghost flex1" onclick="closeModal()">Manter plano</button>
+  <button class="btn btn-danger flex1" onclick="closeModal();toast('Subscrição cancelada no fim do período','err')">Cancelar</button></div></div>`)}
+
+/* ============================================================
+   ARRANQUE
+   ============================================================ */
+applyTheme();applyAccent();renderShell();go(P.route||'dash');
+el('scrim').addEventListener('click',closeModal);
+document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
+</script>
+</body>
+</html>

@@ -1,0 +1,18 @@
+# dependências
+node_modules/
+
+# ambiente / segredos — NUNCA versionar
+.env
+.env.*
+*.key
+*.pem
+supabase/.temp/
+supabase/.branches/
+
+# sistema
+.DS_Store
+Thumbs.db
+
+# editores
+.vscode/
+.idea/
