@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F7F4EF">
-<title>Bússola — onde Portugal começa a fazer sentido</title>
+<title>KEVIMA — your new life, connected</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   BÚSSOLA — Design System
+   KEVIMA — Design System
    Editorial · premium · humano · calmo
    ============================================================ */
 
@@ -537,7 +537,7 @@ kbd{font-family:var(--sans);font-size:.72rem;background:var(--surface-2);border:
 
 <!-- assistente -->
 <button id="aiFab" class="ai-fab hide" onclick="aiToggle()" aria-label="Abrir assistente"></button>
-<div id="aiPanel" class="ai-panel" role="dialog" aria-label="Assistente da Bússola"></div>
+<div id="aiPanel" class="ai-panel" role="dialog" aria-label="Assistente da KEVIMA"></div>
 
 <!-- overlays -->
 <div id="scrim" class="scrim"></div>
@@ -547,9 +547,9 @@ kbd{font-family:var(--sans);font-size:.72rem;background:var(--surface-2);border:
 
 <script>
 /* ============================================================
-   BÚSSOLA — app (vanilla JS, single-file)
+   KEVIMA — app (vanilla JS, single-file)
    ============================================================ */
-const BRAND = "Bússola";
+const BRAND = "KEVIMA";
 
 /* ---------- Ícones (stroke, minimais) ---------- */
 const I = {
@@ -1045,7 +1045,7 @@ function drawOb(){
   const showBack=obStep>0&&obStep<5;
   const foot=obStep===0?'':`<div class="ob-foot">
     ${showBack?`<button class="btn btn-ghost btn-icon" onclick="obBack()">${svg('chevl')}</button>`:''}
-    <button class="btn btn-primary btn-lg flex1" onclick="${obStep===5?'obFinish()':'obNext()'}" id="obNextBtn">${obStep===5?'Entrar na Bússola':'Continuar'} ${svg('arrow')}</button>
+    <button class="btn btn-primary btn-lg flex1" onclick="${obStep===5?'obFinish()':'obNext()'}" id="obNextBtn">${obStep===5?'Entrar na KEVIMA':'Continuar'} ${svg('arrow')}</button>
   </div>`;
   el('ob').innerHTML=`<div class="ob-wrap">
     <div class="ob-top">
@@ -1072,7 +1072,24 @@ function obFinish(){
   S.name=obTemp.name.trim();S.country=obTemp.country;S.city=obTemp.city;S.situations=obTemp.situations;S.onboarded=true;
   save();el('ob').classList.remove('live');startApp();toast('Plano criado');
 }
-function brandMark(size){return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--clay)" stroke-width="2.4"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--clay)"/><circle cx="20" cy="20" r="2" fill="var(--paper)"/></svg>`}
+function markK(s,mono){
+  const g='k'+Math.random().toString(36).slice(2,7);
+  return `<svg width="${s}" height="${s}" viewBox="0 0 40 40" fill="none" role="img" aria-label="KEVIMA">
+    <defs>
+      <linearGradient id="${g}a" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#F2F2F2"/><stop offset=".45" stop-color="#9A9A9A"/>
+        <stop offset=".55" stop-color="#D8D8D8"/><stop offset="1" stop-color="#6E6E6E"/>
+      </linearGradient>
+      <linearGradient id="${g}b" x1="1" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#C9C9C9"/><stop offset=".5" stop-color="#7C7C7C"/>
+        <stop offset="1" stop-color="#EDEDED"/>
+      </linearGradient>
+    </defs>
+    <path d="M7.5 5h6.8v30H7.5z" fill="${mono?'currentColor':`url(#${g}a)`}"/>
+    <path d="M33 5h-8.6L16.2 16.6v7.9L24.4 35H33L21.6 20.5z" fill="${mono?'currentColor':`url(#${g}b)`}"/>
+  </svg>`;
+}
+const brandMark=(s)=>markK(s);
 
 /* ============================================================
    SHELL + ROUTER
@@ -1420,7 +1437,7 @@ function docDetail(d){
       ${d.faq.map((f,i)=>`<div class="card"><div class="row between card-pad" style="cursor:pointer;padding:16px 20px" onclick="this.parentNode.querySelector('.faq-a').classList.toggle('hide')"><span class="fw6">${esc(f.q)}</span>${svg('chevd')}</div><div class="faq-a hide" style="padding:0 20px 18px;color:var(--ink-2)">${esc(f.a)}</div></div>`).join('')}
     </div>
   </div>
-  <div class="callout callout-info mt24" style="max-width:760px">${svg('shield')}<div>A Bússola não substitui aconselhamento jurídico. Estas informações podem mudar — confirma sempre nas entidades oficiais.</div></div>
+  <div class="callout callout-info mt24" style="max-width:760px">${svg('shield')}<div>A KEVIMA não substitui aconselhamento jurídico. Estas informações podem mudar — confirma sempre nas entidades oficiais.</div></div>
   `;
 }
 function toggleDocCheck(id,i){if(!S.docChecks[id])S.docChecks[id]={};S.docChecks[id][i]=!S.docChecks[id][i];save();const d=DOCS.find(x=>x.id===id);el('view').innerHTML=docDetail(d)}
@@ -1898,7 +1915,7 @@ ROUTES.profile=()=>{
     <hr class="divider">
     <div class="row between card-pad" style="padding:16px 20px;cursor:pointer" onclick="resetApp()"><div class="row gap12" style="color:var(--danger)">${svg('logout')}<span class="fw5">Recomeçar (terminar sessão)</span></div>${svg('chevr')}</div>
   </div>
-  <p class="muted fs-xs tc mt24">${esc(BRAND)} · onde Portugal começa a fazer sentido</p>`;
+  <p class="muted fs-xs tc mt24">${esc(BRAND)} · your new life, connected</p>`;
 };
 ROUTES.contacted=()=>{
   const list=S.contactedPros.map(id=>PROS.find(x=>x.id===id)).filter(Boolean);
@@ -1929,7 +1946,7 @@ function privacyModal(){openModal(`<div class="modal-pad"><button class="btn btn
 async function exportarDados(){
   const pacote={
     exportado_em:new Date().toISOString(),
-    origem:'Bússola',
+    origem:'KEVIMA',
     conta:signedIn()?{email:SB_USER.email,id:SB_USER.id}:null,
     perfil:{nome:S.name,pais:countryName(),cidade:S.city,situacoes:S.situations},
     plano:{concluidos:Object.keys(S.planDone).filter(k=>S.planDone[k]),total:PLAN.length},
@@ -2026,7 +2043,7 @@ function cmdkFilter(q){
   cmdkResults=q?idx.filter(i=>(i.t+' '+i.s+' '+i.cat).toLowerCase().includes(q)).slice(0,20):idx.filter(i=>i.cat==='Ir para');
   cmdkSel=0;
   const res=el('cmdkRes');
-  if(!cmdkResults.length){res.innerHTML=`<div class="state" style="padding:40px 20px"><div class="ill">${svg('search')}</div><h3 class="h3">Sem resultados para "${esc(q)}"</h3><p class="muted fs-sm">Tenta outras palavras. Registamos o que procuras e não encontras para melhorar a Bússola.</p></div>`;return}
+  if(!cmdkResults.length){res.innerHTML=`<div class="state" style="padding:40px 20px"><div class="ill">${svg('search')}</div><h3 class="h3">Sem resultados para "${esc(q)}"</h3><p class="muted fs-sm">Tenta outras palavras. Registamos o que procuras e não encontras para melhorar a KEVIMA.</p></div>`;return}
   const groups={};cmdkResults.forEach((r,i)=>{(groups[r.cat]=groups[r.cat]||[]).push({r,i})});
   res.innerHTML=Object.entries(groups).map(([cat,items])=>`<div class="cmdk-cat">${esc(cat)}</div>${items.map(({r,i})=>`<div class="cmdk-row ${i===cmdkSel?'sel':''}" data-i="${i}" onclick="cmdkGo(${i})"><span style="color:var(--ink-3);width:18px">${svg(r.ic)}</span><div style="flex:1"><div class="fw5 fs-sm">${esc(r.t)}</div>${r.s?`<div class="muted fs-xs">${esc(r.s)}</div>`:''}</div>${svg('arrow','')}</div>`).join('')}`).join('');
 }
@@ -2080,7 +2097,7 @@ async function sbInit(){
     carregarAnunciosPublicos();
   }catch(e){
     SB_ON=false; // esm.sh em baixo, sem rede, browser antigo — a app continua a funcionar
-    console.warn('Bússola em modo local:',e&&e.message);
+    console.warn('KEVIMA em modo local:',e&&e.message);
   }
 }
 const signedIn=()=>!!SB_USER;
@@ -2298,7 +2315,7 @@ function aiRender(){
     <div class="ai-head">
       <div class="ai-avatar">${svg('compass')}</div>
       <div style="flex:1;min-width:0">
-        <div class="fw6" style="font-size:.95rem">Assistente da Bússola</div>
+        <div class="fw6" style="font-size:.95rem">Assistente da KEVIMA</div>
         <div class="muted fs-xs">Responde com base no conteúdo verificado</div>
       </div>
       <button class="btn btn-quiet btn-icon" onclick="aiReset()" title="Recomeçar conversa">${svg('reload')}</button>
@@ -2374,7 +2391,7 @@ function aiFromModel(r,q){
     if(q&&q.trim()){S.aiUnknown=(S.aiUnknown||[]);S.aiUnknown.push({q:q.trim(),t:Date.now()});save()}
     return Object.assign({},aiUnknown(''),{text:texto});
   }
-  return Object.assign({},base,{text:texto,src:base.src||'Conteúdo verificado da Bússola'});
+  return Object.assign({},base,{text:texto,src:base.src||'Conteúdo verificado da KEVIMA'});
 }
 
 /* ---------- Extractores ---------- */
@@ -2382,7 +2399,7 @@ function aiCityOf(q){const n=aiNorm(q);return CITIES.find(c=>n.includes(aiNorm(c
 function aiPriceOf(q){const m=aiNorm(q).match(/(\d{2,4})\s*(?:€|euros?|eur)?/);if(!m)return null;const v=+m[1];return v>=80&&v<=3000?v:null}
 
 /* ---------- Construtores de resposta ancorada ---------- */
-const AI_DISCLAIMER='Esta informação é orientação com base no conteúdo verificado da Bússola. Para o teu caso concreto, fala com um profissional qualificado.';
+const AI_DISCLAIMER='Esta informação é orientação com base no conteúdo verificado da KEVIMA. Para o teu caso concreto, fala com um profissional qualificado.';
 function aiDocAnswer(id,lead){
   const d=aiDoc(id);if(!d)return aiUnknown('');
   return {
@@ -2411,7 +2428,7 @@ function aiJobsAnswer(q){
     acts:[{l:'Ver todas as vagas',h:aiHandler(()=>{aiClose();jobF={q:'',q2:'',sector:'',noexp:false};go('jobs')})},
           {l:'Só sem experiência',h:aiHandler(()=>{aiClose();jobF={q:'',q2:'',sector:'',noexp:true};go('jobs')}),soft:true}],
     note:'Nunca pagues para te candidatares a um emprego. Nenhuma empresa séria cobra por uma vaga.',
-    src:'Bolsa de trabalho da Bússola'
+    src:'Bolsa de trabalho da KEVIMA'
   };
 }
 function aiHomesAnswer(q){
@@ -2426,7 +2443,7 @@ function aiHomesAnswer(q){
     acts:[{l:'Ver toda a habitação',h:aiHandler(()=>{aiClose();homeF={q:'',type:'',max:0};go('homes')})},
           {l:'Como evitar burlas',h:aiHandler(()=>{aiClose();scamGuide()}),soft:true}],
     note:'Regra que te protege sempre: nunca pagues caução, sinal ou reserva antes de veres a casa em pessoa.',
-    src:'Anúncios de habitação da Bússola'
+    src:'Anúncios de habitação da KEVIMA'
   };
 }
 function aiProsAnswer(q,motivo){
@@ -2440,7 +2457,7 @@ function aiProsAnswer(q,motivo){
   const top=(local.length?local:list).slice(0,3);
   return {
     text:`<p>${motivo||'Posso ajudar-te a encontrar apoio jurídico.'}</p>`+
-      `<p class="fs-sm">Estes profissionais têm as credenciais confirmadas pela equipa da Bússola${local.length?` e atendem em ${esc(S.city)}`:''}.</p>`,
+      `<p class="fs-sm">Estes profissionais têm as credenciais confirmadas pela equipa da KEVIMA${local.length?` e atendem em ${esc(S.city)}`:''}.</p>`,
     cards:top.map(p=>({ic:'law',t:p.name,s:`${p.prof} · ${p.city} · ${p.price}`,h:aiHandler(()=>{aiClose();openPro(p.id)})})),
     acts:[{l:'Ver todos os profissionais',h:aiHandler(()=>{aiClose();proF={q:'',spec:'',mode:''};go('pros')})}],
     src:'Diretório de profissionais verificados'
@@ -2463,7 +2480,7 @@ function aiUnknown(q){
   return {
     text:`<p><b>Ainda não sei responder a isso.</b></p>`+
       `<p>Prefiro dizer-te que não sei do que arriscar dar-te informação errada — sobretudo em assuntos que podem afectar a tua situação legal.</p>`+
-      `<p class="fs-sm muted">Registámos a tua pergunta. É assim que decidimos o que acrescentar à Bússola a seguir.</p>`,
+      `<p class="fs-sm muted">Registámos a tua pergunta. É assim que decidimos o que acrescentar à KEVIMA a seguir.</p>`,
     acts:[{l:'Falar com um profissional',h:aiHandler(()=>{aiClose();go('pros')})},
           {l:'Ver a documentação',h:aiHandler(()=>{aiClose();docCatFilter='';go('docs')}),soft:true},
           {l:'Perguntar à comunidade',h:aiHandler(()=>{aiClose();commTab='feed';go('community')}),soft:true}],
@@ -2549,7 +2566,7 @@ function aiAnswer(raw){
       acts:[{l:'Guia completo',h:aiHandler(()=>{aiClose();scamGuide()})},
             {l:'Denunciar um anúncio',h:aiHandler(()=>{aiClose();go('homes')}),soft:true}],
       note:'Se já perdeste dinheiro, podes apresentar queixa às autoridades. Um profissional ou um balcão CNAIM pode orientar-te sobre como.',
-      src:'Guia de segurança da Bússola'};
+      src:'Guia de segurança da KEVIMA'};
 
   /* 6. Trabalho */
   if(aiHas(q,['trabalho','emprego','vaga','vagas','trabalhar','contratar','contrato de trabalho','ganhar dinheiro','estagio']))
@@ -2561,7 +2578,7 @@ function aiAnswer(raw){
 
   /* 7. Profissionais */
   if(aiHas(q,['advogado','advogada','solicitador','apoio juridico','juridico','consulta']))
-    return aiProsAnswer(raw,'Profissionais com credenciais confirmadas pela equipa da Bússola.');
+    return aiProsAnswer(raw,'Profissionais com credenciais confirmadas pela equipa da KEVIMA.');
 
   /* 9. Serviços */
   if(aiHas(q,['banco','conta bancaria','cartao sim','telemovel','internet','telecomunicacoes','servico','associacao','apoio social','cnaim'])){
@@ -2576,11 +2593,11 @@ function aiAnswer(raw){
   if(aiHas(q,['evento','eventos','festa','musica','kizomba','acontece','fazer no fim de semana']))
     return {text:`<p>Nos próximos dias:</p>`,
       cards:eventosL().slice(0,3).map(e=>({ic:'event',t:e.title,s:`${fmtDate(e.date)} · ${e.city} · ${e.price}`,h:aiHandler(()=>{aiClose();openEvent(e.id)})})),
-      acts:[{l:'Ver todos os eventos',h:aiHandler(()=>{aiClose();evF='';go('events')})}],src:'Agenda da Bússola'};
+      acts:[{l:'Ver todos os eventos',h:aiHandler(()=>{aiClose();evF='';go('events')})}],src:'Agenda da KEVIMA'};
   if(aiHas(q,['comunidade','conhecer pessoas','grupo','grupos','sozinho','sozinha','amigos','conterraneos']))
     return {text:`<p>Grupos mais activos na tua zona:</p>`,
       cards:GROUPS.slice(0,3).map(g=>({ic:'people',t:g.name,s:`${g.members.toLocaleString('pt-PT')} membros · ${g.city}`,h:aiHandler(()=>{aiClose();commTab='groups';go('community')})})),
-      acts:[{l:'Entrar na comunidade',h:aiHandler(()=>{aiClose();commTab='feed';go('community')})}],src:'Comunidade da Bússola'};
+      acts:[{l:'Entrar na comunidade',h:aiHandler(()=>{aiClose();commTab='feed';go('community')})}],src:'Comunidade da KEVIMA'};
 
   /* 11. Estudar / negócio — encaminhamento honesto */
   if(aiHas(q,['estudar','universidade','curso','escola','equivalencia','faculdade']))

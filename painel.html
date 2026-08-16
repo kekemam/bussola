@@ -4,13 +4,13 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F7F4EF">
-<title>Bússola · Painel profissional</title>
+<title>KEVIMA · Painel profissional</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;450;500;600;700&display=swap" rel="stylesheet">
 <style>
 /* ============================================================
-   BÚSSOLA · PAINÉIS (profissional · empresa · anunciante · organizador)
+   KEVIMA · PAINÉIS (profissional · empresa · anunciante · organizador)
    ============================================================ */
 :root{
   --paper:#F7F4EF; --surface:#FDFCFA; --surface-2:#F1ECE3; --surface-3:#E9E3D7;
@@ -273,7 +273,7 @@ textarea.input{resize:vertical;min-height:80px}
 <div id="toasts" class="toasts"></div>
 <script>
 /* ============================================================
-   BÚSSOLA · PAINÉIS MULTI-ROLE
+   KEVIMA · PAINÉIS MULTI-ROLE
    ============================================================ */
 const I={
   grid:'<rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><rect x="14" y="14" width="7" height="7" rx="1"/>',
@@ -474,14 +474,14 @@ const PARTICIPANTES=[
 let CONVS={
   pro:[
     {id:'m1',who:'Domingas Teca',country:'AO',ctx:'Título de residência',unread:2,msgs:[
-      {s:'auto',t:'Conversa iniciada a partir de um pedido de consulta na Bússola.'},
+      {s:'auto',t:'Conversa iniciada a partir de um pedido de consulta na KEVIMA.'},
       {s:'them',t:'Boa tarde, Dra. Helena. Recebeu o meu pedido sobre o título de residência?',tm:'14:02'},
       {s:'me',t:'Boa tarde, Domingas. Recebi sim. Já tem o contrato de trabalho assinado?',tm:'14:20'},
       {s:'them',t:'Tenho, assinei na semana passada. Posso enviar-lhe?',tm:'14:24'},
       {s:'them',t:'E preciso de mais alguma coisa além do contrato?',tm:'14:25'},
     ]},
     {id:'m2',who:'Nelson Baldé',country:'GW',ctx:'Reagrupamento familiar',unread:0,msgs:[
-      {s:'auto',t:'Conversa iniciada a partir de um pedido de consulta na Bússola.'},
+      {s:'auto',t:'Conversa iniciada a partir de um pedido de consulta na KEVIMA.'},
       {s:'them',t:'Bom dia. Queria trazer a minha família. Quanto costuma demorar?',tm:'09:10'},
       {s:'me',t:'Bom dia, Nelson. Os prazos variam bastante. Vamos marcar uma consulta para eu ver a sua situação em concreto?',tm:'09:32'},
       {s:'them',t:'Sim, por favor. Tenho disponibilidade a partir de quarta.',tm:'09:40'},
@@ -493,7 +493,7 @@ let CONVS={
   ],
   empresa:[
     {id:'m1',who:'Nelson Baldé',country:'GW',ctx:'Servente / Ajudante',unread:1,msgs:[
-      {s:'auto',t:'Candidatura recebida através da Bússola.'},
+      {s:'auto',t:'Candidatura recebida através da KEVIMA.'},
       {s:'me',t:'Bom dia, Nelson. Recebemos a sua candidatura. Tem disponibilidade para começar este mês?',tm:'08:40'},
       {s:'them',t:'Bom dia. Tenho sim, posso começar quando precisarem.',tm:'09:05'},
     ]},
@@ -552,7 +552,7 @@ function pill(s){const M={live:['pill-ok','Publicado'],ok:['pill-ok','Ativo'],dr
 function renderShell(){
   const r=R();
   el('sidebar').innerHTML=`
-    <div class="sb-brand">${mark(24)} <span>Bússola</span></div>
+    <div class="sb-brand">${mark(24)} <span>KEVIMA</span></div>
     <div class="role-sel" onclick="event.stopPropagation();el('roleMenu').classList.toggle('on')">
       <div class="rl">A ver como</div>
       <div class="rn"><span style="color:${r.accent}">${svg(r.ic)}</span>${esc(r.who)} <span class="mla muted">${svg('chevd')}</span></div>
@@ -592,7 +592,24 @@ function renderShell(){
       <button class="btn btn-primary btn-sm" onclick="primaryAction()" title="${primaryLabel()}">${svg('plus')}<span class="lbl-m">${primaryLabel()}</span></button>
     </div>`;
 }
-function mark(s){return `<svg width="${s}" height="${s}" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--accent)" stroke-width="2.6"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--accent)"/><circle cx="20" cy="20" r="2" fill="var(--surface)"/></svg>`}
+function markK(s,mono){
+  const g='k'+Math.random().toString(36).slice(2,7);
+  return `<svg width="${s}" height="${s}" viewBox="0 0 40 40" fill="none" role="img" aria-label="KEVIMA">
+    <defs>
+      <linearGradient id="${g}a" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#F2F2F2"/><stop offset=".45" stop-color="#9A9A9A"/>
+        <stop offset=".55" stop-color="#D8D8D8"/><stop offset="1" stop-color="#6E6E6E"/>
+      </linearGradient>
+      <linearGradient id="${g}b" x1="1" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#C9C9C9"/><stop offset=".5" stop-color="#7C7C7C"/>
+        <stop offset="1" stop-color="#EDEDED"/>
+      </linearGradient>
+    </defs>
+    <path d="M7.5 5h6.8v30H7.5z" fill="${mono?'currentColor':`url(#${g}a)`}"/>
+    <path d="M33 5h-8.6L16.2 16.6v7.9L24.4 35H33L21.6 20.5z" fill="${mono?'currentColor':`url(#${g}b)`}"/>
+  </svg>`;
+}
+const mark=(s)=>markK(s);
 function primaryLabel(){return {pro:'Nova consulta',empresa:'Nova vaga',anunciante:'Novo anúncio',organizador:'Novo evento'}[P.role]}
 function primaryAction(){({pro:newConsulta,empresa:newVaga,anunciante:newAnuncio,organizador:newEvento})[P.role]()}
 function setRole(id){P.role=id;P.route='dash';P.conv=(CONVS[id][0]||{}).id;applyAccent();save();renderShell();go('dash');toast('A ver o painel de '+ROLES[id].who)}
@@ -664,7 +681,7 @@ V['pro:pedidos']=()=>{
     <td>${pill(p.status)}</td>
     <td><div class="t-actions"><button class="btn btn-ghost btn-xs" onclick="openPedido('${p.id}')">${svg('eye')} Ver caso</button></div></td>
   </tr>`).join('');
-  return `${head('Pedidos recebidos','Pessoas que pediram a sua ajuda através da Bússola')}
+  return `${head('Pedidos recebidos','Pessoas que pediram a sua ajuda através da KEVIMA')}
   ${tableWrap('Pedidos',`${PEDIDOS.length} no total · ${PEDIDOS.filter(p=>p.status==='novo').length} por responder`,
     ['Pessoa','Assunto','Recebido','Estado',''],rows)}`;
 };
@@ -813,7 +830,7 @@ function openCand(id){
     <div class="row gap12 mb16">${cc(c.country)}
       <div><div class="h3">${esc(c.name)}</div><div class="muted fs-sm">${esc(c.city)} · candidatou-se ${esc(c.time)}</div></div></div>
     <div class="grid g2 mb16" style="gap:10px">
-      ${[['Vaga',c.vaga],['Experiência',c.exp],['Estado',c.st],['Contacto','Através da Bússola']].map(([k,v])=>
+      ${[['Vaga',c.vaga],['Experiência',c.exp],['Estado',c.st],['Contacto','Através da KEVIMA']].map(([k,v])=>
         `<div class="card card-pad" style="padding:12px 14px;background:var(--surface-2)"><div class="eyebrow mb4">${k}</div><div class="fw6 fs-sm">${esc(v)}</div></div>`).join('')}
     </div>
     <div class="callout callout-warn mb16">${svg('shield')}<div>Não pode pedir documentos de identificação ou dados pessoais sensíveis antes da contratação.</div></div>
@@ -980,7 +997,7 @@ V.msgs=()=>{
   if(!list.length)return head('Mensagens','')+emptyState('chat','Ainda sem conversas','Quando alguém o contactar, a conversa aparece aqui.','');
   if(!list.find(c=>c.id===P.conv))P.conv=list[0].id;
   const c=list.find(x=>x.id===P.conv);
-  return `${head('Mensagens','Conversas com pessoas que o contactaram através da Bússola')}
+  return `${head('Mensagens','Conversas com pessoas que o contactaram através da KEVIMA')}
   <div class="msg-wrap">
     <div class="conv-list">
       ${list.map(x=>`<div class="conv ${x.id===P.conv?'on':''}" onclick="openConv('${x.id}')">
@@ -1038,7 +1055,7 @@ V.perfil=()=>{
     anunciante:[['Agência','Sado Habitat'],['Licença AMI','Verificada'],['Cidade','Setúbal'],['Imóveis ativos','3'],['Contacto','geral@sadohabitat.exemplo.pt'],['Sobre','Mediação imobiliária na península de Setúbal.']],
     organizador:[['Organização','Associação Kianda'],['Tipo','Associação cultural'],['NIPC','Verificado'],['Cidade','Lisboa'],['Fundada em','2014'],['Sobre','Promoção da cultura angolana e cabo-verdiana em Portugal.']],
   }[P.role];
-  return `${head('Perfil público','É assim que as pessoas o veem na Bússola',`
+  return `${head('Perfil público','É assim que as pessoas o veem na KEVIMA',`
     <button class="btn btn-ghost btn-sm" onclick="toast('Pré-visualização por implementar')">${svg('eye')} Ver como público</button>
     <button class="btn btn-primary btn-sm" onclick="toast('Alterações guardadas','ok2')">Guardar alterações</button>`)}
   <div class="grid" style="grid-template-columns:1fr 320px;align-items:start">
@@ -1059,7 +1076,7 @@ V.perfil=()=>{
           .map(([l,on])=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line-2)">
             <span class="fs-sm">${l}</span><span class="pill ${on?'pill-ok':'pill-off'}"><i class="dot"></i>${on?'Sim':'Não'}</span></div>`).join('')}
       </div>
-      <div class="callout callout-sage">${svg('shield')}<div>O selo <b>Verificado</b> é atribuído pela equipa da Bússola após confirmação dos documentos.</div></div>
+      <div class="callout callout-sage">${svg('shield')}<div>O selo <b>Verificado</b> é atribuído pela equipa da KEVIMA após confirmação dos documentos.</div></div>
     </div>
   </div>`;
 };
@@ -1363,7 +1380,7 @@ V.faturacao=()=>{
       ${svg('card')}<div style="flex:1"><div class="fw6 fs-sm">Cartão terminado em 4821</div><div class="muted fs-xs">Validade 09/28</div></div>
       <button class="btn btn-quiet btn-xs" onclick="toast('Alteração de cartão por implementar')">Alterar</button>
     </div>
-    <div class="callout callout-info mt16">${svg('info')}<div>Os dados de pagamento são tratados por um fornecedor certificado. A Bússola não guarda o número do seu cartão.</div></div>
+    <div class="callout callout-info mt16">${svg('info')}<div>Os dados de pagamento são tratados por um fornecedor certificado. A KEVIMA não guarda o número do seu cartão.</div></div>
   </div>`;
 };
 

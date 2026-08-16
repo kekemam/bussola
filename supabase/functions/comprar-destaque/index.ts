@@ -1,5 +1,5 @@
 // ============================================================
-// BÚSSOLA · comprar-destaque
+// KEVIMA · comprar-destaque
 //
 // Porta de pagamento do único ponto de receita da plataforma.
 // A função `comprar_destaque()` na base de dados é executável apenas

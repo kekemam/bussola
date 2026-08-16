@@ -1,8 +1,10 @@
-# Bússola
+# KEVIMA
 
-**Onde Portugal começa a fazer sentido.**
+**Your new life, connected.**
 
-Plataforma de integração para pessoas dos países PALOP — Angola 🇦🇴, Cabo Verde 🇨🇻, Guiné-Bissau 🇬🇼, Moçambique 🇲🇿 e São Tomé e Príncipe 🇸🇹 — que chegam ou já vivem em Portugal.
+*Onde Portugal começa a fazer sentido.*
+
+Plataforma de integração para pessoas dos países PALOP — Angola, Cabo Verde, Guiné-Bissau, Moçambique e São Tomé e Príncipe — que chegam ou já vivem em Portugal.
 
 Transforma uma experiência normalmente confusa (documentação, casa, trabalho, direitos) num plano organizado, passo a passo.
 
@@ -59,6 +61,14 @@ Todas com RLS por utilizador — cada pessoa só acede às suas linhas.
 | `saved_items` | Vagas, casas, eventos e grupos guardados |
 | `applications` | Candidaturas e o seu estado |
 | `ai_queries` | Perguntas ao assistente (analítica + rate limiting) |
+| `companies` | Empresas registadas, com categoria e verificação |
+| `company_members` | Quem gere cada empresa (vários gestores possíveis) |
+| `listings` | Anúncios: vagas, imóveis, eventos e serviços |
+| `boost_packages` | Catálogo de destaques (preços em cêntimos) |
+| `boosts` | Compras de destaque |
+| `reports` | Fila de moderação |
+| `platform_admins` | Quem tem acesso à consola |
+| `admin_allowlist` | Emails promovidos a admin ao criar conta |
 
 **Regra de segurança:** toda a policy `FOR ALL`/`UPDATE`/`INSERT` tem de ter `WITH CHECK`. Funções `SECURITY DEFINER` têm sempre `search_path` fixo e `EXECUTE` revogado de `anon`/`authenticated`.
 
@@ -67,6 +77,7 @@ Todas com RLS por utilizador — cada pessoa só acede às suas linhas.
 | Função | JWT | Papel |
 |---|---|---|
 | `ai-assistant` | sim | Assistente ancorado no conteúdo verificado |
+| `comprar-destaque` | sim | Porta de pagamento do destaque de anúncio |
 
 ---
 
@@ -105,6 +116,21 @@ Sem o segredo, a função responde `503 assistente_nao_configurado` — de prop�
 
 ---
 
+## Monetização
+
+Não há mensalidade. Registar empresa e publicar anúncios é gratuito e sem limite.
+O único ponto de cobrança é **destacar um anúncio**: 9€ por 7 dias, 15€ por 15 dias
+ou 25€ por 30 dias. Pagamento único, sem renovação automática.
+
+A tabela `boosts` não aceita escrita do cliente — nem por administradores. A compra
+passa obrigatoriamente pela Edge Function `comprar-destaque`, que confirma o pagamento
+antes de gravar. Sem fornecedor de pagamento configurado, recusa.
+
+O diretório público sabe que anúncios estão destacados através de `listings.boosted_until`,
+que é o mínimo para ordenar sem revelar quanto cada empresa gasta.
+
+---
+
 ## Princípios do produto
 
 - **Nunca fingir ser advogado.** A plataforma dá orientação, não aconselhamento jurídico. Onde a diferença importa, está escrito.
@@ -117,6 +143,14 @@ Sem o segredo, a função responde `503 assistente_nao_configurado` — de prop�
 
 ## Estado
 
-Feito: landing, app do utilizador (onboarding → plano → documentação → trabalho → casa → profissionais → eventos → comunidade → mapa → pesquisa), 4 painéis multi-role com mensagens internas, consola de admin com moderação e verificações, camada de IA ancorada, schema e Edge Function no Supabase.
+Feito: as quatro superfícies; auth e persistência ligadas ao Supabase (offline-first,
+com `localStorage` como fonte local); modelo de destaque de ponta a ponta; consola a ler
+dados reais; app a mostrar os anúncios publicados pelas empresas, com o destaque a ordenar.
 
-A fazer: ligar o frontend ao Supabase (auth + persistência, hoje em `localStorage`), definir `ANTHROPIC_API_KEY`, i18n pt/en/fr, documentos legais antes do lançamento público.
+A fazer:
+- `ANTHROPIC_API_KEY` (o assistente usa o motor local sem ela)
+- SMTP próprio — sem ele ninguém confirma email nem se regista
+- Integração de pagamento (Stripe), hoje a função devolve 503
+- Documentação, comunidade e conteúdo editorial em base de dados (hoje são seed)
+- i18n pt/en/fr
+- Termos, privacidade e cookies antes de lançamento público
