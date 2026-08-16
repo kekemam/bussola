@@ -1235,14 +1235,17 @@ async function submeterEmpresa(){
 
   if(ligado()||comSessao()){
     try{
-      const {data:co,error}=await sb.from('companies').insert({
-        name:nome, category:el('reCat').value, city:(el('reCidade').value||'').trim()||null,
-        nif:(el('reNif').value||'').trim()||null, email
-      }).select().single();
+      /* Uma só chamada: a função cria a empresa e o vínculo do dono na
+         mesma transação. Em dois passos separados, uma falha no segundo
+         deixava a empresa órfã e inacessível a quem a criou. */
+      const {data:co,error}=await sb.rpc('registar_empresa',{
+        p_name:nome, p_category:el('reCat').value,
+        p_city:(el('reCidade').value||'').trim()||null,
+        p_nif:(el('reNif').value||'').trim()||null,
+        p_email:email
+      });
       if(error)throw error;
-      const {error:e2}=await sb.from('company_members').insert({company_id:co.id,user_id:SB_USER.id,role:'owner'});
-      if(e2)throw e2;
-      EMPRESA=co; await carregarAnuncios();
+      EMPRESA=Array.isArray(co)?co[0]:co; await carregarAnuncios();
       closeModal(); renderShell(); go(P.route);
       return toast('Empresa registada. Já pode publicar anúncios','ok2');
     }catch(e){return erro('Não foi possível registar: '+(e.message||'erro'))}
