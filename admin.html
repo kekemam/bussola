@@ -474,6 +474,11 @@ async function carregarTudo(){
     DB.perfis=perf.data||[]; DB.fila=fila.data||[];
   }catch(e){console.warn('carregar dados falhou:',e&&e.message)}
 }
+/* Os contadores da navegação seguem a mesma fonte que os ecrãs.
+   Dizer "5 na fila" com o ecrã a mostrar 0 destrói a confiança na consola. */
+const nFila=()=>aoVivo()?DB.fila.length:QUEUE.length;
+const nVerif=()=>aoVivo()?DB.empresas.filter(c=>c.verification==='pending'||c.verification==='review').length
+                        :VERIF.filter(v=>v.status==='pend'||v.status==='anal').length;
 const eur=c=>((c||0)/100).toLocaleString('pt-PT',{minimumFractionDigits:0})+'€';
 
 /* Numa consola, confundir dados reais com dados de exemplo leva a
@@ -548,8 +553,8 @@ const NAV=[
   {r:'docs',l:'Documentação',ic:'doc'},
   {r:'community',l:'Comunidade',ic:'chat'},
   {s:'Confiança'},
-  {r:'reports',l:'Denúncias',ic:'flag',c:()=>QUEUE.length},
-  {r:'verif',l:'Verificações',ic:'shield',c:()=>VERIF.filter(v=>v.status==='pend'||v.status==='anal').length},
+  {r:'reports',l:'Denúncias',ic:'flag',c:()=>nFila()},
+  {r:'verif',l:'Verificações',ic:'shield',c:()=>nVerif()},
   {s:'Negócio'},
   {r:'payments',l:'Pagamentos',ic:'card'},
   {r:'notifs',l:'Notificações',ic:'bell'},
@@ -577,7 +582,7 @@ function renderShell(){
       ${aoVivo()
         ? `<span class="pill pill-ok hide-m"><i class="dot"></i>Dados reais</span>`
         : `<span class="pill pill-pend hide-m"><i class="dot"></i>Demonstração</span>`}
-      <button class="btn btn-ghost btn-sm" onclick="go('reports')">${svg('flag')} ${QUEUE.length} na fila</button>
+      <button class="btn btn-ghost btn-sm" onclick="go('reports')">${svg('flag')} ${nFila()} na fila</button>
       ${aoVivo()
         ? `<button class="btn btn-quiet btn-icon" onclick="sairConsola()" title="Terminar sessão">${svg('logout')}</button>`
         : `<button class="btn btn-primary btn-sm" onclick="loginModal()">Entrar</button>`}
