@@ -290,7 +290,9 @@ const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).joi
    SEED (pt-PT, realista)
    ============================================================ */
 const KPIS=[
-  {k:'Utilizadores ativos',v:'8.412',d:'+12,4%',up:true,ic:'users',c:'var(--clay)'},
+  // 8.412 é o total de contas. Os ativos a 30 dias são 3.970 (ver FUNNEL) —
+  // o mesmo número não pode ter dois nomes em ecrãs diferentes.
+  {k:'Contas registadas',v:'8.412',d:'+12,4%',up:true,ic:'users',c:'var(--clay)'},
   {k:'Novos utilizadores (7d)',v:'642',d:'+8,1%',up:true,ic:'up',c:'var(--sage)'},
   {k:'Pedidos jurídicos',v:'318',d:'+21%',up:true,ic:'law',c:'var(--sky)'},
   {k:'Candidaturas',v:'2.740',d:'+5,6%',up:true,ic:'work',c:'var(--gold)'},
@@ -403,7 +405,9 @@ const NORESULT=[ // pesquisas sem resultados — insight fundamental (§40)
   {q:'aulas de código estrada',n:76},
   {q:'tradutor crioulo português',n:61},
 ];
-const FUNNEL=[{n:'Visitantes',v:24800,p:100},{n:'Registos',v:8412,p:34},{n:'Onboarding completo',v:6910,p:28},{n:'1ª ação (plano/pesquisa)',v:5240,p:21},{n:'Ativos 30d',v:5390,p:22}];
+// Um funil tem de ser monotonicamente decrescente: cada etapa é um
+// subconjunto da anterior. Valores que sobem são sinal de erro de medição.
+const FUNNEL=[{n:'Visitantes',v:24800,p:100},{n:'Registos',v:8412,p:34},{n:'Onboarding completo',v:6910,p:28},{n:'1.ª ação (plano ou pesquisa)',v:5240,p:21},{n:'Ativos 30d',v:3970,p:16}];
 
 /* ============================================================
    ESTADO + HELPERS
@@ -464,7 +468,7 @@ function renderShell(){
       <div class="sb-user">
         <div class="av av-sm" style="background:var(--clay);color:#fff">SA</div>
         <div style="line-height:1.2;min-width:0"><div class="fw6 fs-sm">Sofia Almeida</div><div class="muted fs-xs">Administradora</div></div>
-        <button class="btn btn-quiet btn-icon mla" onclick="toast('Sessão terminada ')">${svg('logout')}</button>
+        <button class="btn btn-quiet btn-icon mla" onclick="toast('Sessão terminada')">${svg('logout')}</button>
       </div>
     </div>`;
   el('topbar').innerHTML=`
@@ -476,6 +480,13 @@ function renderShell(){
     </div>`;
 }
 function mark(s){return `<svg width="${s}" height="${s}" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--clay)" stroke-width="2.6"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--clay)"/><circle cx="20" cy="20" r="2" fill="var(--surface)"/></svg>`}
+/* Data real. Uma consola que diz "hoje" com a data fixa no código
+   fica errada a partir do dia seguinte. */
+function dataHoje(){
+  const M=['janeiro','fevereiro','março','abril','maio','junho','julho','agosto','setembro','outubro','novembro','dezembro'];
+  const d=new Date();
+  return `${d.getDate()} de ${M[d.getMonth()]} de ${d.getFullYear()}`;
+}
 
 const R={};
 function go(route){
@@ -501,8 +512,8 @@ function tableWrap(title,meta,cols,rows,tools){
 R.dash=()=>{
   const max=Math.max(...GROWTH.map(g=>g.v));
   return `
-  ${head('Visão geral','Como está a plataforma hoje · 12 de agosto de 2026',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado ')">${svg('dl')} Exportar</button>
+  ${head('Visão geral','Estado da plataforma · '+dataHoje(),`
+    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado')">${svg('dl')} Exportar</button>
     <button class="btn btn-primary btn-sm" onclick="go('reports')">${svg('flag')} Rever denúncias</button>`)}
 
   <div class="grid g4">
@@ -570,7 +581,7 @@ R.users=()=>{
     </div></td>
   </tr>`).join('');
   return `${head('Utilizadores','8.412 contas registadas · 642 novas nos últimos 7 dias',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('CSV exportado ')">${svg('dl')} Exportar CSV</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="toast('CSV exportado')">${svg('dl')} Exportar CSV</button>`)}
   <div class="row gap6 wrap mb16">
     ${[['','Todos'],['ok','Ativos'],['susp','Suspensos']].map(([v,l])=>`<span class="chip ${uFilter===v?'on':''}" onclick="uFilter='${v}';go('users')">${l}</span>`).join('')}
   </div>
@@ -808,8 +819,8 @@ R.content=()=>{
   ];
   const rows=pages.map(p=>`<tr><td><div class="fw6">${esc(p.t)}</div><div class="muted fs-xs">${esc(p.c)}</div></td>
     <td class="muted fs-sm">${esc(p.up)}</td><td class="num">${p.v}</td><td>${statusPill(p.st)}</td>
-    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Editor de conteúdo ')">${svg('eye')}</button></div></td></tr>`).join('');
-  return `${head('Conteúdo','Guias e artigos editoriais da plataforma',`<button class="btn btn-primary btn-sm" onclick="toast('Editor de conteúdo ')">${svg('plus')} Novo artigo</button>`)}
+    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Editor de conteúdo por implementar')">${svg('eye')}</button></div></td></tr>`).join('');
+  return `${head('Conteúdo','Guias e artigos editoriais da plataforma',`<button class="btn btn-primary btn-sm" onclick="toast('Editor de conteúdo por implementar')">${svg('plus')} Novo artigo</button>`)}
   ${tableWrap('Artigos','5 registos',[{l:'Artigo'},{l:'Atualizado'},{l:'Visualizações'},{l:'Estado'},{l:''}],rows)}`;
 };
 R.docs=()=>{
@@ -824,7 +835,7 @@ R.docs=()=>{
   ];
   const rows=procs.map(p=>`<tr><td><div class="fw6">${esc(p.t)}</div><div class="muted fs-xs">${esc(p.c)}</div></td>
     <td class="muted fs-sm">${esc(p.rev)}</td><td>${statusPill(p.st)}</td>
-    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Editor de processo ')">${svg('eye')}</button></div></td></tr>`).join('');
+    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Editor de processo por implementar')">${svg('eye')}</button></div></td></tr>`).join('');
   return `${head('Documentação','Processos legais publicados no centro de documentação')}
   <div class="callout callout-warn mb16">${svg('warn')}<div><b>Conteúdo sensível.</b> Informação legal desatualizada pode prejudicar pessoas. Revê cada processo sempre que houver alterações legislativas e mantém a data de revisão visível.</div></div>
   ${tableWrap('Processos',`${procs.length} processos publicados`,[{l:'Processo'},{l:'Revisão'},{l:'Estado'},{l:''}],rows)}`;
@@ -854,7 +865,7 @@ R.analytics=()=>{
   const bar=(list,key,max,color)=>list.map(x=>`<div class="progrow"><div class="pl fs-sm">${x.f?x.f+' ':''}${esc(x.n)}</div>
     <div class="pt"><i style="width:${Math.round(x.v/max*100)}%;background:${color||'var(--clay)'}"></i></div><div class="pv">${x.v}%</div></div>`).join('');
   return `${head('Analytics','Aquisição, ativação, retenção e o que falta na plataforma',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado ')">${svg('dl')} Exportar</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado')">${svg('dl')} Exportar</button>`)}
 
   <div class="card card-pad mb16">
     <div class="eyebrow mb4">Funil</div><div class="h3 mb16">Do visitante ao utilizador ativo</div>
@@ -893,7 +904,7 @@ R.payments=()=>{
     <td>${i.status==='ok'?'<span class="pill pill-ok"><i class="dot"></i>Paga</span>':i.status==='pend'?'<span class="pill pill-pend"><i class="dot"></i>Pendente</span>':'<span class="pill pill-rej"><i class="dot"></i>Falhou</span>'}</td>
     <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Fatura ${esc(i.id)}')">${svg('file')}</button></div></td></tr>`).join('');
   const totalSubs=PLANS.reduce((a,p)=>a+p.subs,0);
-  return `${head('Pagamentos','Planos, subscrições e faturação',`<button class="btn btn-ghost btn-sm" onclick="toast('Exportação contabilística ')">${svg('dl')} Exportar</button>`)}
+  return `${head('Pagamentos','Planos, subscrições e faturação',`<button class="btn btn-ghost btn-sm" onclick="toast('Exportação contabilística por implementar')">${svg('dl')} Exportar</button>`)}
   <div class="grid g4 mb16">
     ${[['Receita mensal','12.480€','euro','var(--sage)'],['Subscrições ativas',totalSubs,'card','var(--clay)'],['Receita média/conta','19,80€','chart','var(--sky)'],['Churn (30d)','2,4%','down','var(--gold)']]
       .map(([l,v,ic,c])=>`<div class="stat"><div class="ic" style="background:color-mix(in srgb,${c} 14%,transparent);color:${c}">${svg(ic)}</div><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}
@@ -903,7 +914,7 @@ R.payments=()=>{
       ${PLANS.map(p=>`<div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
         <div><div class="fw6 fs-sm">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.price)} · ${p.subs} subscrições</div></div>
         <div class="num fw6">${esc(p.rev)}</div></div>`).join('')}
-      <button class="btn btn-ghost btn-sm mt12" onclick="toast('Gestão de planos e preços ')">${svg('settings')} Gerir planos e preços</button>
+      <button class="btn btn-ghost btn-sm mt12" onclick="toast('Gestão de planos por implementar')">${svg('settings')} Gerir planos e preços</button>
     </div>
     <div class="card card-pad">
       <div class="h3 mb4">Modelo de monetização</div><p class="muted fs-sm mb16">A experiência principal do utilizador é e mantém-se gratuita.</p>
@@ -967,7 +978,7 @@ R.settings=()=>{
       <div class="h3 mb4">Perfis de acesso (RBAC)</div><p class="muted fs-sm mb16">Cada tipo de conta tem permissões próprias.</p>
       ${roles.map(([r,d])=>`<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line-2)">
         <div style="min-width:0"><div class="fw6 fs-sm">${esc(r)}</div><div class="muted fs-xs">${esc(d)}</div></div>
-        <button class="btn btn-quiet btn-xs" onclick="toast('Editor de permissões ')">Editar</button></div>`).join('')}
+        <button class="btn btn-quiet btn-xs" onclick="toast('Editor de permissões por implementar')">Editar</button></div>`).join('')}
     </div>
     <div class="stack" style="gap:16px">
       <div class="card card-pad">
