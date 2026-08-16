@@ -50,6 +50,8 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 .btn-ghost{background:var(--surface);border-color:var(--line);color:var(--ink)} .btn-ghost:hover{border-color:var(--ink-3)}
 .btn-quiet{background:transparent;color:var(--ink-2)} .btn-quiet:hover{background:var(--surface-2);color:var(--ink)}
 .btn-sage{background:var(--sage-soft);color:var(--sage)} .btn-sage:hover{background:var(--sage);color:#fff}
+.btn-boost{background:var(--gold-soft);color:var(--gold)} .btn-boost:hover{background:var(--gold);color:#fff}
+.btn-boost svg{width:1em;height:1em}
 .btn-danger{background:var(--danger-soft);color:var(--danger)} .btn-danger:hover{background:var(--danger);color:#fff}
 .btn-sm{padding:.46em .8em;font-size:.8rem} .btn-xs{padding:.34em .62em;font-size:.75rem}
 .btn-icon{padding:.5em;width:2.3em;height:2.3em;border-radius:var(--r)} .btn-block{width:100%}
@@ -61,6 +63,18 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 .pill-anal{background:var(--sky-soft);color:var(--sky)}
 .pill-rej{background:var(--danger-soft);color:var(--danger)}
 .pill-off{background:var(--surface-3);color:var(--ink-2)}
+.pill-boost{background:var(--gold-soft);color:var(--gold)}
+.pill-boost svg{width:.85em;height:.85em}
+/* cartão de escolha de destaque */
+.pack{border:1px solid var(--line);border-radius:var(--r);padding:14px 16px;cursor:pointer;transition:all .18s var(--ease);position:relative;background:var(--surface)}
+.pack:hover{border-color:var(--ink-3)}
+.pack.on{border-color:var(--accent);background:var(--accent-tint);box-shadow:0 0 0 3px var(--accent-soft)}
+.pack .pk-top{display:flex;align-items:baseline;justify-content:space-between;gap:10px}
+.pack .pk-n{font-weight:650}
+.pack .pk-p{font-family:var(--serif);font-size:1.3rem;font-weight:600;color:var(--accent)}
+.pack .pk-d{font-size:.78rem;color:var(--ink-3);margin-top:3px;line-height:1.4}
+.pack .pk-tag{position:absolute;top:-9px;right:14px;font-size:.62rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;
+  background:var(--accent);color:#fff;padding:.2em .5em;border-radius:4px}
 /* Marca de país. Substitui bandeiras emoji, que não renderizam no Windows
    e variam de forma entre sistemas — isto é idêntico em todo o lado. */
 .cc{display:inline-flex;align-items:center;justify-content:center;flex:none;
@@ -317,24 +331,72 @@ const stars=r=>{let s='';for(let i=1;i<=5;i++)s+=`<span style="color:${i<=Math.r
    PAPÉIS
    ============================================================ */
 const ROLES={
-  pro:{id:'pro',label:'Advogada',who:'Dra. Helena Baptista',sub:'Advogada · Lisboa',accent:'#C25A3A',soft:'#F3E4DB',tint:'#FBF1EB',ic:'law',plan:'Plano Profissional · 29€/mês'},
-  empresa:{id:'empresa',label:'Empresa',who:'Edifer Obras',sub:'Construção · Almada',accent:'#37618E',soft:'#E3EAF2',tint:'#EFF3F8',ic:'building',plan:'Plano Empresa · 39€/mês'},
-  anunciante:{id:'anunciante',label:'Imobiliária',who:'Sado Habitat',sub:'Imobiliária · Setúbal',accent:'#3E6B5A',soft:'#E4EEE8',tint:'#EFF5F2',ic:'home',plan:'Plano Imobiliária · 49€/mês'},
-  organizador:{id:'organizador',label:'Organizador',who:'Associação Kianda',sub:'Associação cultural · Lisboa',accent:'#B4842B',soft:'#F6EDD8',tint:'#FAF4E7',ic:'event',plan:'Plano Organizador · 19€/mês'},
+  pro:{id:'pro',label:'Advogada',who:'Dra. Helena Baptista',sub:'Advogada · Lisboa',accent:'#C25A3A',soft:'#F3E4DB',tint:'#FBF1EB',ic:'law',cat:'Advogados'},
+  empresa:{id:'empresa',label:'Empresa',who:'Edifer Obras',sub:'Construção · Almada',accent:'#37618E',soft:'#E3EAF2',tint:'#EFF3F8',ic:'building',cat:'Empregos'},
+  anunciante:{id:'anunciante',label:'Imobiliária',who:'Sado Habitat',sub:'Imobiliária · Setúbal',accent:'#3E6B5A',soft:'#E4EEE8',tint:'#EFF5F2',ic:'home',cat:'Imobiliárias'},
+  organizador:{id:'organizador',label:'Organizador',who:'Associação Kianda',sub:'Associação cultural · Lisboa',accent:'#B4842B',soft:'#F6EDD8',tint:'#FAF4E7',ic:'event',cat:'Eventos'},
 };
+
+/* ============================================================
+   DESTAQUES — o único ponto de cobrança da plataforma
+   ------------------------------------------------------------
+   Não há mensalidade. Registar a empresa e publicar anúncios é
+   gratuito e ilimitado. Só se paga quando se escolhe destacar um
+   anúncio, e o pagamento é pontual: acaba quando o período acaba,
+   sem renovação automática.
+   ============================================================ */
+const DESTAQUES=[
+  {id:'d7', dias:7,  preco:9,  nome:'7 dias',  desc:'Aparece no topo dos resultados durante uma semana.'},
+  {id:'d15',dias:15, preco:15, nome:'15 dias', desc:'O período com melhor relação entre custo e alcance.', popular:true},
+  {id:'d30',dias:30, preco:25, nome:'30 dias', desc:'Presença contínua durante um mês inteiro.'},
+];
+/* Categorias de empresa disponíveis no registo. */
+const CATEGORIAS=['Advogados','Imobiliárias','Eventos','Empregos','Serviços','Formação','Associações','Contabilidade','Saúde','Outra'];
+
+const HOJE=()=>new Date();
+const diasEntre=(a,b)=>Math.ceil((new Date(a)-new Date(b))/86400000);
+/* Devolve os dias que faltam, ou null se não houver destaque ativo. */
+function destaqueAtivo(item){
+  if(!item||!item.destaque)return null;
+  const faltam=diasEntre(item.destaque.ate,HOJE());
+  return faltam>0?{faltam,...item.destaque}:null;
+}
+function pillDestaque(item){
+  const d=destaqueAtivo(item);
+  if(!d)return '';
+  return `<span class="pill pill-boost" title="Destaque ativo">${svg('star')}${d.faltam} ${d.faltam===1?'dia':'dias'}</span>`;
+}
+/* Aplica o destaque escolhido e regista a compra. */
+function aplicarDestaque(item,pacoteId){
+  const p=DESTAQUES.find(x=>x.id===pacoteId); if(!p||!item)return null;
+  const base=destaqueAtivo(item)?new Date(item.destaque.ate):HOJE();  // prolonga se já houver
+  const ate=new Date(base.getTime()+p.dias*86400000);
+  item.destaque={ate:ate.toISOString(),dias:p.dias,pacote:p.id,preco:p.preco};
+  COMPRAS.unshift({id:'DS '+proximoRecibo(),data:fmtCurto(HOJE()),item:item.role||item.title||item.titulo||'Anúncio',
+    periodo:p.nome,valor:p.preco+'€',estado:'Paga'});
+  return p;
+}
+/* Números de recibo têm de crescer sempre. Contar linhas daria
+   números repetidos ou a recuar, por isso parte-se do maior existente. */
+function proximoRecibo(){
+  const max=COMPRAS.reduce((m,c)=>Math.max(m,parseInt(String(c.id).replace(/\D/g,''),10)||0),0);
+  return max+1;
+}
+function fmtCurto(d){const M=['Jan','Fev','Mar','Abr','Mai','Jun','Jul','Ago','Set','Out','Nov','Dez'];
+  d=new Date(d);return `${d.getDate()} ${M[d.getMonth()]} ${d.getFullYear()}`}
 const NAVS={
   pro:[{r:'dash',l:'Visão geral',ic:'grid'},{r:'pedidos',l:'Pedidos recebidos',ic:'inbox',c:()=>PEDIDOS.filter(p=>p.status==='novo').length},
        {r:'agenda',l:'Consultas',ic:'cal'},{r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},
-       {r:'reviews',l:'Avaliações',ic:'star'},{r:'perfil',l:'Perfil público',ic:'user'},{r:'faturacao',l:'Faturação',ic:'card'}],
+       {r:'reviews',l:'Avaliações',ic:'star'},{r:'perfil',l:'Perfil público',ic:'user'},{r:'faturacao',l:'Destaques',ic:'star'}],
   empresa:[{r:'dash',l:'Visão geral',ic:'grid'},{r:'vagas',l:'Vagas',ic:'work'},
        {r:'candidaturas',l:'Candidaturas',ic:'users',c:()=>CANDS.filter(c=>c.st==='Nova').length},
-       {r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},{r:'perfil',l:'Perfil da empresa',ic:'building'},{r:'faturacao',l:'Faturação',ic:'card'}],
+       {r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},{r:'perfil',l:'Perfil da empresa',ic:'building'},{r:'faturacao',l:'Destaques',ic:'star'}],
   anunciante:[{r:'dash',l:'Visão geral',ic:'grid'},{r:'anuncios',l:'Anúncios',ic:'home'},
        {r:'interessados',l:'Interessados',ic:'users',c:()=>LEADS.filter(l=>l.novo).length},
-       {r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},{r:'perfil',l:'Perfil',ic:'building'},{r:'faturacao',l:'Faturação',ic:'card'}],
+       {r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},{r:'perfil',l:'Perfil',ic:'building'},{r:'faturacao',l:'Destaques',ic:'star'}],
   organizador:[{r:'dash',l:'Visão geral',ic:'grid'},{r:'eventos',l:'Eventos',ic:'event'},
        {r:'participantes',l:'Participantes',ic:'users'},{r:'msgs',l:'Mensagens',ic:'chat',c:()=>unread()},
-       {r:'perfil',l:'Perfil',ic:'user'},{r:'faturacao',l:'Faturação',ic:'card'}],
+       {r:'perfil',l:'Perfil',ic:'user'},{r:'faturacao',l:'Destaques',ic:'star'}],
 };
 
 /* ============================================================
@@ -366,7 +428,7 @@ const REVIEWS=[
 ];
 /* --- Empresa --- */
 let VAGAS=[
-  {id:'v1',role:'Servente / Ajudante de construção',city:'Almada',salary:'1.000€–1.200€',type:'Tempo inteiro',status:'live',apps:41,views:1240,posted:'11 Ago'},
+  {id:'v1',role:'Servente / Ajudante de construção',city:'Almada',salary:'1.000€–1.200€',type:'Tempo inteiro',status:'live',apps:41,views:1240,posted:'11 Ago',destaque:{ate:new Date(Date.now()+6*86400000).toISOString(),dias:7,pacote:'d7',preco:9}},
   {id:'v2',role:'Pedreiro',city:'Almada',salary:'1.300€–1.500€',type:'Tempo inteiro',status:'live',apps:18,views:680,posted:'8 Ago'},
   {id:'v3',role:'Encarregado de obra',city:'Seixal',salary:'1.800€–2.100€',type:'Tempo inteiro',status:'live',apps:6,views:410,posted:'5 Ago'},
   {id:'v4',role:'Carpinteiro de cofragem',city:'Almada',salary:'1.400€',type:'Tempo inteiro',status:'draft',apps:0,views:0,posted:'—'},
@@ -386,7 +448,7 @@ const CAND_STATES=['Nova','Em análise','Entrevista','Oferta','Rejeitada'];
 let ANUNCIOS=[
   {id:'n1',title:'T1 renovado — Bela Vista',city:'Setúbal',price:750,type:'Apartamento',status:'live',views:2140,favs:86,leads:12,posted:'11 Ago'},
   {id:'n2',title:'T2 com varanda — Monte Belo',city:'Setúbal',price:880,type:'Apartamento',status:'live',views:1620,favs:54,leads:8,posted:'9 Ago'},
-  {id:'n3',title:'Quarto individual — Bocage',city:'Setúbal',price:390,type:'Quarto',status:'live',views:3080,favs:141,leads:24,posted:'6 Ago'},
+  {id:'n3',title:'Quarto individual — Bocage',city:'Setúbal',price:390,type:'Quarto',status:'live',views:3080,favs:141,leads:24,posted:'6 Ago',destaque:{ate:new Date(Date.now()+11*86400000).toISOString(),dias:15,pacote:'d15',preco:15}},
   {id:'n4',title:'T3 familiar — Azeitão',city:'Setúbal',price:1150,type:'Casa',status:'pend',views:0,favs:0,leads:0,posted:'12 Ago'},
 ];
 let LEADS=[
@@ -397,7 +459,7 @@ let LEADS=[
 ];
 /* --- Organizador --- */
 let MEUS_EVENTOS=[
-  {id:'e1',title:'Noite de Kizomba & Semba',date:'15 Ago 2026',time:'22:00',venue:'B.Leza, Cais do Sodré',price:'10€',status:'live',going:184,views:4120,cap:250},
+  {id:'e1',title:'Noite de Kizomba & Semba',date:'15 Ago 2026',time:'22:00',venue:'B.Leza, Cais do Sodré',price:'10€',status:'live',going:184,views:4120,cap:250,destaque:{ate:new Date(Date.now()+3*86400000).toISOString(),dias:7,pacote:'d7',preco:9}},
   {id:'e2',title:'Roda de Conversa: Primeiros meses',date:'22 Ago 2026',time:'17:00',venue:'Sede da Associação, Lisboa',price:'Gratuito',status:'live',going:46,views:980,cap:60},
   {id:'e3',title:'Festa de Aniversário da Associação',date:'5 Set 2026',time:'20:00',venue:'A definir',price:'15€',status:'draft',going:0,views:0,cap:400},
 ];
@@ -461,10 +523,11 @@ let CONVS={
     ]},
   ],
 };
-const FATURAS=[
-  {id:'FT 2026/1042',date:'10 Ago 2026',desc:'Subscrição mensal',amount:'29€',st:'Paga'},
-  {id:'FT 2026/0987',date:'10 Jul 2026',desc:'Subscrição mensal',amount:'29€',st:'Paga'},
-  {id:'FT 2026/0921',date:'10 Jun 2026',desc:'Subscrição mensal',amount:'29€',st:'Paga'},
+/* Histórico de compras de destaque. Não há faturas recorrentes:
+   cada linha corresponde a uma escolha explícita da empresa. */
+let COMPRAS=[
+  {id:'DS 2604',data:'9 Ago 2026',item:'Servente / Ajudante de construção',periodo:'15 dias',valor:'15€',estado:'Paga'},
+  {id:'DS 2588',data:'28 Jul 2026',item:'Pedreiro',periodo:'7 dias',valor:'9€',estado:'Paga'},
 ];
 
 /* ============================================================
@@ -495,8 +558,12 @@ function renderShell(){
       <div class="rn"><span style="color:${r.accent}">${svg(r.ic)}</span>${esc(r.who)} <span class="mla muted">${svg('chevd')}</span></div>
       <div class="role-menu" id="roleMenu">
         ${Object.values(ROLES).map(x=>`<div onclick="event.stopPropagation();setRole('${x.id}')"><span style="color:${x.accent}">${svg(x.ic)}</span>
-          <div><div class="fw6">${esc(x.who)}</div><div class="muted fs-xs">${esc(x.label)}</div></div>
+          <div><div class="fw6">${esc(x.who)}</div><div class="muted fs-xs">${esc(x.label)} · ${esc(x.cat)}</div></div>
           ${x.id===P.role?`<span class="mla" style="color:${x.accent}">${svg('check')}</span>`:''}</div>`).join('')}
+        <div style="border-top:1px solid var(--line)" onclick="event.stopPropagation();el('roleMenu').classList.remove('on');registarEmpresa()">
+          <span style="color:var(--ink-3)">${svg('plus')}</span>
+          <div><div class="fw6">Registar empresa</div><div class="muted fs-xs">Gratuito, sem mensalidade</div></div>
+        </div>
       </div>
     </div>
     <nav class="sb-nav">
@@ -512,7 +579,7 @@ function renderShell(){
   el('topbar').innerHTML=`
     <button class="btn btn-ghost btn-icon menu-btn" onclick="el('sidebar').classList.toggle('open')">${svg('menu')}</button>
     <div class="row gap8 hide-m"><span class="pill pill-ok"><i class="dot"></i>Perfil verificado</span>
-      <span class="muted fs-sm">${esc(r.plan)}</span></div>
+      <span class="muted fs-sm">Conta gratuita · paga só o que destacar</span></div>
     <div class="row gap8 mla">
       <button class="btn btn-quiet btn-icon" onclick="go('msgs')" style="position:relative">${svg('chat')}${unread()?`<span style="position:absolute;top:5px;right:5px;width:8px;height:8px;background:var(--accent);border-radius:50%;border:2px solid var(--paper)"></span>`:''}</button>
       <button class="btn btn-primary btn-sm" onclick="primaryAction()" title="${primaryLabel()}">${svg('plus')}<span class="lbl-m">${primaryLabel()}</span></button>
@@ -695,16 +762,18 @@ V['empresa:dash']=()=>{
 };
 V['empresa:vagas']=()=>{
   const rows=VAGAS.map(v=>`<tr>
-    <td><div class="fw6">${esc(v.role)}</div><div class="muted fs-xs">${esc(v.city)} · ${esc(v.type)}</div></td>
+    <td><div class="row gap6 wrap"><span class="fw6">${esc(v.role)}</span>${pillDestaque(v)}</div>
+        <div class="muted fs-xs">${esc(v.city)} · ${esc(v.type)}</div></td>
     <td class="fs-sm">${esc(v.salary)}</td>
     <td class="num">${v.apps}</td><td class="num">${v.views.toLocaleString('pt-PT')}</td>
     <td>${pill(v.status)}</td>
     <td><div class="t-actions">
       ${v.status==='draft'?`<button class="btn btn-sage btn-xs" onclick="pubVaga('${v.id}')">${svg('check')} Publicar</button>`
-      :`<button class="btn btn-quiet btn-icon" onclick="toast('Edição de vaga por implementar')">${svg('edit')}</button>
+      :`<button class="btn ${destaqueAtivo(v)?'btn-quiet':'btn-boost'} btn-xs" onclick="modalDestaque('vaga','${v.id}')">${svg('star')} ${destaqueAtivo(v)?'Prolongar':'Destacar'}</button>
+        <button class="btn btn-quiet btn-icon" onclick="toast('Edição de vaga por implementar')">${svg('edit')}</button>
         <button class="btn btn-quiet btn-icon" onclick="pauseVaga('${v.id}')" title="Despublicar">${svg('pause')}</button>`}
     </div></td></tr>`).join('');
-  return `${head('Vagas','As suas ofertas de emprego na Bússola',`<button class="btn btn-primary btn-sm" onclick="newVaga()">${svg('plus')} Nova vaga</button>`)}
+  return `${head('Vagas','Publicar é gratuito e sem limite. Só paga se quiser destacar.',`<button class="btn btn-primary btn-sm" onclick="newVaga()">${svg('plus')} Nova vaga</button>`)}
   ${tableWrap('Vagas',`${VAGAS.length} registos`,['Vaga','Salário','Candidaturas','Visualizações','Estado',''],rows)}`;
 };
 function pubVaga(id){const v=VAGAS.find(x=>x.id===id);v.status='live';v.posted='12 Ago';go('vagas');toast('Vaga publicada','ok2')}
@@ -782,15 +851,17 @@ V['anunciante:dash']=()=>{
 };
 V['anunciante:anuncios']=()=>{
   const rows=ANUNCIOS.map(x=>`<tr>
-    <td><div class="fw6">${esc(x.title)}</div><div class="muted fs-xs">${esc(x.type)} · ${esc(x.city)}</div></td>
+    <td><div class="row gap6 wrap"><span class="fw6">${esc(x.title)}</span>${pillDestaque(x)}</div>
+        <div class="muted fs-xs">${esc(x.type)} · ${esc(x.city)}</div></td>
     <td class="num fw6">${x.price}€</td>
     <td class="num">${x.views.toLocaleString('pt-PT')}</td><td class="num">${x.favs}</td><td class="num">${x.leads}</td>
     <td>${pill(x.status)}</td>
     <td><div class="t-actions">
+      ${x.status==='live'?`<button class="btn ${destaqueAtivo(x)?'btn-quiet':'btn-boost'} btn-xs" onclick="modalDestaque('anuncio','${x.id}')">${svg('star')} ${destaqueAtivo(x)?'Prolongar':'Destacar'}</button>`:''}
       <button class="btn btn-quiet btn-icon" onclick="toast('Edição de anúncio por implementar')">${svg('edit')}</button>
       ${x.status==='live'?`<button class="btn btn-quiet btn-icon" onclick="pauseAnuncio('${x.id}')" title="Despublicar">${svg('pause')}</button>`:''}
     </div></td></tr>`).join('');
-  return `${head('Anúncios','Os seus imóveis publicados na Bússola',`<button class="btn btn-primary btn-sm" onclick="newAnuncio()">${svg('plus')} Novo anúncio</button>`)}
+  return `${head('Anúncios','Publicar é gratuito e sem limite. Só paga se quiser destacar.',`<button class="btn btn-primary btn-sm" onclick="newAnuncio()">${svg('plus')} Novo anúncio</button>`)}
   ${tableWrap('Imóveis',`${ANUNCIOS.length} registos`,['Anúncio','Preço','Visualizações','Guardados','Interessados','Estado',''],rows)}`;
 };
 function pauseAnuncio(id){const x=ANUNCIOS.find(a=>a.id===id);x.status='draft';go('anuncios');toast('Anúncio despublicado')}
@@ -857,16 +928,18 @@ V['organizador:dash']=()=>{
 };
 V['organizador:eventos']=()=>{
   const rows=MEUS_EVENTOS.map(e=>`<tr>
-    <td><div class="fw6">${esc(e.title)}</div><div class="muted fs-xs">${esc(e.venue)}</div></td>
+    <td><div class="row gap6 wrap"><span class="fw6">${esc(e.title)}</span>${pillDestaque(e)}</div>
+        <div class="muted fs-xs">${esc(e.venue)}</div></td>
     <td class="fs-sm">${esc(e.date)}<div class="muted fs-xs">${esc(e.time)}</div></td>
     <td class="fs-sm">${esc(e.price)}</td>
     <td class="num">${e.going}/${e.cap}</td><td class="num">${e.views.toLocaleString('pt-PT')}</td>
     <td>${pill(e.status)}</td>
     <td><div class="t-actions">
       ${e.status==='draft'?`<button class="btn btn-sage btn-xs" onclick="pubEvento('${e.id}')">${svg('check')} Publicar</button>`
-      :`<button class="btn btn-quiet btn-icon" onclick="toast('Edição de evento por implementar')">${svg('edit')}</button>`}
+      :`<button class="btn ${destaqueAtivo(e)?'btn-quiet':'btn-boost'} btn-xs" onclick="modalDestaque('evento','${e.id}')">${svg('star')} ${destaqueAtivo(e)?'Prolongar':'Destacar'}</button>
+        <button class="btn btn-quiet btn-icon" onclick="toast('Edição de evento por implementar')">${svg('edit')}</button>`}
     </div></td></tr>`).join('');
-  return `${head('Eventos','Os eventos da sua organização',`<button class="btn btn-primary btn-sm" onclick="newEvento()">${svg('plus')} Novo evento</button>`)}
+  return `${head('Eventos','Publicar é gratuito e sem limite. Só paga se quiser destacar.',`<button class="btn btn-primary btn-sm" onclick="newEvento()">${svg('plus')} Novo evento</button>`)}
   ${tableWrap('Eventos',`${MEUS_EVENTOS.length} registos`,['Evento','Data','Preço','Participantes','Visualizações','Estado',''],rows)}`;
 };
 function pubEvento(id){const e=MEUS_EVENTOS.find(x=>x.id===id);e.status='live';go('eventos');toast('Evento submetido para aprovação','ok2')}
@@ -983,48 +1056,155 @@ V.perfil=()=>{
     </div>
   </div>`;
 };
+/* ============================================================
+   REGISTAR EMPRESA — gratuito, sem cartão
+   ============================================================ */
+function registarEmpresa(){
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="av av-lg" style="background:var(--accent-soft);color:var(--accent);border-radius:16px;width:52px;height:52px">${svg('building')}</div>
+    <h2 class="h2 mt12 mb4">Registar empresa</h2>
+    <p class="muted mb16">O registo é gratuito e não pede cartão. Publicar anúncios também não custa nada.</p>
+    <div class="field"><label>Nome da empresa</label><input class="input" id="reNome" placeholder="Ex: Edifer Obras"></div>
+    <div class="field"><label>Categoria</label>
+      <select class="select" id="reCat">${CATEGORIAS.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
+    <div class="row gap8">
+      <div class="field flex1"><label>Cidade</label><input class="input" id="reCidade" placeholder="Ex: Almada"></div>
+      <div class="field flex1"><label>NIF</label><input class="input" id="reNif" placeholder="Nove dígitos"></div>
+    </div>
+    <div class="field"><label>Email de contacto</label><input class="input" id="reEmail" type="email" placeholder="geral@empresa.pt"></div>
+    <div id="reErro"></div>
+    <div class="callout callout-sage mb16">${svg('shield')}<div>Sem mensalidade e sem compromisso. Só paga se um dia decidir destacar um anúncio.</div></div>
+    <button class="btn btn-primary btn-block btn-lg" onclick="submeterEmpresa()">Criar conta gratuita</button>
+  </div>`);
+  setTimeout(()=>{const n=el('reNome');if(n)n.focus()},240);
+}
+function submeterEmpresa(){
+  const nome=(el('reNome').value||'').trim(), email=(el('reEmail').value||'').trim();
+  const erro=(m)=>{el('reErro').innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(m)}</div></div>`};
+  if(!nome)return erro('Indique o nome da empresa.');
+  if(!email||!email.includes('@'))return erro('Indique um email de contacto válido.');
+  closeModal();
+  toast('Conta criada. Já pode publicar anúncios','ok2');
+}
+
+/* ============================================================
+   DESTACAR ANÚNCIO — único fluxo de pagamento
+   ============================================================ */
+let DEST_SEL='d15';
+function itemPorTipo(tipo,id){
+  return tipo==='vaga'?VAGAS.find(x=>x.id===id)
+    :tipo==='anuncio'?ANUNCIOS.find(x=>x.id===id)
+    :tipo==='evento'?MEUS_EVENTOS.find(x=>x.id===id):null;
+}
+const nomeItem=i=>i?(i.role||i.title||'Anúncio'):'';
+function modalDestaque(tipo,id){
+  const item=itemPorTipo(tipo,id); if(!item)return;
+  DEST_SEL='d15'; pintarDestaque(tipo,id);
+}
+function pintarDestaque(tipo,id){
+  const item=itemPorTipo(tipo,id); const at=destaqueAtivo(item);
+  const p=DESTAQUES.find(x=>x.id===DEST_SEL);
+  const fim=new Date((at?new Date(at.ate):HOJE()).getTime()+p.dias*86400000);
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="av av-lg" style="background:var(--accent-soft);color:var(--accent);border-radius:16px;width:52px;height:52px">${svg('star')}</div>
+    <h2 class="h2 mt12 mb4">${at?'Prolongar destaque':'Destacar anúncio'}</h2>
+    <p class="muted mb16">${esc(nomeItem(item))}</p>
+    ${at?`<div class="callout callout-warn mb16">${svg('info')}<div>Este anúncio já está destacado por mais <b>${at.faltam} ${at.faltam===1?'dia':'dias'}</b>. O período que escolher é somado ao que falta.</div></div>`:''}
+    <div class="eyebrow mb8">Escolha o período</div>
+    <div class="stack gap8 mb16">
+      ${DESTAQUES.map(d=>`<div class="pack ${DEST_SEL===d.id?'on':''}" onclick="DEST_SEL='${d.id}';pintarDestaque('${tipo}','${id}')">
+        ${d.popular?`<span class="pk-tag">Mais escolhido</span>`:''}
+        <div class="pk-top"><span class="pk-n">${d.nome}</span><span class="pk-p">${d.preco}€</span></div>
+        <div class="pk-d">${esc(d.desc)}</div>
+      </div>`).join('')}
+    </div>
+    <div class="card card-pad mb16" style="padding:14px 16px;background:var(--surface-2)">
+      <div class="row between fs-sm"><span class="muted">Período</span><span class="fw6">${p.dias} dias</span></div>
+      <div class="row between fs-sm mt4"><span class="muted">Termina a</span><span class="fw6">${fmtCurto(fim)}</span></div>
+      <hr class="divider" style="margin:10px 0">
+      <div class="row between"><span class="fw6">Total a pagar hoje</span><span class="num fw6" style="font-size:1.3rem;color:var(--accent)">${p.preco}€</span></div>
+    </div>
+    <div class="callout callout-sage mb16">${svg('shield')}<div><b>Pagamento único.</b> Não há mensalidade nem renovação automática: quando os ${p.dias} dias terminarem, o anúncio volta ao normal e continua publicado de graça.</div></div>
+    <div class="row gap8">
+      <button class="btn btn-ghost flex1" onclick="closeModal()">Cancelar</button>
+      <button class="btn btn-primary flex1" onclick="confirmarDestaque('${tipo}','${id}')">Pagar ${p.preco}€ e destacar</button>
+    </div>
+  </div>`);
+}
+function confirmarDestaque(tipo,id){
+  const item=itemPorTipo(tipo,id);
+  const p=aplicarDestaque(item,DEST_SEL);
+  closeModal();
+  if(!p)return toast('Não foi possível aplicar o destaque','err');
+  toast(`Destaque ativo durante ${p.dias} dias`,'ok2');
+  go(P.route);
+}
+
 V.faturacao=()=>{
   const r=R();
-  const rows=FATURAS.map(f=>`<tr><td class="fw6">${esc(f.id)}</td><td class="muted fs-sm">${esc(f.date)}</td>
-    <td class="fs-sm">${esc(f.desc)}</td><td class="num fw6">${esc(f.amount)}</td>
-    <td><span class="pill pill-ok"><i class="dot"></i>${esc(f.st)}</span></td>
-    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Fatura ${esc(f.id)} descarregada')">${svg('dl')}</button></div></td></tr>`).join('');
-  return `${head('Faturação','O seu plano e histórico de pagamentos')}
-  <div class="grid g2 mb24" style="align-items:start">
-    <div class="card card-pad" style="border-color:var(--accent-soft);background:var(--accent-tint)">
-      <div class="eyebrow mb4" style="color:${r.accent}">Plano atual</div>
-      <div class="h2 mb8">${esc(r.plan.split(' · ')[0])}</div>
-      <div class="num mb16" style="font-size:2rem;color:${r.accent}">${esc(r.plan.split(' · ')[1])}</div>
-      <div class="stack gap6 mb16">
-        ${{pro:['Perfil público no diretório','Pedidos de consulta ilimitados','Agenda e mensagens','Selo de verificação'],
-           empresa:['Vagas ilimitadas','Acesso a candidatos','Mensagens e estatísticas','Perfil de empresa'],
-           anunciante:['Até 20 anúncios ativos','Destaque na pesquisa','Contactos ilimitados','Estatísticas por anúncio'],
-           organizador:['Eventos ilimitados','Gestão de participantes','Página de organizador','Estatísticas de alcance']}[P.role]
-          .map(x=>`<div class="row gap8 fs-sm"><span style="color:${r.accent};width:16px">${svg('check')}</span>${x}</div>`).join('')}
-      </div>
-      <div class="row gap8"><button class="btn btn-ghost btn-sm flex1" onclick="toast('Gestão de subscrição por implementar')">Gerir subscrição</button>
-      <button class="btn btn-quiet btn-sm" onclick="cancelSub()">Cancelar</button></div>
-    </div>
-    <div class="card card-pad">
-      <div class="h3 mb4">Método de pagamento</div><p class="muted fs-sm mb16">Próxima cobrança a 10 de setembro de 2026.</p>
-      <div class="card card-pad row gap12" style="padding:14px;background:var(--surface-2)">
-        ${svg('card')}<div style="flex:1"><div class="fw6 fs-sm">Cartão terminado em 4821</div><div class="muted fs-xs">Validade 09/28</div></div>
-        <button class="btn btn-quiet btn-xs" onclick="toast('Alteração de cartão por implementar')">Alterar</button>
-      </div>
-      <div class="callout callout-info mt16">${svg('info')}<div>Os dados de pagamento são tratados por um fornecedor certificado. A Bússola não guarda o número do seu cartão.</div></div>
-    </div>
+  // itens da conta que podem ser destacados, conforme o papel
+  const itens=P.role==='empresa'?VAGAS.filter(v=>v.status==='live').map(v=>({t:'vaga',id:v.id,n:v.role,o:v}))
+    :P.role==='anunciante'?ANUNCIOS.filter(a=>a.status==='live').map(a=>({t:'anuncio',id:a.id,n:a.title,o:a}))
+    :P.role==='organizador'?MEUS_EVENTOS.filter(e=>e.status==='live').map(e=>({t:'evento',id:e.id,n:e.title,o:e}))
+    :[];
+  const ativos=itens.filter(i=>destaqueAtivo(i.o));
+  const gasto=COMPRAS.reduce((s,c)=>s+parseInt(c.valor,10),0);
+  const rows=COMPRAS.map(c=>`<tr><td class="fw6">${esc(c.id)}</td><td class="muted fs-sm">${esc(c.data)}</td>
+    <td class="fs-sm">${esc(c.item)}</td><td class="fs-sm">${esc(c.periodo)}</td><td class="num fw6">${esc(c.valor)}</td>
+    <td><span class="pill pill-ok"><i class="dot"></i>${esc(c.estado)}</span></td>
+    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Recibo ${esc(c.id)} descarregado')">${svg('dl')}</button></div></td></tr>`).join('');
+
+  return `${head('Destaques','A conta é gratuita. Só paga quando escolher destacar um anúncio.')}
+
+  <div class="grid g3 mb24">
+    ${statTile('Conta','Gratuita','shield','var(--sage)')}
+    ${statTile('Destaques ativos',ativos.length,'star','var(--gold)')}
+    ${statTile('Gasto total',gasto+'€','card',r.accent)}
   </div>
-  ${tableWrap('Faturas',`${FATURAS.length} documentos`,['Nº','Data','Descrição','Valor','Estado',''],rows)}`;
+
+  <div class="callout callout-sage mb24">${svg('info')}<div><b>Não há mensalidade.</b> Registar a empresa, publicar anúncios e receber contactos é gratuito e sem limite. O pagamento existe apenas quando decide destacar um anúncio, é único e não renova sozinho.</div></div>
+
+  <div class="section-head mb16"><div><div class="eyebrow mb4">Em curso</div><div class="h3">Destaques ativos</div></div></div>
+  ${ativos.length?`<div class="stack gap8 mb24">${ativos.map(i=>{const d=destaqueAtivo(i.o);
+    return `<div class="card card-pad row between wrap gap12" style="padding:14px 18px">
+      <div class="row gap12"><div class="av av-md" style="background:var(--gold-soft);color:var(--gold);border-radius:12px">${svg('star')}</div>
+      <div><div class="fw6">${esc(i.n)}</div><div class="muted fs-sm">Termina a ${fmtCurto(d.ate)} · pacote de ${d.dias} dias</div></div></div>
+      <div class="row gap8"><span class="pill pill-boost">${svg('star')}faltam ${d.faltam} ${d.faltam===1?'dia':'dias'}</span>
+      <button class="btn btn-ghost btn-sm" onclick="modalDestaque('${i.t}','${i.id}')">Prolongar</button></div>
+    </div>`}).join('')}</div>`
+  :`<div class="card card-pad mb24"><p class="muted fs-sm">Nenhum anúncio destacado neste momento. Os seus anúncios continuam publicados normalmente.</p>
+     ${itens.length?`<button class="btn btn-boost btn-sm mt12" onclick="modalDestaque('${itens[0].t}','${itens[0].id}')">${svg('star')} Destacar um anúncio</button>`:''}</div>`}
+
+  <div class="section-head mb16"><div><div class="eyebrow mb4">Preços</div><div class="h3">Períodos disponíveis</div></div></div>
+  <div class="grid g3 mb24">
+    ${DESTAQUES.map(d=>`<div class="card card-pad" style="position:relative">
+      ${d.popular?`<span class="pill pill-boost" style="position:absolute;top:14px;right:14px">Mais escolhido</span>`:''}
+      <div class="num" style="font-size:2rem;color:var(--accent)">${d.preco}€</div>
+      <div class="fw6 mt4">${d.nome}</div>
+      <div class="muted fs-sm mt4">${esc(d.desc)}</div>
+      <div class="muted fs-xs mt12">Pagamento único · sem renovação</div>
+    </div>`).join('')}
+  </div>
+
+  ${tableWrap('Compras de destaque',`${COMPRAS.length} ${COMPRAS.length===1?'registo':'registos'}`,['Nº','Data','Anúncio','Período','Valor','Estado',''],rows)}
+
+  <div class="card card-pad mt24">
+    <div class="h3 mb4">Método de pagamento</div><p class="muted fs-sm mb16">Usado apenas quando confirma um destaque. Não há cobranças automáticas.</p>
+    <div class="card card-pad row gap12" style="padding:14px;background:var(--surface-2)">
+      ${svg('card')}<div style="flex:1"><div class="fw6 fs-sm">Cartão terminado em 4821</div><div class="muted fs-xs">Validade 09/28</div></div>
+      <button class="btn btn-quiet btn-xs" onclick="toast('Alteração de cartão por implementar')">Alterar</button>
+    </div>
+    <div class="callout callout-info mt16">${svg('info')}<div>Os dados de pagamento são tratados por um fornecedor certificado. A Bússola não guarda o número do seu cartão.</div></div>
+  </div>`;
 };
-function cancelSub(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-  <h2 class="h2 mb8">Cancelar subscrição?</h2><p class="muted mb24">O seu perfil deixa de aparecer na pesquisa no fim do período já pago. Os seus dados são mantidos caso queira voltar.</p>
-  <div class="row gap8"><button class="btn btn-ghost flex1" onclick="closeModal()">Manter plano</button>
-  <button class="btn btn-danger flex1" onclick="closeModal();toast('Subscrição cancelada no fim do período','err')">Cancelar</button></div></div>`)}
+
 
 /* ============================================================
    ARRANQUE
    ============================================================ */
 applyTheme();applyAccent();renderShell();go(P.route||'dash');
+/* Entrada directa a partir da landing: /painel?registar=1 */
+if(/[?&]registar=1/.test(location.search))setTimeout(registarEmpresa,320);
 el('scrim').addEventListener('click',closeModal);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 </script>

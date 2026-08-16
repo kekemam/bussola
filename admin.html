@@ -309,7 +309,7 @@ const FEED=[
   {ic:'work',c:'var(--gold)',t:'<b>Edifer Obras</b> publicou uma vaga',s:'Servente · Almada',time:'há 22 min'},
   {ic:'shield',c:'var(--sage)',t:'<b>Dra. Helena Baptista</b> foi verificada',s:'Advogada · Lisboa',time:'há 1 h'},
   {ic:'flag',c:'var(--danger)',t:'Anúncio <b>"Quarto centro Lisboa 150€"</b> foi denunciado',s:'Possível burla',time:'há 2 h'},
-  {ic:'euro',c:'var(--sky)',t:'<b>Sado Habitat</b> subscreveu o plano Imobiliária',s:'49€/mês',time:'há 3 h'},
+  {ic:'euro',c:'var(--sky)',t:'<b>Sado Habitat</b> destacou o anúncio "Quarto individual — Bocage"',s:'15 dias · 15€',time:'há 3 h'},
   {ic:'law',c:'var(--sky)',t:'Novo pedido de consulta atribuído a <b>Dr. Manuel Adão</b>',s:'Reagrupamento familiar',time:'há 5 h'},
   {ic:'event',c:'var(--sage)',t:'<b>Associação Kianda</b> publicou um evento',s:'Noite de Kizomba · Lisboa',time:'há 6 h'},
 ];
@@ -380,11 +380,9 @@ let VERIF=[
 ];
 /* Pagamentos */
 const PLANS=[
-  {name:'Profissional',price:'29€/mês',subs:142,rev:'4.118€'},
-  {name:'Empresa',price:'39€/mês',subs:88,rev:'3.432€'},
-  {name:'Imobiliária',price:'49€/mês',subs:54,rev:'2.646€'},
-  {name:'Organizador',price:'19€/mês',subs:37,rev:'703€'},
-  {name:'Premium (utilizador)',price:'4,99€/mês',subs:316,rev:'1.577€'},
+  {name:'Destaque 7 dias',price:'9€',subs:214,rev:'1.926€'},
+  {name:'Destaque 15 dias',price:'15€',subs:186,rev:'2.790€'},
+  {name:'Destaque 30 dias',price:'25€',subs:97,rev:'2.425€'},
 ];
 const INVOICES=[
   {id:'FT 2026/1042',who:'Dra. Helena Baptista',plan:'Profissional',amount:'29€',status:'ok',date:'10 Ago'},
@@ -904,25 +902,25 @@ R.payments=()=>{
     <td>${i.status==='ok'?'<span class="pill pill-ok"><i class="dot"></i>Paga</span>':i.status==='pend'?'<span class="pill pill-pend"><i class="dot"></i>Pendente</span>':'<span class="pill pill-rej"><i class="dot"></i>Falhou</span>'}</td>
     <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Fatura ${esc(i.id)}')">${svg('file')}</button></div></td></tr>`).join('');
   const totalSubs=PLANS.reduce((a,p)=>a+p.subs,0);
-  return `${head('Pagamentos','Planos, subscrições e faturação',`<button class="btn btn-ghost btn-sm" onclick="toast('Exportação contabilística por implementar')">${svg('dl')} Exportar</button>`)}
+  return `${head('Pagamentos','Receita por destaque de anúncio · não há mensalidades',`<button class="btn btn-ghost btn-sm" onclick="toast('Exportação contabilística por implementar')">${svg('dl')} Exportar</button>`)}
   <div class="grid g4 mb16">
-    ${[['Receita mensal','12.480€','euro','var(--sage)'],['Subscrições ativas',totalSubs,'card','var(--clay)'],['Receita média/conta','19,80€','chart','var(--sky)'],['Churn (30d)','2,4%','down','var(--gold)']]
+    ${[['Receita do mês','7.141€','euro','var(--sage)'],['Destaques comprados',totalSubs,'star','var(--clay)'],['Valor médio por destaque','14,40€','chart','var(--sky)'],['Anúncios destacados agora','63','eye','var(--gold)']]
       .map(([l,v,ic,c])=>`<div class="stat"><div class="ic" style="background:color-mix(in srgb,${c} 14%,transparent);color:${c}">${svg(ic)}</div><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}
   </div>
   <div class="grid g2 mb16" style="align-items:start">
-    <div class="card card-pad"><div class="h3 mb16">Planos</div>
+    <div class="card card-pad"><div class="h3 mb16">Pacotes de destaque</div>
       ${PLANS.map(p=>`<div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
-        <div><div class="fw6 fs-sm">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.price)} · ${p.subs} subscrições</div></div>
+        <div><div class="fw6 fs-sm">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.price)} · ${p.subs} comprados</div></div>
         <div class="num fw6">${esc(p.rev)}</div></div>`).join('')}
-      <button class="btn btn-ghost btn-sm mt12" onclick="toast('Gestão de planos por implementar')">${svg('settings')} Gerir planos e preços</button>
+      <button class="btn btn-ghost btn-sm mt12" onclick="toast('Gestão de pacotes por implementar')">${svg('settings')} Gerir pacotes e preços</button>
     </div>
     <div class="card card-pad">
-      <div class="h3 mb4">Modelo de monetização</div><p class="muted fs-sm mb16">A experiência principal do utilizador é e mantém-se gratuita.</p>
-      ${[['Utilizadores','Gratuito — acesso a plano, documentação, pesquisa','var(--sage)'],
-         ['Profissionais','Plano mensal para receber pedidos de consulta','var(--clay)'],
-         ['Empresas','Publicação de vagas e acesso a candidatos','var(--sky)'],
-         ['Imobiliárias','Publicação e promoção de imóveis','var(--gold)'],
-         ['Organizadores','Promoção de eventos','var(--clay)']]
+      <div class="h3 mb4">Modelo de monetização</div><p class="muted fs-sm mb16">Só existe um ponto de cobrança: o destaque de anúncio, escolhido pela empresa.</p>
+      ${[['Utilizadores','Gratuito. Plano de chegada, documentação e pesquisa','var(--sage)'],
+         ['Registo de empresas','Gratuito, em qualquer categoria','var(--sage)'],
+         ['Publicar anúncios','Gratuito e sem limite de quantidade','var(--sage)'],
+         ['Destacar anúncio','Pagamento único, 9€ a 25€ conforme o período','var(--gold)'],
+         ['Renovação automática','Não existe. O destaque termina e o anúncio fica','var(--sky)']]
         .map(([t,d,c])=>`<div class="row gap8" style="padding:9px 0;border-bottom:1px solid var(--line-2)">
           <span style="width:8px;height:8px;border-radius:50%;background:${c};flex:none"></span>
           <div><div class="fw6 fs-sm">${t}</div><div class="muted fs-xs">${d}</div></div></div>`).join('')}
