@@ -428,7 +428,11 @@ let A={route:'dash',theme:'light'};
 const SB_URL='https://wtbskvimckdsypmuyxen.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0YnNrdmltY2tkc3lwbXV5eGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY5MjYsImV4cCI6MjEwMjE0MjkyNn0.5ds-vniFcG5W9DUVaYDBbca48Z1EkT0Otqj1X742dtg';
 let sb=null, SB_ON=false, SB_USER=null, EH_ADMIN=false;
-let DB={empresas:[],anuncios:[],destaques:[],pacotes:[],receita:[],perguntas:[]};
+let DB={empresas:[],anuncios:[],destaques:[],pacotes:[],receita:[],perguntas:[],perfis:[],fila:[]};
+/* Anúncios por tipo, com o nome da empresa já resolvido. */
+const porTipo=(k)=>DB.anuncios.filter(a=>a.kind===k).map(a=>Object.assign({},a,{
+  empresa:(DB.empresas.find(e=>e.id===a.company_id)||{}).name||'—'}));
+const dataCurta=d=>d?new Date(d).toLocaleDateString('pt-PT'):'—';
 const aoVivo=()=>!!(SB_ON&&EH_ADMIN);
 
 async function sbInit(){
@@ -455,16 +459,19 @@ async function verificarAdmin(){
 }
 async function carregarTudo(){
   try{
-    const [emp,anun,dest,pac,rec,perg]=await Promise.all([
+    const [emp,anun,dest,pac,rec,perg,perf,fila]=await Promise.all([
       sb.from('v_empresas_resumo').select('*'),
       sb.from('listings').select('*').order('created_at',{ascending:false}).limit(200),
       sb.from('boosts').select('*').order('created_at',{ascending:false}).limit(200),
       sb.from('v_pacotes_vendidos').select('*'),
       sb.from('v_receita_destaques').select('*'),
       sb.from('ai_queries').select('question,answered,intent,city,created_at').order('created_at',{ascending:false}).limit(100),
+      sb.from('profiles').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('v_fila_moderacao').select('*'),
     ]);
     DB.empresas=emp.data||[]; DB.anuncios=anun.data||[]; DB.destaques=dest.data||[];
     DB.pacotes=pac.data||[]; DB.receita=rec.data||[]; DB.perguntas=perg.data||[];
+    DB.perfis=perf.data||[]; DB.fila=fila.data||[];
   }catch(e){console.warn('carregar dados falhou:',e&&e.message)}
 }
 const eur=c=>((c||0)/100).toLocaleString('pt-PT',{minimumFractionDigits:0})+'€';
@@ -664,7 +671,10 @@ R.dash=()=>{
    ============================================================ */
 let uFilter='';
 R.users=()=>{
-  const list=USERS.filter(u=>!uFilter||u.status===uFilter);
+  const fonte=aoVivo()?DB.perfis.map(u=>({id:u.id,name:u.name||'(sem nome)',email:'—',
+      country:(u.country_id||'').toUpperCase()||'—',city:u.city||'—',role:'Utilizador',status:'ok',
+      joined:dataCurta(u.created_at),plan:'Gratuito'})):USERS;
+  const list=fonte.filter(u=>!uFilter||u.status===uFilter);
   const rows=list.map(u=>`<tr>
     <td><div class="row gap8"><div class="av av-sm">${initials(u.name)}</div>
       <div style="min-width:0"><div class="fw6">${esc(u.name)}</div><div class="muted fs-xs">${esc(u.email)}</div></div></div></td>
@@ -679,6 +689,7 @@ R.users=()=>{
   </tr>`).join('');
   return `${head('Utilizadores','8.412 contas registadas · 642 novas nos últimos 7 dias',`
     <button class="btn btn-ghost btn-sm" onclick="toast('CSV exportado')">${svg('dl')} Exportar CSV</button>`)}
+  ${avisoFonte()}
   <div class="row gap6 wrap mb16">
     ${[['','Todos'],['ok','Ativos'],['susp','Suspensos']].map(([v,l])=>`<span class="chip ${uFilter===v?'on':''}" onclick="uFilter='${v}';go('users')">${l}</span>`).join('')}
   </div>
@@ -705,7 +716,10 @@ function suspendUser(id){const u=USERS.find(x=>x.id===id);u.status=u.status==='s
    PROFISSIONAIS
    ============================================================ */
 R.pros=()=>{
-  const rows=PROS.map(p=>`<tr>
+  const PROS_F=aoVivo()?DB.empresas.filter(c=>c.category==='Advogados').map(c=>({
+      id:c.id,name:c.name,prof:'Advogados',city:c.city||'—',cred:'—',rating:'—',cases:'—',
+      plan:'Gratuito',status:c.verification==='verified'?'ok':c.verification==='rejected'?'rej':'pend'})):PROS;
+  const rows=PROS_F.map(p=>`<tr>
     <td><div class="row gap8"><div class="av av-sm">${initials(p.name)}</div>
       <div><div class="fw6">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.prof)} · ${esc(p.city)}</div></div></div></td>
     <td class="fs-sm">${esc(p.docs)}</td>
@@ -719,7 +733,8 @@ R.pros=()=>{
     </div></td>
   </tr>`).join('');
   return `${head('Profissionais','Advogados e solicitadores na plataforma · verificação de credenciais',`
-    <button class="btn btn-ghost btn-sm" onclick="go('verif')">${svg('shield')} Fila de verificações</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="go('verif')">${svg('shield')}
+  ${avisoFonte()} Fila de verificações</button>`)}
   ${tableWrap('Profissionais registados',`${PROS.length} registos · ${PROS.filter(p=>p.status==='ok').length} verificados`,
     [{l:'Profissional'},{l:'Credenciais'},{l:'Avaliação'},{l:'Casos'},{l:'Plano'},{l:'Estado'},{l:''}],rows)}
   <div class="callout callout-warn mt16">${svg('warn')}<div>Só profissionais <b>verificados</b> aparecem no diretório público. Confirma sempre a cédula profissional junto da ordem respetiva antes de aprovar.</div></div>`;
@@ -770,7 +785,9 @@ async function setCompany(id,st){
    EMPREGOS
    ============================================================ */
 R.jobs=()=>{
-  const rows=JOBSA.map(j=>`<tr>
+  const fonte=aoVivo()?porTipo('job').map(j=>({role:j.title,company:j.empresa,city:j.city||'—',
+      apps:0,posted:dataCurta(j.published_at||j.created_at),status:j.status==='published'?'live':'pend'})):JOBSA;
+  const rows=fonte.map(j=>`<tr>
     <td><div class="fw6">${esc(j.role)}</div><div class="muted fs-xs">${esc(j.company)} · ${esc(j.city)}</div></td>
     <td class="num">${j.apps}</td>
     <td class="muted fs-sm">${esc(j.posted)}</td>
@@ -783,6 +800,7 @@ R.jobs=()=>{
     </div></td>
   </tr>`).join('');
   return `${head('Empregos','Vagas publicadas e candidaturas recebidas')}
+  ${avisoFonte()}
   <div class="grid g4 mb16">
     ${[['Vagas ativas',JOBSA.filter(j=>j.status==='live').length,'work','var(--sage)'],
        ['Por aprovar',JOBSA.filter(j=>j.status==='pend').length,'clock','var(--gold)'],
@@ -798,7 +816,9 @@ function setJob(id,st){const j=JOBSA.find(x=>x.id===id);j.status=st;logAction(st
    HABITAÇÃO
    ============================================================ */
 R.homes=()=>{
-  const rows=HOMESA.map(h=>`<tr>
+  const fonte=aoVivo()?porTipo('home').map(h=>({title:h.title,city:h.city||'—',host:h.empresa,
+      price:Math.round((h.price_cents||0)/100),flags:0,status:h.status==='published'?'live':'pend'})):HOMESA;
+  const rows=fonte.map(h=>`<tr>
     <td><div class="fw6">${esc(h.title)}</div><div class="muted fs-xs">${esc(h.city)} · ${esc(h.host)}</div></td>
     <td class="num fw6">${h.price}€</td>
     <td>${h.flags?`<span class="pill pill-rej"><i class="dot"></i>${h.flags} denúncias</span>`:'<span class="muted fs-sm">—</span>'}</td>
@@ -811,6 +831,7 @@ R.homes=()=>{
     </div></td>
   </tr>`).join('');
   return `${head('Habitação','Anúncios de arrendamento e alojamento')}
+  ${avisoFonte()}
   <div class="callout callout-warn mb16">${svg('shield')}<div>Anúncios com <b>preço muito abaixo do mercado</b> ou sem anunciante identificado devem ser analisados antes de publicar — é o principal vetor de burla nesta categoria.</div></div>
   ${tableWrap('Anúncios',`${HOMESA.length} registos · ${HOMESA.filter(h=>h.flags).length} com denúncias`,
     [{l:'Anúncio'},{l:'Preço'},{l:'Denúncias'},{l:'Estado'},{l:''}],rows)}`;
@@ -821,7 +842,10 @@ function setHome(id,st){const h=HOMESA.find(x=>x.id===id);h.status=st;logAction(
    EVENTOS
    ============================================================ */
 R.events=()=>{
-  const rows=EVENTSA.map(e=>`<tr>
+  const fonte=aoVivo()?porTipo('event').map(e=>({title:e.title,org:e.empresa,city:e.city||'—',
+      date:dataCurta((e.details||{}).date||e.published_at||e.created_at),going:0,
+      status:e.status==='published'?'live':'pend'})):EVENTSA;
+  const rows=fonte.map(e=>`<tr>
     <td><div class="fw6">${esc(e.title)}</div><div class="muted fs-xs">${esc(e.org)} · ${esc(e.city)}</div></td>
     <td class="muted fs-sm">${esc(e.date)}</td>
     <td class="num">${e.going||'—'}</td>
@@ -831,6 +855,7 @@ R.events=()=>{
       :`<button class="btn btn-quiet btn-icon" onclick="toast('Evento: ${esc(e.title)}')">${svg('eye')}</button>`}</div></td>
   </tr>`).join('');
   return `${head('Eventos','Eventos submetidos por organizadores e associações')}
+  ${avisoFonte()}
   ${tableWrap('Eventos',`${EVENTSA.length} registos`,[{l:'Evento'},{l:'Data'},{l:'Participantes'},{l:'Estado'},{l:''}],rows)}`;
 };
 function setEvent(id,st){const e=EVENTSA.find(x=>x.id===id);e.status=st;logAction(st==='live'?'Aprovou evento':'Rejeitou evento',e.title);go('events');toast(st==='live'?'Evento publicado':'Evento rejeitado',st==='live'?'ok2':'err')}
@@ -840,13 +865,18 @@ function setEvent(id,st){const e=EVENTSA.find(x=>x.id===id);e.status=st;logActio
    ============================================================ */
 let qFilter='';
 R.reports=()=>{
-  const list=QUEUE.filter(q=>!qFilter||q.type===qFilter);
-  const types=[...new Set(QUEUE.map(q=>q.type))];
-  return `${head('Denúncias e moderação',`${QUEUE.length} itens à espera de decisão · ordenados por urgência`,`
+  const TIPO={listing:'Anúncio',company:'Empresa',message:'Mensagem',post:'Publicação',user:'Utilizador'};
+  const fila=aoVivo()?DB.fila.map(f=>({id:f.id,type:TIPO[f.target_kind]||f.target_kind,
+      title:f.target_label||f.target_id,who:'—',reports:Number(f.denuncias_no_alvo)||1,
+      reason:f.reason,detail:f.details||'',time:dataCurta(f.created_at)})):QUEUE;
+  const list=fila.filter(q=>!qFilter||q.type===qFilter);
+  const types=[...new Set(fila.map(q=>q.type))];
+  return `${head('Denúncias e moderação',`${fila.length} ${fila.length===1?'item':'itens'} à espera de decisão · ordenados por urgência`,`
     <button class="btn btn-ghost btn-sm" onclick="showLog()">${svg('history')} Histórico de ações</button>`)}
+  ${avisoFonte()}
   <div class="row gap6 wrap mb16">
-    <span class="chip ${!qFilter?'on':''}" onclick="qFilter='';go('reports')">Tudo (${QUEUE.length})</span>
-    ${types.map(t=>`<span class="chip ${qFilter===t?'on':''}" onclick="qFilter='${t}';go('reports')">${esc(t)} (${QUEUE.filter(q=>q.type===t).length})</span>`).join('')}
+    <span class="chip ${!qFilter?'on':''}" onclick="qFilter='';go('reports')">Tudo (${fila.length})</span>
+    ${types.map(t=>`<span class="chip ${qFilter===t?'on':''}" onclick="qFilter='${t}';go('reports')">${esc(t)} (${fila.filter(q=>q.type===t).length})</span>`).join('')}
   </div>
   ${list.length?`<div class="grid g2" id="qGrid">${list.map(qCard).join('')}</div>`
    :`<div class="card card-pad tc" style="padding:56px 20px">
@@ -906,6 +936,7 @@ R.verif=()=>{
   </tr>`).join('');
   const counts=['pend','anal','ok','rej'].map(s=>VERIF.filter(v=>v.status===s).length);
   return `${head('Verificações','Confirmação de credenciais e documentos das entidades')}
+  ${avisoFonte()}
   <div class="grid g4 mb16">
     ${[['Pendentes',counts[0],'clock','var(--gold)'],['Em análise',counts[1],'eye','var(--sky)'],['Verificados',counts[2],'shield','var(--sage)'],['Rejeitados',counts[3],'ban','var(--danger)']]
       .map(([l,v,ic,c])=>`<div class="stat"><div class="ic" style="background:color-mix(in srgb,${c} 14%,transparent);color:${c}">${svg(ic)}</div><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}
