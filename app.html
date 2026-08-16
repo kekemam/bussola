@@ -1175,17 +1175,17 @@ ROUTES.home=()=>{
   const next=PLAN.find(p=>!S.planDone[p.id])||PLAN[0];
   // cada cartão mostra o que lá está, em vez de um "Ver" decorativo
   const naCidade=(l)=>l.filter(x=>x.city===S.city).length;
-  const vagasLocais=naCidade(JOBS), nVagas=vagasLocais||JOBS.length;
+  const vagasLocais=naCidade(vagas()), nVagas=vagasLocais||vagas().length;
   const helpCards=[
     {icon:'doc',label:'Documentação',r:'docs',c:'var(--clay)',meta:plural(DOCS.length,'processo','processos')},
     {icon:'work',label:'Trabalho',r:'jobs',c:'var(--sage)',meta:plural(nVagas,'vaga','vagas')+(vagasLocais?' em '+S.city:'')},
-    {icon:'home2',label:'Casa',r:'homes',c:'var(--gold)',meta:`desde ${Math.min(...HOMES.map(h=>h.price))}€/mês`},
+    {icon:'home2',label:'Casa',r:'homes',c:'var(--gold)',meta:`desde ${Math.min(...casas().map(h=>h.price))}€/mês`},
     {icon:'law',label:'Apoio jurídico',r:'pros',c:'var(--sky)',meta:plural(PROS.length,'verificado','verificados')},
   ];
-  const nearJobs=JOBS.filter(j=>j.city===S.city).slice(0,3);
-  const nearJobsShow=(nearJobs.length?nearJobs:JOBS.slice(0,3));
-  const weekEvents=EVENTS.slice(0,3);
-  const forYou=JOBS.filter(j=>!j.exp).slice(0,2);
+  const nearJobs=vagas().filter(j=>j.city===S.city).slice(0,3);
+  const nearJobsShow=(nearJobs.length?nearJobs:vagas().slice(0,3));
+  const weekEvents=eventosL().slice(0,3);
+  const forYou=vagas().filter(j=>!j.exp).slice(0,2);
   return `
   <div class="mb24">
     <h1 class="display" style="max-width:14ch">${greet()}, ${esc(firstName())}.</h1>
@@ -1319,7 +1319,7 @@ function jobCard(j){
       <button class="btn btn-icon btn-quiet" onclick="event.stopPropagation();toggleSaveJob('${j.id}')" style="color:${saved?'var(--clay)':'var(--ink-3)'}">${svg(saved?'bookmark':'bookmark')}</button>
     </div>
     <h3 class="h3 mt12">${esc(j.role)}</h3>
-    <div class="muted fs-sm">${esc(j.company)}</div>
+    <div class="row gap6 wrap"><span class="muted fs-sm">${esc(j.company)}</span>${j.destaque?badgeDestaque():''}</div>
     <div class="row wrap gap6 mt12">
       <span class="badge badge-line">${svg('pin')} ${esc(j.city)}</span>
       <span class="badge badge-line">${esc(j.type)}</span>
@@ -1449,7 +1449,7 @@ ROUTES.jobs=()=>{
   <div id="jobList"></div>
   `;
 };
-function filterJobs(){return JOBS.filter(j=>{
+function filterJobs(){return vagas().filter(j=>{
   const q=(jobF.q||'').toLowerCase(),q2=(jobF.q2||'').toLowerCase();
   if(q&&!(j.role.toLowerCase().includes(q)||j.company.toLowerCase().includes(q)||j.sector.toLowerCase().includes(q)))return false;
   if(q2&&!(j.city.toLowerCase().includes(q2)||j.area.toLowerCase().includes(q2)))return false;
@@ -1465,7 +1465,7 @@ function renderJobList(){
 }
 function toggleSaveJob(id){const i=S.savedJobs.indexOf(id);if(i>=0){S.savedJobs.splice(i,1);toast('Removido dos guardados')}else{S.savedJobs.push(id);toast('Vaga guardada')}save();if(S.route==='jobs')renderJobList();else if(S.route==='applications')go('applications')}
 function openJob(id){
-  const j=JOBS.find(x=>x.id===id);if(!j)return;
+  const j=vagas().find(x=>x.id===id);if(!j)return;
   const saved=S.savedJobs.includes(id),applied=S.appliedJobs[id];
   openModal(`<div class="modal-pad">
     <button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
@@ -1497,8 +1497,8 @@ function applyJob(id){
 
 /* Candidaturas */
 ROUTES.applications=()=>{
-  const applied=Object.keys(S.appliedJobs).map(id=>({j:JOBS.find(x=>x.id===id),st:S.appliedJobs[id]})).filter(x=>x.j);
-  const saved=S.savedJobs.map(id=>JOBS.find(x=>x.id===id)).filter(Boolean);
+  const applied=Object.keys(S.appliedJobs).map(id=>({j:vagas().find(x=>x.id===id),st:S.appliedJobs[id]})).filter(x=>x.j);
+  const saved=S.savedJobs.map(id=>vagas().find(x=>x.id===id)).filter(Boolean);
   return `<button class="btn btn-quiet btn-sm mb16" onclick="go('jobs')">${svg('chevl')} Voltar a trabalho</button>
   ${pageHead('As tuas candidaturas','Acompanha o teu percurso.','')}
   <div class="section-head"><h2 class="h2">Candidaturas enviadas</h2></div>
@@ -1538,7 +1538,7 @@ ROUTES.homes=()=>{
   </div>
   <div id="homeList"></div>`;
 };
-function filterHomes(){return HOMES.filter(h=>{
+function filterHomes(){return casas().filter(h=>{
   const q=(homeF.q||'').toLowerCase();
   if(q&&!(h.city.toLowerCase().includes(q)||h.area.toLowerCase().includes(q)||h.title.toLowerCase().includes(q)))return false;
   if(homeF.type&&h.type!==homeF.type)return false;
@@ -1570,7 +1570,7 @@ function homeCard(h){
 }
 function toggleSaveHome(id){const i=S.savedHomes.indexOf(id);if(i>=0){S.savedHomes.splice(i,1);toast('Removida das guardadas')}else{S.savedHomes.push(id);toast('Casa guardada')}save();if(S.route==='homes')renderHomeList();else if(S.route==='savedHomes')go('savedHomes')}
 function openHome(id){
-  const h=HOMES.find(x=>x.id===id);if(!h)return;const saved=S.savedHomes.includes(id);
+  const h=casas().find(x=>x.id===id);if(!h)return;const saved=S.savedHomes.includes(id);
   openModal(`<div class="modal-pad">
     <button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()" style="background:var(--surface);z-index:2">${svg('x')}</button>
     <div class="photo" style="height:190px;border-radius:var(--r);margin-bottom:16px;background:linear-gradient(135deg,var(--surface-2),var(--line))"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-3);opacity:.5">${svg('home2')}</div>${h.verified?`<span class="verified" style="position:absolute;top:12px;left:12px;background:var(--surface);padding:4px 8px;border-radius:8px">${svg('shield')} Verificado</span>`:''}</div>
@@ -1592,7 +1592,7 @@ function openHome(id){
     </div>
   </div>`);
 }
-function contactHost(id){const h=HOMES.find(x=>x.id===id);openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+function contactHost(id){const h=casas().find(x=>x.id===id);openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb4">Contactar ${esc(h.host)}</h2><p class="muted mb16">Sobre "${esc(h.title)}"</p>
   <div class="field"><label>A tua mensagem</label><textarea class="input" id="hostMsg" placeholder="Olá, tenho interesse neste imóvel. Está disponível para visita?">Olá, tenho interesse neste imóvel. Ainda está disponível?</textarea></div>
   <div class="callout callout-warn mb16">${svg('shield')}<div>Nunca faças pagamentos antes de visitar o imóvel presencialmente.</div></div>
@@ -1609,7 +1609,7 @@ function scamGuide(){openModal(`<div class="modal-pad"><button class="btn btn-qu
     ${['Nunca pagues caução, sinal ou "reserva" antes de visitares a casa em pessoa.','Desconfia de preços muito abaixo do mercado — costuma ser o primeiro sinal de burla.','Não envies dinheiro por transferências para o estrangeiro ou apps informais.','Confirma a identidade do senhorio e pede sempre contrato escrito.','Prefere anúncios de anunciantes verificados na plataforma.','Se algo te parecer estranho, denuncia o anúncio — proteges-te a ti e aos outros.'].map((t,i)=>`<div class="row gap12"><div class="av av-sm" style="background:var(--sage-soft);color:var(--sage)">${i+1}</div><p class="fs-sm" style="flex:1">${esc(t)}</p></div>`).join('')}
   </div></div>`)}
 ROUTES.savedHomes=()=>{
-  const saved=S.savedHomes.map(id=>HOMES.find(x=>x.id===id)).filter(Boolean);
+  const saved=S.savedHomes.map(id=>casas().find(x=>x.id===id)).filter(Boolean);
   return `<button class="btn btn-quiet btn-sm mb16" onclick="go('homes')">${svg('chevl')} Voltar à habitação</button>
   ${pageHead('Casas guardadas','As tuas casas favoritas.','')}
   ${saved.length?`<div class="grid g3">${saved.map(homeCard).join('')}</div>`:emptyState('heart','Ainda sem casas guardadas','Toca no coração num anúncio para o guardares aqui.',`<button class="btn btn-primary" onclick="go('homes')">Procurar casa</button>`)}`;
@@ -1691,7 +1691,7 @@ function confirmConsult(id){if(!S.contactedPros.includes(id))S.contactedPros.pus
    ============================================================ */
 let evF='';
 ROUTES.events=()=>{
-  const list=EVENTS.filter(e=>!evF||e.cat===evF).sort((a,b)=>a.date<b.date?-1:1);
+  const list=eventosL().filter(e=>!evF||e.cat===evF).sort((a,b)=>a.date<b.date?-1:1);
   return `
   <div class="row between wrap gap16 mb8"><div><div class="eyebrow mb8">Eventos</div><h1 class="h1">O que está a acontecer perto de ti?</h1></div>
   <button class="btn btn-ghost" onclick="go('calendar')">${svg('event')} O meu calendário ${S.savedEvents.length?`<span class="badge badge-clay">${S.savedEvents.length}</span>`:''}</button></div>
@@ -1718,7 +1718,7 @@ function eventCard(e){
   </div>`;
 }
 function openEvent(id){
-  const e=EVENTS.find(x=>x.id===id);if(!e)return;const going=S.savedEvents.includes(id);
+  const e=eventosL().find(x=>x.id===id);if(!e)return;const going=S.savedEvents.includes(id);
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()" style="background:var(--surface);z-index:2">${svg('x')}</button>
     <div class="photo" style="height:170px;border-radius:var(--r);margin-bottom:16px;background:linear-gradient(135deg,${e.color},${e.color}bb)"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.9">${svg(catIcon(e.cat))}</div></div>
     <span class="badge badge-line mb8">${esc(e.cat)}</span>
@@ -1735,7 +1735,7 @@ function openEvent(id){
 }
 function toggleEvent(id){const i=S.savedEvents.indexOf(id);if(i>=0){S.savedEvents.splice(i,1);toast('Removido do calendário')}else{S.savedEvents.push(id);toast('Adicionado ao teu calendário')}save();closeModal();if(S.route==='events')go('events');else if(S.route==='calendar')go('calendar')}
 ROUTES.calendar=()=>{
-  const mine=S.savedEvents.map(id=>EVENTS.find(x=>x.id===id)).filter(Boolean).sort((a,b)=>a.date<b.date?-1:1);
+  const mine=S.savedEvents.map(id=>eventosL().find(x=>x.id===id)).filter(Boolean).sort((a,b)=>a.date<b.date?-1:1);
   return `<button class="btn btn-quiet btn-sm mb16" onclick="go('events')">${svg('chevl')} Voltar aos eventos</button>
   ${pageHead('O meu calendário','Os eventos em que vais participar.','')}
   ${mine.length?`<div class="stack gap12">${mine.map(e=>{const d=fmtDay(e.date);return `<div class="card card-pad row gap16 card-hover" onclick="openEvent('${e.id}')">
@@ -1830,11 +1830,11 @@ ROUTES.map=()=>{
   <p class="muted fs-xs mt12">${svg('info')} Posições aproximadas. Toca num marcador para ver detalhes.</p>`;
 };
 function mapItems(){
-  if(mapLayer==='homes')return HOMES.map(h=>({x:h.x,y:h.y,id:h.id,open:'openHome',label:h.price+'€'}));
-  if(mapLayer==='jobs')return JOBS.slice(0,6).map((j,i)=>({x:15+i*13,y:30+(i%3)*18,id:j.id,open:'openJob',label:''}));
+  if(mapLayer==='homes')return casas().map(h=>({x:h.x,y:h.y,id:h.id,open:'openHome',label:h.price+'€'}));
+  if(mapLayer==='jobs')return vagas().slice(0,6).map((j,i)=>({x:15+i*13,y:30+(i%3)*18,id:j.id,open:'openJob',label:''}));
   if(mapLayer==='pros')return PROS.map((p,i)=>({x:20+i*15,y:35+(i%2)*22,id:p.id,open:'openPro',label:''}));
   if(mapLayer==='services')return SERVICES.map((s,i)=>({x:18+i*13,y:28+(i%3)*20,id:s.id,open:'openService',label:''}));
-  return EVENTS.map((e,i)=>({x:16+i*13,y:32+(i%3)*18,id:e.id,open:'openEvent',label:''}));
+  return eventosL().map((e,i)=>({x:16+i*13,y:32+(i%3)*18,id:e.id,open:'openEvent',label:''}));
 }
 function mapPins(){const ic={homes:'home2',jobs:'work',pros:'law',services:'service',events:'event'}[mapLayer];
   return mapItems().map(m=>`<div class="mappin" style="left:${m.x}%;top:${m.y}%" onclick="${m.open}('${m.id}')"><div class="p">${svg(ic)}</div>${m.label?`<div style="position:absolute;top:-8px;left:50%;transform:translateX(-50%);background:var(--ink);color:var(--paper);font-size:.66rem;font-weight:700;padding:2px 6px;border-radius:6px;white-space:nowrap">${esc(m.label)}</div>`:''}</div>`).join('')}
@@ -2006,10 +2006,10 @@ function markAllRead(){S.notifs.forEach(n=>n.unread=false);save();renderShell();
 function searchIndex(){
   const idx=[];
   DOCS.forEach(d=>idx.push({cat:'Documentação',t:d.title,s:d.cat,ic:'doc',go:()=>openDoc(d.id)}));
-  JOBS.forEach(j=>idx.push({cat:'Trabalho',t:j.role,s:j.company+' · '+j.city,ic:'work',go:()=>openJob(j.id)}));
-  HOMES.forEach(h=>idx.push({cat:'Casa',t:h.title,s:h.price+'€ · '+h.city,ic:'home2',go:()=>openHome(h.id)}));
+  vagas().forEach(j=>idx.push({cat:'Trabalho',t:j.role,s:j.company+' · '+j.city,ic:'work',go:()=>openJob(j.id)}));
+  casas().forEach(h=>idx.push({cat:'Casa',t:h.title,s:h.price+'€ · '+h.city,ic:'home2',go:()=>openHome(h.id)}));
   PROS.forEach(p=>idx.push({cat:'Profissionais',t:p.name,s:p.prof+' · '+p.spec[0],ic:'law',go:()=>openPro(p.id)}));
-  EVENTS.forEach(e=>idx.push({cat:'Eventos',t:e.title,s:e.city+' · '+e.cat,ic:'event',go:()=>openEvent(e.id)}));
+  eventosL().forEach(e=>idx.push({cat:'Eventos',t:e.title,s:e.city+' · '+e.cat,ic:'event',go:()=>openEvent(e.id)}));
   SERVICES.forEach(s=>idx.push({cat:'Serviços',t:s.name,s:s.cat,ic:'service',go:()=>openService(s.id)}));
   NAV.forEach(n=>idx.push({cat:'Ir para',t:n.label,s:'',ic:n.icon,go:()=>go(n.r)}));
   idx.push({cat:'Ir para',t:'Assistente',s:'Perguntar em linguagem natural',ic:'spark',go:()=>aiOpen()});
@@ -2046,6 +2046,20 @@ function cmdkGo(i){const r=cmdkResults[i];if(!r)return;closeCmdk();setTimeout(()
    rede e com ou sem conta. A conta serve para o progresso
    sobreviver à mudança de telemóvel.
    ============================================================ */
+/* ------------------------------------------------------------
+   Anúncios reais publicados pelas empresas.
+   Enquanto não houver nenhum, a app mostra os exemplos — mas assim
+   que uma empresa publica, é isso que as pessoas veem. Sem isto o
+   circuito não fecha: a empresa paga um destaque que ninguém encontra.
+------------------------------------------------------------ */
+let LIVE={jobs:null,homes:null,events:null};
+/* O destaque tem de se ver, senão a empresa não sabe o que comprou.
+   Discreto: assinala, não grita. */
+const badgeDestaque=()=>`<span class="badge badge-gold">${svg('star')} Destacado</span>`;
+const vagas   = ()=>LIVE.jobs   || JOBS;
+const casas   = ()=>LIVE.homes  || HOMES;
+const eventosL= ()=>LIVE.events || EVENTS;
+
 const SB_URL='https://wtbskvimckdsypmuyxen.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0YnNrdmltY2tkc3lwbXV5eGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY5MjYsImV4cCI6MjEwMjE0MjkyNn0.5ds-vniFcG5W9DUVaYDBbca48Z1EkT0Otqj1X742dtg';
 let sb=null, SB_ON=false, SB_USER=null, syncTimer=null, SB_SYNCING=false;
@@ -2063,12 +2077,75 @@ async function sbInit(){
       renderShell();if(S.onboarded)go(S.route);
     });
     if(SB_USER){await syncPull();if(S.onboarded){renderShell();go(S.route)}}
+    carregarAnunciosPublicos();
   }catch(e){
     SB_ON=false; // esm.sh em baixo, sem rede, browser antigo — a app continua a funcionar
     console.warn('Bússola em modo local:',e&&e.message);
   }
 }
 const signedIn=()=>!!SB_USER;
+
+/* Carrega os anúncios publicados e o destaque em vigor de cada um.
+   Não exige sessão: o diretório é público. */
+async function carregarAnunciosPublicos(){
+  if(!SB_ON)return;
+  try{
+    /* boosted_until vem no próprio anúncio: chega para ordenar sem
+       expor quanto a empresa pagou nem o histórico de compras. */
+    const {data:l}=await sb.from('listings')
+      .select('id,kind,title,city,price_cents,details,published_at,company_id,boosted_until')
+      .eq('status','published')
+      .order('boosted_until',{ascending:false,nullsFirst:false})
+      .order('published_at',{ascending:false});
+    if(!l||!l.length)return;                    // sem anúncios reais, ficam os exemplos
+
+    const {data:emp}=await sb.from('companies').select('id,name,verification');
+    const nomeDe=id=>(emp||[]).find(e=>e.id===id)||{};
+    const destacado=x=>!!(x.boosted_until&&new Date(x.boosted_until)>new Date());
+
+    const ordena=(a,b)=>(b.destaque?1:0)-(a.destaque?1:0)
+      || new Date(b.published_at||0)-new Date(a.published_at||0);
+
+    const jobs=l.filter(x=>x.kind==='job').map(x=>{const d=x.details||{},c=nomeDe(x.company_id);return{
+      id:x.id, role:x.title, company:c.name||'Empresa', sector:d.setor||'Outros',
+      city:x.city||'—', area:d.area||x.city||'', salary:d.salario||'A combinar',
+      type:d.tipo||'Tempo inteiro', schedule:d.horario||'A combinar',
+      exp:!d.sem_experiencia, remote:d.regime||'Presencial',
+      posted:tempoDesde(x.published_at), desc:d.descricao||'',
+      req:d.requisitos||[], perks:d.beneficios||[],
+      destaque:destacado(x), verificada:c.verification==='verified'
+    }}).sort(ordena);
+
+    const homes=l.filter(x=>x.kind==='home').map(x=>{const d=x.details||{},c=nomeDe(x.company_id);return{
+      id:x.id, title:x.title, type:d.tipo||'Apartamento', city:x.city||'—', area:d.area||x.city||'',
+      price:Math.round((x.price_cents||0)/100), bills:d.despesas||'Não incluídas',
+      deposit:d.caucao||'A combinar', rooms:d.quartos||'—', avail:d.disponibilidade||'A combinar',
+      posted:tempoDesde(x.published_at), feat:d.caracteristicas||[], rules:d.regras||'',
+      host:c.name||'Anunciante', hostType:'Agência', verified:c.verification==='verified',
+      x:30+Math.random()*40, y:25+Math.random()*45, desc:d.descricao||'',
+      destaque:destacado(x)
+    }}).sort(ordena);
+
+    const evs=l.filter(x=>x.kind==='event').map(x=>{const d=x.details||{},c=nomeDe(x.company_id);return{
+      id:x.id, title:x.title, cat:d.categoria||'Comunidade',
+      date:(d.data||x.published_at||'').slice(0,10), time:d.hora||'—',
+      city:x.city||'—', venue:d.local||'A anunciar',
+      price:x.price_cents?((x.price_cents/100)+'€'):'Gratuito',
+      org:c.name||'Organizador', color:'#C25A3A', desc:d.descricao||'',
+      destaque:destacado(x)
+    }}).sort(ordena);
+
+    if(jobs.length)LIVE.jobs=jobs;
+    if(homes.length)LIVE.homes=homes;
+    if(evs.length)LIVE.events=evs;
+    if(S.onboarded&&(jobs.length||homes.length||evs.length))go(S.route);
+  }catch(e){console.warn('anúncios reais indisponíveis:',e&&e.message)}
+}
+function tempoDesde(iso){
+  if(!iso)return 'recente';
+  const d=Math.floor((Date.now()-new Date(iso))/86400000);
+  return d<=0?'hoje':d===1?'há 1 dia':'há '+d+' dias';
+}
 
 /* ---------- Sincronização ---------- */
 function syncSoon(){ if(!signedIn())return; clearTimeout(syncTimer); syncTimer=setTimeout(syncPush,1200) }
@@ -2323,8 +2400,8 @@ function aiDocAnswer(id,lead){
 }
 function aiJobsAnswer(q){
   const city=aiCityOf(q)||S.city;
-  let list=JOBS.filter(j=>j.city===city);
-  const alargou=!list.length; if(alargou)list=JOBS.slice();
+  let list=vagas().filter(j=>j.city===city);
+  const alargou=!list.length; if(alargou)list=vagas().slice();
   const semExp=list.filter(j=>!j.exp);
   const top=(semExp.length?semExp:list).slice(0,3);
   return {
@@ -2339,10 +2416,10 @@ function aiJobsAnswer(q){
 }
 function aiHomesAnswer(q){
   const city=aiCityOf(q)||S.city, max=aiPriceOf(q);
-  let list=HOMES.filter(h=>(!city||h.city===city)&&(!max||h.price<=max));
+  let list=casas().filter(h=>(!city||h.city===city)&&(!max||h.price<=max));
   let nota='';
-  if(!list.length&&max){list=HOMES.filter(h=>h.price<=max);nota=`Não encontrei nada em ${esc(city)} até ${max}€, mas há opções noutras zonas.`}
-  if(!list.length){list=HOMES.slice().sort((a,b)=>a.price-b.price);nota='Não encontrei nada dentro desses critérios — aqui ficam as opções mais baratas disponíveis.'}
+  if(!list.length&&max){list=casas().filter(h=>h.price<=max);nota=`Não encontrei nada em ${esc(city)} até ${max}€, mas há opções noutras zonas.`}
+  if(!list.length){list=casas().slice().sort((a,b)=>a.price-b.price);nota='Não encontrei nada dentro desses critérios — aqui ficam as opções mais baratas disponíveis.'}
   return {
     text:`<p>${nota||`Encontrei <b>${list.length} ${list.length===1?'opção':'opções'}</b>${city?' em '+esc(city):''}${max?' até '+max+'€':''}.`}</p>`,
     cards:list.slice(0,3).map(h=>({ic:'home2',t:h.title,s:`${h.price}€/mês · ${h.area}, ${h.city}${h.verified?' · Verificado':''}`,h:aiHandler(()=>{aiClose();openHome(h.id)})})),
@@ -2498,7 +2575,7 @@ function aiAnswer(raw){
   /* 10. Eventos e comunidade */
   if(aiHas(q,['evento','eventos','festa','musica','kizomba','acontece','fazer no fim de semana']))
     return {text:`<p>Nos próximos dias:</p>`,
-      cards:EVENTS.slice(0,3).map(e=>({ic:'event',t:e.title,s:`${fmtDate(e.date)} · ${e.city} · ${e.price}`,h:aiHandler(()=>{aiClose();openEvent(e.id)})})),
+      cards:eventosL().slice(0,3).map(e=>({ic:'event',t:e.title,s:`${fmtDate(e.date)} · ${e.city} · ${e.price}`,h:aiHandler(()=>{aiClose();openEvent(e.id)})})),
       acts:[{l:'Ver todos os eventos',h:aiHandler(()=>{aiClose();evF='';go('events')})}],src:'Agenda da Bússola'};
   if(aiHas(q,['comunidade','conhecer pessoas','grupo','grupos','sozinho','sozinha','amigos','conterraneos']))
     return {text:`<p>Grupos mais activos na tua zona:</p>`,
@@ -2537,11 +2614,11 @@ function aiBuildContext(q){
     pergunta:q,
     utilizador:{cidade:S.city,pais:countryName(),situacoes:S.situations,plano:`${planDoneCount()}/${PLAN.length}`},
     documentacao:DOCS.map(d=>({id:d.id,titulo:d.title,cat:d.cat,resumo:d.summary,precisa:d.need,passos:d.steps,onde:d.where,custo:d.cost,prazos:d.deadline,alerta:d.alert,faq:d.faq})),
-    trabalho:JOBS.map(j=>({id:j.id,cargo:j.role,empresa:j.company,cidade:j.city,salario:j.salary,semExperiencia:!j.exp})),
-    habitacao:HOMES.map(h=>({id:h.id,titulo:h.title,cidade:h.city,preco:h.price,tipo:h.type,verificado:h.verified})),
+    trabalho:vagas().map(j=>({id:j.id,cargo:j.role,empresa:j.company,cidade:j.city,salario:j.salary,semExperiencia:!j.exp})),
+    habitacao:casas().map(h=>({id:h.id,titulo:h.title,cidade:h.city,preco:h.price,tipo:h.type,verificado:h.verified})),
     profissionais:PROS.map(p=>({id:p.id,nome:p.name,prof:p.prof,cidade:p.city,especialidades:p.spec,idiomas:p.langs,preco:p.price})),
     servicos:SERVICES.map(s=>({id:s.id,nome:s.name,cat:s.cat,cidade:s.city,desc:s.desc})),
-    eventos:EVENTS.map(e=>({id:e.id,titulo:e.title,cat:e.cat,data:e.date,hora:e.time,cidade:e.city,local:e.venue,preco:e.price}))
+    eventos:eventosL().map(e=>({id:e.id,titulo:e.title,cat:e.cat,data:e.date,hora:e.time,cidade:e.city,local:e.venue,preco:e.price}))
     /* as regras vivem no system prompt da Edge Function, fora do alcance do cliente */
   };
 }
