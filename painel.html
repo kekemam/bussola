@@ -578,8 +578,15 @@ function renderShell(){
     </div>`;
   el('topbar').innerHTML=`
     <button class="btn btn-ghost btn-icon menu-btn" onclick="el('sidebar').classList.toggle('open')">${svg('menu')}</button>
-    <div class="row gap8 hide-m"><span class="pill pill-ok"><i class="dot"></i>Perfil verificado</span>
-      <span class="muted fs-sm">Conta gratuita · paga só o que destacar</span></div>
+    <div class="row gap8 hide-m">
+      ${EMPRESA
+        ? `<span class="pill ${EMPRESA.verification==='verified'?'pill-ok':'pill-pend'}"><i class="dot"></i>${EMPRESA.verification==='verified'?'Verificada':'Verificação pendente'}</span>
+           <span class="muted fs-sm">${esc(EMPRESA.name)} · conta gratuita</span>`
+        : `<span class="pill pill-off"><i class="dot"></i>Dados de demonstração</span>
+           <span class="muted fs-sm">Conta gratuita · paga só o que destacar</span>`}
+    </div>
+    ${!comSessao()?`<button class="btn btn-ghost btn-sm hide-m mla" onclick="contaModal('entrar')">Entrar</button>`
+      :`<button class="btn btn-quiet btn-icon hide-m mla" onclick="sairPainel()" title="Terminar sessão">${svg('logout')}</button>`}
     <div class="row gap8 mla">
       <button class="btn btn-quiet btn-icon" onclick="go('msgs')" style="position:relative">${svg('chat')}${unread()?`<span style="position:absolute;top:5px;right:5px;width:8px;height:8px;background:var(--accent);border-radius:50%;border:2px solid var(--paper)"></span>`:''}</button>
       <button class="btn btn-primary btn-sm" onclick="primaryAction()" title="${primaryLabel()}">${svg('plus')}<span class="lbl-m">${primaryLabel()}</span></button>
@@ -1057,6 +1064,128 @@ V.perfil=()=>{
   </div>`;
 };
 /* ============================================================
+   LIGAÇÃO AO BACKEND
+   ------------------------------------------------------------
+   Offline-first, como na app: sem sessão o painel funciona com os
+   dados de demonstração; com sessão passa a ler e escrever no
+   Supabase. A compra de destaque nunca é local — vai sempre à
+   Edge Function, porque é lá que o pagamento é confirmado.
+   ============================================================ */
+const SB_URL='https://wtbskvimckdsypmuyxen.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0YnNrdmltY2tkc3lwbXV5eGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY5MjYsImV4cCI6MjEwMjE0MjkyNn0.5ds-vniFcG5W9DUVaYDBbca48Z1EkT0Otqj1X742dtg';
+let sb=null, SB_ON=false, SB_USER=null, EMPRESA=null;
+
+async function sbInit(){
+  try{
+    const m=await import('https://esm.sh/@supabase/supabase-js@2');
+    sb=m.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'bussola_painel_auth'}});
+    const {data}=await sb.auth.getSession();
+    SB_USER=data?.session?.user||null; SB_ON=true;
+    sb.auth.onAuthStateChange(async(ev,s)=>{SB_USER=s?.user||null;if(ev==='SIGNED_IN')await carregarEmpresa();renderShell();go(P.route)});
+    if(SB_USER){await carregarEmpresa();renderShell();go(P.route)}
+    await carregarPacotes();
+  }catch(e){SB_ON=false;console.warn('Painel em modo local:',e&&e.message)}
+}
+const comSessao=()=>!!SB_USER;
+const ligado=()=>!!(SB_ON&&SB_USER&&EMPRESA);
+
+/* Preços vêm sempre da base de dados quando disponível: o cliente
+   nunca decide quanto custa. */
+async function carregarPacotes(){
+  if(!SB_ON)return;
+  try{
+    const {data}=await sb.from('boost_packages').select('*').eq('active',true).order('sort');
+    if(data&&data.length){
+      DESTAQUES.length=0;
+      data.forEach(p=>DESTAQUES.push({id:p.id,dias:p.days,preco:p.price_cents/100,nome:p.name,desc:p.description||'',popular:p.id==='d15'}));
+    }
+  }catch(e){/* fica com os valores locais */}
+}
+
+/* Empresa do utilizador com sessão, e os seus anúncios. */
+async function carregarEmpresa(){
+  if(!comSessao())return;
+  try{
+    const {data:mem}=await sb.from('company_members').select('company_id').eq('user_id',SB_USER.id).limit(1);
+    if(!mem||!mem.length){EMPRESA=null;return}
+    const {data:co}=await sb.from('companies').select('*').eq('id',mem[0].company_id).maybeSingle();
+    EMPRESA=co||null;
+    if(EMPRESA)await carregarAnuncios();
+  }catch(e){console.warn('carregar empresa falhou:',e&&e.message)}
+}
+
+/* Traz os anúncios reais e o destaque em vigor de cada um. */
+async function carregarAnuncios(){
+  if(!EMPRESA)return;
+  try{
+    const {data:l}=await sb.from('listings').select('*').eq('company_id',EMPRESA.id).order('created_at',{ascending:false});
+    if(!l)return;
+    const comDestaque=await Promise.all(l.map(async x=>{
+      const {data:d}=await sb.rpc('destaque_ativo',{p_listing:x.id});
+      const dd=d&&d[0];
+      return Object.assign({},x,{destaque:dd?{ate:dd.ends_at,dias:0,pacote:dd.package_id}:null});
+    }));
+    ANUNCIOS_DB=comDestaque;
+  }catch(e){console.warn('carregar anúncios falhou:',e&&e.message)}
+}
+let ANUNCIOS_DB=[];
+
+/* Compra real: passa pela Edge Function, que confirma o pagamento
+   antes de gravar. Nunca escreve o destaque a partir do cliente. */
+async function comprarDestaqueRemoto(listingId,packageId){
+  const {data}=await sb.auth.getSession();
+  const token=data?.session?.access_token;
+  if(!token)throw new Error('sem_sessao');
+  const r=await fetch(SB_URL+'/functions/v1/comprar-destaque',{
+    method:'POST',
+    headers:{'Content-Type':'application/json','Authorization':'Bearer '+token,'apikey':SB_ANON},
+    body:JSON.stringify({listing_id:listingId,package_id:packageId})
+  });
+  const j=await r.json().catch(()=>({}));
+  if(!r.ok)throw Object.assign(new Error(j.erro||'falhou'),{detalhe:j.mensagem,estado:r.status});
+  return j;
+}
+
+/* ---------- Conta do painel ---------- */
+function contaModal(modo){
+  modo=modo||'entrar';
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="av av-lg" style="background:var(--accent-soft);color:var(--accent);border-radius:16px;width:52px;height:52px">${svg('shield')}</div>
+    <h2 class="h2 mt12 mb4">${modo==='criar'?'Criar conta de empresa':'Entrar'}</h2>
+    <p class="muted mb16">${modo==='criar'?'Gratuito e sem cartão. A seguir registas a empresa.':'Acede ao painel da tua empresa.'}</p>
+    <div class="field"><label>Email</label><input class="input" id="acEmail" type="email" placeholder="geral@empresa.pt" autocomplete="email"></div>
+    <div class="field"><label>Palavra-passe</label><input class="input" id="acPass" type="password" placeholder="Pelo menos 8 caracteres" autocomplete="${modo==='criar'?'new-password':'current-password'}"></div>
+    <div id="acErro"></div>
+    <button class="btn btn-primary btn-block btn-lg mt8" id="acBtn" onclick="contaSubmit('${modo}')">${modo==='criar'?'Criar conta':'Entrar'}</button>
+    <p class="tc fs-sm muted mt16">${modo==='criar'
+      ? 'Já tens conta? <a onclick="contaModal(&#39;entrar&#39;)" class="accent fw6" style="cursor:pointer">Entrar</a>'
+      : 'Ainda não tens conta? <a onclick="contaModal(&#39;criar&#39;)" class="accent fw6" style="cursor:pointer">Criar conta</a>'}</p>
+  </div>`);
+  setTimeout(()=>{const e=el('acEmail');if(e)e.focus()},240);
+}
+function acErro(m){const d=el('acErro');if(d)d.innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(m)}</div></div>`}
+async function contaSubmit(modo){
+  if(!SB_ON)return acErro('Sem ligação ao servidor.');
+  const email=(el('acEmail').value||'').trim(), pass=el('acPass').value||'';
+  if(!email||!email.includes('@'))return acErro('Escreve um email válido.');
+  if(pass.length<8)return acErro('A palavra-passe precisa de pelo menos 8 caracteres.');
+  const b=el('acBtn');b.disabled=true;b.textContent='A processar…';
+  try{
+    const r=modo==='criar'?await sb.auth.signUp({email,password:pass}):await sb.auth.signInWithPassword({email,password:pass});
+    if(r.error)throw r.error;
+    if(modo==='criar'&&!r.data.session){closeModal();return toast('Confirma o email para ativares a conta')}
+    closeModal();toast(modo==='criar'?'Conta criada':'Sessão iniciada','ok2');
+  }catch(e){
+    const m=String(e&&e.message||'');
+    acErro(/Invalid login/i.test(m)?'Email ou palavra-passe incorretos.'
+      :/already registered/i.test(m)?'Este email já tem conta.'
+      :'Não foi possível concluir.');
+    b.disabled=false;b.textContent=modo==='criar'?'Criar conta':'Entrar';
+  }
+}
+async function sairPainel(){try{await sb.auth.signOut()}catch(e){}EMPRESA=null;ANUNCIOS_DB=[];toast('Sessão terminada');renderShell();go('dash')}
+
+/* ============================================================
    REGISTAR EMPRESA — gratuito, sem cartão
    ============================================================ */
 function registarEmpresa(){
@@ -1078,13 +1207,31 @@ function registarEmpresa(){
   </div>`);
   setTimeout(()=>{const n=el('reNome');if(n)n.focus()},240);
 }
-function submeterEmpresa(){
+async function submeterEmpresa(){
   const nome=(el('reNome').value||'').trim(), email=(el('reEmail').value||'').trim();
   const erro=(m)=>{el('reErro').innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(m)}</div></div>`};
   if(!nome)return erro('Indique o nome da empresa.');
   if(!email||!email.includes('@'))return erro('Indique um email de contacto válido.');
+
+  // Sem sessão não há onde guardar: pede a conta primeiro.
+  if(SB_ON&&!comSessao()){closeModal();toast('Cria primeiro a tua conta');return contaModal('criar')}
+
+  if(ligado()||comSessao()){
+    try{
+      const {data:co,error}=await sb.from('companies').insert({
+        name:nome, category:el('reCat').value, city:(el('reCidade').value||'').trim()||null,
+        nif:(el('reNif').value||'').trim()||null, email
+      }).select().single();
+      if(error)throw error;
+      const {error:e2}=await sb.from('company_members').insert({company_id:co.id,user_id:SB_USER.id,role:'owner'});
+      if(e2)throw e2;
+      EMPRESA=co; await carregarAnuncios();
+      closeModal(); renderShell(); go(P.route);
+      return toast('Empresa registada. Já pode publicar anúncios','ok2');
+    }catch(e){return erro('Não foi possível registar: '+(e.message||'erro'))}
+  }
   closeModal();
-  toast('Conta criada. Já pode publicar anúncios','ok2');
+  toast('Empresa registada localmente (sem sessão)');
 }
 
 /* ============================================================
@@ -1131,8 +1278,30 @@ function pintarDestaque(tipo,id){
     </div>
   </div>`);
 }
-function confirmarDestaque(tipo,id){
+async function confirmarDestaque(tipo,id){
   const item=itemPorTipo(tipo,id);
+  const btn=document.querySelector('#modalBody .btn-primary');
+  if(btn){btn.disabled=true;btn.textContent='A processar…'}
+
+  // Com sessão e anúncio real, a compra passa sempre pelo servidor.
+  if(ligado()&&String(id).includes('-')){
+    try{
+      const r=await comprarDestaqueRemoto(id,DEST_SEL);
+      await carregarAnuncios();
+      closeModal();
+      toast(`Destaque ativo durante ${r.pacote.dias} dias`,'ok2');
+      return go(P.route);
+    }catch(e){
+      closeModal();
+      const msg={pagamento_nao_configurado:'Falta configurar o método de pagamento.',
+                 pagamento_por_implementar:'A integração de pagamento ainda não está feita.',
+                 sem_permissao_neste_anuncio:'Este anúncio não é da sua empresa.',
+                 sem_sessao:'Sessão expirada. Entre novamente.'}[e.message]||('Não foi possível concluir: '+e.message);
+      return toast(msg,'err');
+    }
+  }
+
+  // Sem sessão: dados de demonstração, apenas no ecrã.
   const p=aplicarDestaque(item,DEST_SEL);
   closeModal();
   if(!p)return toast('Não foi possível aplicar o destaque','err');
@@ -1203,6 +1372,7 @@ V.faturacao=()=>{
    ARRANQUE
    ============================================================ */
 applyTheme();applyAccent();renderShell();go(P.route||'dash');
+sbInit();   // assíncrono: o painel já está utilizável
 /* Entrada directa a partir da landing: /painel?registar=1 */
 if(/[?&]registar=1/.test(location.search))setTimeout(registarEmpresa,320);
 el('scrim').addEventListener('click',closeModal);
