@@ -155,6 +155,15 @@ a{color:inherit;text-decoration:none}
 .verified{display:inline-flex;align-items:center;gap:.3em;color:var(--sage);font-weight:600;font-size:.78rem}
 .verified svg{width:1em;height:1em}
 
+/* Marca de país. Substitui bandeiras emoji, que não renderizam no Windows
+   e variam de forma entre sistemas — isto é idêntico em todo o lado. */
+.cc{display:inline-flex;align-items:center;justify-content:center;flex:none;
+  font-family:var(--serif);font-size:.66rem;font-weight:600;letter-spacing:.07em;
+  min-width:2.05em;height:1.55em;padding:0 .38em;border:1px solid var(--line);
+  border-radius:4px;color:var(--ink-2);background:var(--surface);line-height:1}
+.cc-lg{font-size:.78rem;min-width:2.3em;height:1.75em}
+.av .cc{border:0;background:none;font-size:.72rem;color:inherit}
+
 /* ---- Cards ---- */
 .card{background:var(--surface);border:1px solid var(--line);border-radius:var(--r-lg);transition:border-color .2s,box-shadow .2s,transform .2s var(--ease)}
 .card-pad{padding:22px}
@@ -394,8 +403,6 @@ kbd{font-family:var(--sans);font-size:.72rem;background:var(--surface-2);border:
 .ai-fab:hover{transform:scale(1.06)}
 .ai-fab:active{transform:scale(.95)}
 .ai-fab svg{width:24px;height:24px}
-.ai-fab .pulse{position:absolute;inset:0;border-radius:var(--r-full);border:2px solid var(--clay);opacity:0;animation:aiPulse 3.4s ease-out infinite}
-@keyframes aiPulse{0%{opacity:.55;transform:scale(1)}70%{opacity:0;transform:scale(1.42)}100%{opacity:0}}
 
 .ai-panel{
   position:fixed;right:22px;bottom:22px;z-index:130;width:min(430px,calc(100vw - 44px));height:min(660px,calc(100vh - 44px));
@@ -603,10 +610,12 @@ function svg(name,cls){return `<svg class="i ${cls||''}" viewBox="0 0 24 24" fil
 
 /* ---------- Dados de referência ---------- */
 const COUNTRIES=[
-  {id:'ao',name:'Angola',flag:'🇦🇴'},{id:'cv',name:'Cabo Verde',flag:'🇨🇻'},
-  {id:'gw',name:'Guiné-Bissau',flag:'🇬🇼'},{id:'mz',name:'Moçambique',flag:'🇲🇿'},
-  {id:'st',name:'São Tomé e Príncipe',flag:'🇸🇹'},{id:'other',name:'Outro país',flag:'🌍'},
+  {id:'ao',name:'Angola',code:'AO'},{id:'cv',name:'Cabo Verde',code:'CV'},
+  {id:'gw',name:'Guiné-Bissau',code:'GW'},{id:'mz',name:'Moçambique',code:'MZ'},
+  {id:'st',name:'São Tomé e Príncipe',code:'ST'},{id:'other',name:'Outro país',code:'—'},
 ];
+const cc=(code,cls)=>`<span class="cc ${cls||''}">${esc(code||'—')}</span>`;
+const plural=(n,um,muitos)=>`${n} ${n===1?um:muitos}`;
 const CITIES=['Lisboa','Setúbal','Almada','Sintra','Amadora','Cascais','Odivelas','Loures','Porto','Braga','Coimbra','Faro','Aveiro','Barreiro','Seixal'];
 const SITUATIONS=[
   {id:'arrived',label:'Acabei de chegar',icon:'flag'},
@@ -637,7 +646,7 @@ const DOCS=[
 
   {id:'nif',cat:'NIF',icon:'card',title:'Número de Identificação Fiscal (NIF)',
    who:'Qualquer pessoa que vá trabalhar, arrendar casa, abrir conta bancária ou fazer contratos em Portugal.',
-   summary:'O NIF é o teu número de contribuinte. É um dos primeiros documentos a tratar — quase tudo o resto depende dele.',
+   summary:'O NIF é o teu número de contribuinte. É dos primeiros documentos a tratar, porque quase tudo o resto depende dele.',
    need:['Documento de identificação (passaporte)','Comprovativo de morada','Representante fiscal, se aplicável ao teu caso'],
    steps:['Dirige-te a uma Repartição de Finanças ou Loja de Cidadão','Apresenta o passaporte','Indica a tua morada','Recebes o NIF na hora, gratuitamente'],
    where:'Serviço de Finanças (Autoridade Tributária) e Lojas de Cidadão.',
@@ -650,7 +659,7 @@ const DOCS=[
 
   {id:'niss',cat:'Segurança Social',icon:'people',title:'NISS — Número de Segurança Social',
    who:'Quem vai trabalhar em Portugal (por conta de outrem ou própria).',
-   summary:'O NISS liga-te ao sistema de Segurança Social — necessário para trabalhar com contrato e aceder a apoios.',
+   summary:'O NISS liga-te ao sistema de Segurança Social. É necessário para trabalhar com contrato e aceder a apoios.',
    need:['Documento de identificação','NIF','Título ou comprovativo de residência'],
    steps:['Pede o NISS através da Segurança Social Direta ou presencialmente','Preenche o formulário de inscrição','Aguarda a atribuição do número'],
    where:'Serviços da Segurança Social e Segurança Social Direta (online).',
@@ -853,24 +862,24 @@ const EVENT_CATS=['Música','Cultura','Comunidade','Networking','Negócios','Des
 
 /* ---------- SEED: Comunidade ---------- */
 const GROUPS=[
-  {id:'g1',name:'Cabo-verdianos em Lisboa',members:2840,city:'Lisboa',flag:'🇨🇻',color:'#37618E'},
-  {id:'g2',name:'Angolanos em Setúbal',members:1210,city:'Setúbal',flag:'🇦🇴',color:'#C25A3A'},
-  {id:'g3',name:'Moçambicanos no Porto',members:760,city:'Porto',flag:'🇲🇿',color:'#3E6B5A'},
-  {id:'g4',name:'Primeiros meses em Portugal',members:5320,city:'Nacional',flag:'🧭',color:'#B4842B'},
-  {id:'g5',name:'Empreendedores PALOP',members:1890,city:'Nacional',flag:'💼',color:'#A8432A'},
-  {id:'g6',name:'Guineenses em Portugal',members:940,city:'Nacional',flag:'🇬🇼',color:'#3E6B5A'},
+  {id:'g1',name:'Cabo-verdianos em Lisboa',members:2840,city:'Lisboa',flag:'CV',color:'#37618E'},
+  {id:'g2',name:'Angolanos em Setúbal',members:1210,city:'Setúbal',flag:'AO',color:'#C25A3A'},
+  {id:'g3',name:'Moçambicanos no Porto',members:760,city:'Porto',flag:'MZ',color:'#3E6B5A'},
+  {id:'g4',name:'Primeiros meses em Portugal',members:5320,city:'Nacional',flag:'PT',color:'#B4842B'},
+  {id:'g5',name:'Empreendedores PALOP',members:1890,city:'Nacional',flag:'PALOP',color:'#A8432A'},
+  {id:'g6',name:'Guineenses em Portugal',members:940,city:'Nacional',flag:'GW',color:'#3E6B5A'},
 ];
 const POSTS=[
-  {id:'q1',group:'Primeiros meses em Portugal',author:'Domingas T.',country:'🇦🇴',time:'há 3 h',type:'Pergunta',
+  {id:'q1',group:'Primeiros meses em Portugal',author:'Domingas T.',country:'AO',time:'há 3 h',type:'Pergunta',
    text:'Cheguei a Lisboa há uma semana. Devo tratar primeiro do NIF ou do título de residência? Estou um pouco perdida.',
    replies:14,reacts:23,tag:'Documentação'},
-  {id:'q2',group:'Cabo-verdianos em Lisboa',author:'Jandira M.',country:'🇨🇻',time:'há 6 h',type:'Recomendação',
+  {id:'q2',group:'Cabo-verdianos em Lisboa',author:'Jandira M.',country:'CV',time:'há 6 h',type:'Recomendação',
    text:'Deixo aqui a dica: no centro de saúde dos Anjos fizeram-me a inscrição de utente sem complicações. Levem NIF e comprovativo de morada.',
    replies:9,reacts:41,tag:'Saúde'},
-  {id:'q3',group:'Empreendedores PALOP',author:'Nelson B.',country:'🇬🇼',time:'há 1 dia',type:'Oportunidade',
+  {id:'q3',group:'Empreendedores PALOP',author:'Nelson B.',country:'GW',time:'há 1 dia',type:'Oportunidade',
    text:'Vou abrir um espaço de comida guineense no Barreiro e procuro alguém para a cozinha. Alguém interessado ou que conheça?',
    replies:21,reacts:35,tag:'Trabalho'},
-  {id:'q4',group:'Angolanos em Setúbal',author:'Preciosa L.',country:'🇦🇴',time:'há 2 dias',type:'Pergunta',
+  {id:'q4',group:'Angolanos em Setúbal',author:'Preciosa L.',country:'AO',time:'há 2 dias',type:'Pergunta',
    text:'Alguém sabe de quartos bons e a preço justo na zona de Setúbal? Cuidado que já vi alguns anúncios estranhos.',
    replies:17,reacts:12,tag:'Habitação'},
 ];
@@ -920,7 +929,7 @@ function load(){try{const r=localStorage.getItem(LS);if(r)S=Object.assign(S,JSON
 /* ---------- Plano de chegada ---------- */
 const PLAN=[
   {id:'ps1',n:'01',title:'Organizar a documentação',desc:'NIF, NISS, número de utente e o teu título de residência.',icon:'doc',route:'docs'},
-  {id:'ps2',n:'02',title:'Encontrar alojamento',desc:'Um lugar seguro para viver enquanto te organizas.',icon:'home2',route:'homes'},
+  {id:'ps2',n:'02',title:'Encontrar alojamento',desc:'Um sítio seguro para viver enquanto te organizas.',icon:'home2',route:'homes'},
   {id:'ps3',n:'03',title:'Procurar emprego',desc:'Oportunidades adequadas à tua experiência e zona.',icon:'work',route:'jobs'},
   {id:'ps4',n:'04',title:'Conhecer os serviços essenciais',desc:'Banco, saúde, telecomunicações e apoio social perto de ti.',icon:'service',route:'services'},
   {id:'ps5',n:'05',title:'Construir a tua rede',desc:'Comunidade, grupos e pessoas que já passaram por aqui.',icon:'people',route:'community'},
@@ -937,7 +946,7 @@ const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).joi
 const greet=()=>{const h=new Date().getHours();return h<13?'Bom dia':h<20?'Boa tarde':'Boa noite'};
 const firstName=()=>S.name?S.name.split(' ')[0]:'';
 const countryName=()=>{const c=COUNTRIES.find(c=>c.id===S.country);return c?c.name:''};
-const countryFlag=()=>{const c=COUNTRIES.find(c=>c.id===S.country);return c?c.flag:'🌍'};
+const countryCode=()=>{const c=COUNTRIES.find(c=>c.id===S.country);return c?c.code:'—'};
 const stars=r=>{let s='';for(let i=1;i<=5;i++)s+=`<span style="color:${i<=Math.round(r)?'var(--gold)':'var(--line)'}">${svg('star')}</span>`;return `<span class="row" style="gap:1px">${s}</span>`};
 function fmtDate(iso){const d=new Date(iso+'T00:00:00');const dias=['dom','seg','ter','qua','qui','sex','sáb'],mes=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return `${dias[d.getDay()]}, ${d.getDate()} ${mes[d.getMonth()]}`}
 function fmtDay(iso){const d=new Date(iso+'T00:00:00');return {d:d.getDate(),m:['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][d.getMonth()]}}
@@ -1001,7 +1010,7 @@ function drawOb(){
       <h1 class="h1">De onde vens?</h1>
       <p class="lead mt8 mb24">Vamos adaptar a informação ao teu país de origem.</p>
       ${COUNTRIES.map(c=>`<div class="opt ${obTemp.country===c.id?'on':''}" onclick="obTemp.country='${c.id}';drawOb()">
-        <span class="flag">${c.flag}</span><span class="fw5">${esc(c.name)}</span>
+        ${cc(c.code,"cc-lg")}<span class="fw5">${esc(c.name)}</span>
         <span class="tick">${svg('check')}</span></div>`).join('')}
     </div>`;
   } else if(obStep===3){
@@ -1061,7 +1070,7 @@ function obNext(){
 function obBack(){if(obStep>0){obStep--;drawOb()}}
 function obFinish(){
   S.name=obTemp.name.trim();S.country=obTemp.country;S.city=obTemp.city;S.situations=obTemp.situations;S.onboarded=true;
-  save();el('ob').classList.remove('live');startApp();toast('Bem-vindo, '+firstName()+' 👋');
+  save();el('ob').classList.remove('live');startApp();toast('Plano criado');
 }
 function brandMark(size){return `<svg width="${size}" height="${size}" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--clay)" stroke-width="2.4"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--clay)"/><circle cx="20" cy="20" r="2" fill="var(--paper)"/></svg>`}
 
@@ -1090,7 +1099,7 @@ const BOTTOM=[
 function unread(){return S.notifs.filter(n=>n.unread).length}
 function startApp(){
   el('app').classList.add('live');renderShell();go(S.route||'home');
-  el('aiFab').innerHTML=`<span class="pulse"></span>${svg('spark')}`;
+  el('aiFab').innerHTML=svg('spark');
   el('aiFab').classList.remove('hide');
 }
 function renderShell(){
@@ -1106,7 +1115,7 @@ function renderShell(){
       <div class="nav-item" onclick="toggleTheme()">${svg(S.theme==='dark'?'sun':'moon')}<span>${S.theme==='dark'?'Tema claro':'Tema escuro'}</span></div>
       <div class="nav-user" onclick="go('profile')">
         <div class="av av-sm">${initials(S.name)}</div>
-        <div style="line-height:1.2;min-width:0"><div class="fw6 fs-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.name)}</div><div class="muted fs-xs">${countryFlag()} ${esc(S.city)}</div></div>
+        <div style="line-height:1.2;min-width:0"><div class="fw6 fs-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(S.name)}</div><div class="muted fs-xs">${esc(S.city)}</div></div>
       </div>
     </div>`;
   // topbar
@@ -1164,11 +1173,14 @@ function skelCards(n){let s='<div class="grid g3">';for(let i=0;i<(n||6);i++)s+=
 ROUTES.home=()=>{
   const done=planDoneCount(),total=PLAN.length;
   const next=PLAN.find(p=>!S.planDone[p.id])||PLAN[0];
+  // cada cartão mostra o que lá está, em vez de um "Ver" decorativo
+  const naCidade=(l)=>l.filter(x=>x.city===S.city).length;
+  const vagasLocais=naCidade(JOBS), nVagas=vagasLocais||JOBS.length;
   const helpCards=[
-    {icon:'doc',label:'Documentação',r:'docs',c:'var(--clay)'},
-    {icon:'work',label:'Trabalho',r:'jobs',c:'var(--sage)'},
-    {icon:'home2',label:'Casa',r:'homes',c:'var(--gold)'},
-    {icon:'law',label:'Apoio jurídico',r:'pros',c:'var(--sky)'},
+    {icon:'doc',label:'Documentação',r:'docs',c:'var(--clay)',meta:plural(DOCS.length,'processo','processos')},
+    {icon:'work',label:'Trabalho',r:'jobs',c:'var(--sage)',meta:plural(nVagas,'vaga','vagas')+(vagasLocais?' em '+S.city:'')},
+    {icon:'home2',label:'Casa',r:'homes',c:'var(--gold)',meta:`desde ${Math.min(...HOMES.map(h=>h.price))}€/mês`},
+    {icon:'law',label:'Apoio jurídico',r:'pros',c:'var(--sky)',meta:plural(PROS.length,'verificado','verificados')},
   ];
   const nearJobs=JOBS.filter(j=>j.city===S.city).slice(0,3);
   const nearJobsShow=(nearJobs.length?nearJobs:JOBS.slice(0,3));
@@ -1176,8 +1188,7 @@ ROUTES.home=()=>{
   const forYou=JOBS.filter(j=>!j.exp).slice(0,2);
   return `
   <div class="mb24">
-    <div class="eyebrow mb8">${greet()}, ${esc(firstName())} ${countryFlag()}</div>
-    <h1 class="display" style="max-width:16ch">Vamos tratar do que é importante.</h1>
+    <h1 class="display" style="max-width:14ch">${greet()}, ${esc(firstName())}.</h1>
   </div>
 
   <!-- Plano card -->
@@ -1185,7 +1196,7 @@ ROUTES.home=()=>{
     <div class="row between wrap gap16">
       <div style="min-width:220px;flex:1">
         <div class="badge badge-clay mb12">${svg('compass')} O teu plano de chegada</div>
-        <h2 class="h2 mb4">${done} de ${total} passos concluídos</h2>
+        <h2 class="h2 mb4">Passo ${Math.min(done+1,total)} de ${total}</h2>
         <p class="muted mb16">Próximo: <b class="clay">${esc(next.title)}</b></p>
         <div class="pbar" style="max-width:340px"><i style="width:${Math.round(done/total*100)}%"></i></div>
       </div>
@@ -1199,20 +1210,20 @@ ROUTES.home=()=>{
   <div class="card card-pad card-hover mt16" onclick="aiOpen()" style="display:flex;align-items:center;gap:16px">
     <div class="av av-md" style="background:var(--ink);color:var(--paper);border-radius:14px">${svg('spark')}</div>
     <div style="flex:1;min-width:0">
-      <div class="fw6">Não sabes por onde começar? Pergunta-me.</div>
-      <div class="muted fs-sm">"Cheguei ontem, o que trato primeiro?" · "Um quarto até 500€" · "Quero falar com um advogado"</div>
+      <div class="fw6">Perguntar ao assistente</div>
+      <div class="muted fs-sm">Responde a partir do conteúdo verificado da plataforma. Encaminha para um profissional quando o caso o exige.</div>
     </div>
     ${svg('chevr','')}
   </div>
 
   <!-- Ajuda -->
   <div class="section">
-    <div class="section-head"><h2 class="h2">Precisas de ajuda com alguma coisa?</h2></div>
+    <div class="section-head"><div><div class="eyebrow mb4">Áreas</div><h2 class="h2">O que precisas de resolver</h2></div></div>
     <div class="grid g4">
       ${helpCards.map(h=>`<div class="card card-pad card-hover" onclick="go('${h.r}')">
         <div class="av av-md" style="background:color-mix(in srgb,${h.c} 14%,transparent);color:${h.c};border-radius:14px">${svg(h.icon)}</div>
         <div class="fw6 mt12">${esc(h.label)}</div>
-        <div class="muted fs-sm row" style="gap:4px;margin-top:2px">Ver ${svg('chevr')}</div>
+        <div class="muted fs-xs" style="margin-top:3px">${esc(h.meta)}</div>
       </div>`).join('')}
     </div>
   </div>
@@ -1271,7 +1282,7 @@ ROUTES.plan=()=>{
         <svg class="ring" width="64" height="64">${(()=>{const r=26,c=2*Math.PI*r,off=c-(pct/100)*c;return `<circle class="bg" cx="32" cy="32" r="${r}"></circle><circle class="fg" cx="32" cy="32" r="${r}" stroke-dasharray="${c}" stroke-dashoffset="${off}"></circle>`})()}</svg>
         <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-weight:600">${pct}%</div>
       </div>
-      <div><div class="h3">${done} de ${total} passos concluídos</div><div class="muted fs-sm">${done===total?'Concluíste o teu plano de chegada. Parabéns! 🎉':'Continua — estás a ir muito bem.'}</div></div>
+      <div><div class="h3">${done} de ${total} concluídos</div><div class="muted fs-sm">${done===total?'Plano de chegada concluído.':'Faltam '+(total-done)+(total-done===1?' passo.':' passos.')}</div></div>
     </div>
   </div>
   <div class="tl">
@@ -1288,14 +1299,14 @@ ROUTES.plan=()=>{
             </div>
             <div class="row gap8">
               <button class="btn btn-ghost btn-sm" onclick="go('${p.route}')">Abrir ${svg('chevr')}</button>
-              <button class="btn ${isDone?'btn-ghost':'btn-primary'} btn-sm" onclick="togglePlan('${p.id}')">${isDone?'Concluído ✓':'Marcar feito'}</button>
+              <button class="btn ${isDone?'btn-ghost':'btn-primary'} btn-sm" onclick="togglePlan('${p.id}')">${isDone?'Concluído':'Marcar feito'}</button>
             </div>
           </div>
         </div>
       </div>`}).join('')}
   </div>`;
 };
-function togglePlan(id){S.planDone[id]=!S.planDone[id];save();go('plan');toast(S.planDone[id]?'Passo concluído ✓':'Passo reaberto');renderShell()}
+function togglePlan(id){S.planDone[id]=!S.planDone[id];save();go('plan');toast(S.planDone[id]?'Passo concluído':'Passo reaberto');renderShell()}
 
 /* ============================================================
    CARD COMPONENTS (partilhados)
@@ -1348,7 +1359,7 @@ let docCatFilter='';
 ROUTES.docs=()=>{
   const list=DOCS.filter(d=>!docCatFilter||d.cat===docCatFilter);
   return `
-  ${pageHead('Centro de documentação','Organiza a tua documentação.','Guias claros, passo a passo, para tratares do que precisas — sem te perderes.')}
+  ${pageHead('Centro de documentação','Organiza a tua documentação.','Guias claros, passo a passo, para tratares do que precisas sem te perderes.')}
   <div class="callout callout-info mb24">${svg('info')}<div><b>Esta informação é apenas orientação.</b> Para a análise do teu caso concreto, fala com um profissional qualificado. <a onclick="go('pros')" class="clay fw6" style="cursor:pointer">Encontrar apoio jurídico →</a></div></div>
   <div class="row wrap gap6 mb24">
     <span class="chip ${!docCatFilter?'on':''}" onclick="docCatFilter='';go('docs')">Todos</span>
@@ -1452,7 +1463,7 @@ function renderJobList(){
     (l.length?`<div class="grid g2">${l.map(jobCard).join('')}</div>`
     :emptyState('search','Não encontrámos vagas assim','Tenta alargar a pesquisa ou remover alguns filtros.',`<button class="btn btn-ghost" onclick="jobF={q:'',q2:'',sector:'',noexp:false};go('jobs')">${svg('reload')} Limpar filtros</button>`));
 }
-function toggleSaveJob(id){const i=S.savedJobs.indexOf(id);if(i>=0){S.savedJobs.splice(i,1);toast('Removido dos guardados')}else{S.savedJobs.push(id);toast('Vaga guardada ✓')}save();if(S.route==='jobs')renderJobList();else if(S.route==='applications')go('applications')}
+function toggleSaveJob(id){const i=S.savedJobs.indexOf(id);if(i>=0){S.savedJobs.splice(i,1);toast('Removido dos guardados')}else{S.savedJobs.push(id);toast('Vaga guardada')}save();if(S.route==='jobs')renderJobList();else if(S.route==='applications')go('applications')}
 function openJob(id){
   const j=JOBS.find(x=>x.id===id);if(!j)return;
   const saved=S.savedJobs.includes(id),applied=S.appliedJobs[id];
@@ -1474,14 +1485,14 @@ function openJob(id){
     <div class="row wrap gap6 mb24">${j.perks.map(p=>`<span class="badge badge-line">${esc(p)}</span>`).join('')}</div>
     <div class="row gap8">
       <button class="btn btn-ghost btn-icon" onclick="toggleSaveJob('${j.id}');closeModal()" style="color:${saved?'var(--clay)':''}">${svg('bookmark')}</button>
-      <button class="btn btn-primary flex1 btn-lg" onclick="applyJob('${j.id}')">${applied?'Candidatura enviada ✓':'Candidatar-me'}</button>
+      <button class="btn btn-primary flex1 btn-lg" onclick="applyJob('${j.id}')">${applied?'Candidatura enviada':'Candidatar-me'}</button>
     </div>
   </div>`);
 }
 function applyJob(id){
   if(S.appliedJobs[id]){closeModal();go('applications');return}
   S.appliedJobs[id]='Candidatura enviada';const si=S.savedJobs.indexOf(id);if(si>=0)S.savedJobs.splice(si,1);
-  save();closeModal();toast('Candidatura enviada ✓');go('applications');
+  save();closeModal();toast('Candidatura enviada');go('applications');
 }
 
 /* Candidaturas */
@@ -1557,7 +1568,7 @@ function homeCard(h){
     </div>
   </div>`;
 }
-function toggleSaveHome(id){const i=S.savedHomes.indexOf(id);if(i>=0){S.savedHomes.splice(i,1);toast('Removida das guardadas')}else{S.savedHomes.push(id);toast('Casa guardada ✓')}save();if(S.route==='homes')renderHomeList();else if(S.route==='savedHomes')go('savedHomes')}
+function toggleSaveHome(id){const i=S.savedHomes.indexOf(id);if(i>=0){S.savedHomes.splice(i,1);toast('Removida das guardadas')}else{S.savedHomes.push(id);toast('Casa guardada')}save();if(S.route==='homes')renderHomeList();else if(S.route==='savedHomes')go('savedHomes')}
 function openHome(id){
   const h=HOMES.find(x=>x.id===id);if(!h)return;const saved=S.savedHomes.includes(id);
   openModal(`<div class="modal-pad">
@@ -1585,17 +1596,17 @@ function contactHost(id){const h=HOMES.find(x=>x.id===id);openModal(`<div class=
   <h2 class="h2 mb4">Contactar ${esc(h.host)}</h2><p class="muted mb16">Sobre "${esc(h.title)}"</p>
   <div class="field"><label>A tua mensagem</label><textarea class="input" id="hostMsg" placeholder="Olá, tenho interesse neste imóvel. Está disponível para visita?">Olá, tenho interesse neste imóvel. Ainda está disponível?</textarea></div>
   <div class="callout callout-warn mb16">${svg('shield')}<div>Nunca faças pagamentos antes de visitar o imóvel presencialmente.</div></div>
-  <button class="btn btn-primary btn-block btn-lg" onclick="closeModal();toast('Mensagem enviada ✓')">${svg('send')} Enviar mensagem</button></div>`)}
+  <button class="btn btn-primary btn-block btn-lg" onclick="closeModal();toast('Mensagem enviada')">${svg('send')} Enviar mensagem</button></div>`)}
 function reportHome(id){
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb4">Denunciar anúncio</h2><p class="muted mb16">Ajuda-nos a manter a plataforma segura. Qual é o motivo?</p>
   <div class="stack gap8 mb16">${REPORT_REASONS.map(r=>`<label class="opt" style="margin-bottom:0"><input type="radio" name="rep" value="${esc(r)}" style="accent-color:var(--clay)"><span class="fw5">${esc(r)}</span></label>`).join('')}</div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Denúncia enviada. Obrigado por ajudares.')">Enviar denúncia</button></div>`)}
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Denúncia registada')">Enviar denúncia</button></div>`)}
 function scamGuide(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <div class="av av-lg" style="background:var(--sage-soft);color:var(--sage);border-radius:16px;width:52px;height:52px">${svg('shield')}</div>
   <h2 class="h2 mt12 mb16">Como evitar burlas no arrendamento</h2>
   <div class="stack gap12">
-    ${['Nunca pagues caução, sinal ou "reserva" antes de visitares a casa em pessoa.','Desconfia de preços muito abaixo do mercado — costuma ser o primeiro sinal de burla.','Não envies dinheiro por transferências para o estrangeiro ou apps informais.','Confirma a identidade do senhorio e pede sempre contrato escrito.','Prefere anúncios de anunciantes verificados ✓ na plataforma.','Se algo te parecer estranho, denuncia o anúncio — proteges-te a ti e aos outros.'].map((t,i)=>`<div class="row gap12"><div class="av av-sm" style="background:var(--sage-soft);color:var(--sage)">${i+1}</div><p class="fs-sm" style="flex:1">${esc(t)}</p></div>`).join('')}
+    ${['Nunca pagues caução, sinal ou "reserva" antes de visitares a casa em pessoa.','Desconfia de preços muito abaixo do mercado — costuma ser o primeiro sinal de burla.','Não envies dinheiro por transferências para o estrangeiro ou apps informais.','Confirma a identidade do senhorio e pede sempre contrato escrito.','Prefere anúncios de anunciantes verificados na plataforma.','Se algo te parecer estranho, denuncia o anúncio — proteges-te a ti e aos outros.'].map((t,i)=>`<div class="row gap12"><div class="av av-sm" style="background:var(--sage-soft);color:var(--sage)">${i+1}</div><p class="fs-sm" style="flex:1">${esc(t)}</p></div>`).join('')}
   </div></div>`)}
 ROUTES.savedHomes=()=>{
   const saved=S.savedHomes.map(id=>HOMES.find(x=>x.id===id)).filter(Boolean);
@@ -1610,8 +1621,8 @@ ROUTES.savedHomes=()=>{
 let proF={q:'',spec:'',mode:''};
 ROUTES.pros=()=>{
   return `
-  ${pageHead('Apoio jurídico','Encontra profissionais de confiança.','Advogados e solicitadores com experiência em imigração, verificados pela Bússola.')}
-  <div class="callout callout-info mb16">${svg('info')}<div>Todos os profissionais com ${'<b>Verificado ✓</b>'} tiveram as credenciais confirmadas pela nossa equipa.</div></div>
+  ${pageHead('Apoio jurídico','Encontra profissionais de confiança.','Advogados e solicitadores com experiência em imigração, com credenciais confirmadas.')}
+  <div class="callout callout-info mb16">${svg('info')}<div>Todos os profissionais com <b>Verificado</b> tiveram as credenciais confirmadas pela nossa equipa.</div></div>
   <div class="card card-pad mb16">
     <div class="search-wrap mb12">${svg('search','ic')}<input class="input" placeholder="Nome, especialidade ou cidade" value="${esc(proF.q)}" oninput="proF.q=this.value;renderProList()"></div>
     <div class="row wrap gap6">
@@ -1664,7 +1675,7 @@ function openPro(id){
     <div class="eyebrow mb8">Especialidades</div><div class="row wrap gap6 mb12">${p.spec.map(s=>`<span class="badge badge-clay">${esc(s)}</span>`).join('')}</div>
     <div class="eyebrow mb8">Idiomas</div><div class="row wrap gap6 mb12">${p.langs.map(l=>`<span class="badge badge-line">${esc(l)}</span>`).join('')}</div>
     <div class="row wrap gap6 mb24">${p.online?'<span class="badge badge-sage">'+svg('wifi')+' Online</span>':''}${p.inperson?'<span class="badge badge-sage">'+svg('pin')+' Presencial</span>':''}</div>
-    <button class="btn btn-primary btn-block btn-lg" onclick="requestConsult('${p.id}')">${contacted?'Pedido enviado ✓':'Pedir consulta'}</button>
+    <button class="btn btn-primary btn-block btn-lg" onclick="requestConsult('${p.id}')">${contacted?'Pedido enviado':'Pedir consulta'}</button>
   </div>`);
 }
 function requestConsult(id){const p=PROS.find(x=>x.id===id);
@@ -1673,7 +1684,7 @@ function requestConsult(id){const p=PROS.find(x=>x.id===id);
   <div class="field"><label>Explica brevemente o teu caso</label><textarea class="input" placeholder="Ex: Cheguei de Angola há 3 meses e preciso de ajuda com o meu título de residência…"></textarea></div>
   <div class="callout callout-info mb16">${svg('info')}<div>O profissional recebe o teu pedido e responde através da plataforma. Não partilhes documentos sensíveis nesta fase.</div></div>
   <button class="btn btn-primary btn-block btn-lg" onclick="confirmConsult('${p.id}')">${svg('send')} Enviar pedido</button></div>`)}
-function confirmConsult(id){if(!S.contactedPros.includes(id))S.contactedPros.push(id);save();closeModal();toast('Pedido de consulta enviado ✓')}
+function confirmConsult(id){if(!S.contactedPros.includes(id))S.contactedPros.push(id);save();closeModal();toast('Pedido de consulta enviado')}
 
 /* ============================================================
    EVENTOS
@@ -1719,10 +1730,10 @@ function openEvent(id){
       <div class="row gap8"><span class="clay" style="width:18px">${svg('people')}</span><span>Organizado por ${esc(e.org)}</span></div>
     </div>
     <p class="mb24">${esc(e.desc)}</p>
-    <button class="btn ${going?'btn-ghost':'btn-primary'} btn-block btn-lg" onclick="toggleEvent('${e.id}')">${going?'✓ Vais participar — cancelar':'Vou participar'}</button>
+    <button class="btn ${going?'btn-ghost':'btn-primary'} btn-block btn-lg" onclick="toggleEvent('${e.id}')">${going?'Vais participar — cancelar':'Vou participar'}</button>
   </div>`);
 }
-function toggleEvent(id){const i=S.savedEvents.indexOf(id);if(i>=0){S.savedEvents.splice(i,1);toast('Removido do calendário')}else{S.savedEvents.push(id);toast('Adicionado ao teu calendário ✓')}save();closeModal();if(S.route==='events')go('events');else if(S.route==='calendar')go('calendar')}
+function toggleEvent(id){const i=S.savedEvents.indexOf(id);if(i>=0){S.savedEvents.splice(i,1);toast('Removido do calendário')}else{S.savedEvents.push(id);toast('Adicionado ao teu calendário')}save();closeModal();if(S.route==='events')go('events');else if(S.route==='calendar')go('calendar')}
 ROUTES.calendar=()=>{
   const mine=S.savedEvents.map(id=>EVENTS.find(x=>x.id===id)).filter(Boolean).sort((a,b)=>a.date<b.date?-1:1);
   return `<button class="btn btn-quiet btn-sm mb16" onclick="go('events')">${svg('chevl')} Voltar aos eventos</button>
@@ -1739,7 +1750,7 @@ ROUTES.calendar=()=>{
 let commTab='feed';
 ROUTES.community=()=>{
   return `
-  ${pageHead('Comunidade','Não estás sozinho nesta caminhada.','Pessoas que já passaram por aqui, grupos da tua terra e respostas às tuas dúvidas.')}
+  ${pageHead('Comunidade','Perguntas respondidas por quem já passou por isto.','Grupos por país e por cidade. As respostas ficam para quem chegar a seguir.')}
   <div class="tabs mb24">
     ${[['feed','Perguntas'],['groups','Grupos'],['reco','Recomendações']].map(([k,l])=>`<div class="tab ${commTab===k?'on':''}" onclick="commTab='${k}';go('community')">${l}</div>`).join('')}
   </div>
@@ -1757,32 +1768,32 @@ function postCard(p){
   const g=GROUPS.find(x=>x.name===p.group);
   return `<div class="card card-pad">
     <div class="row gap12 mb8">
-      <div class="av av-md">${p.country}</div>
+      <div class="av av-md">${cc(p.country)}</div>
       <div style="flex:1"><div class="row gap6 wrap"><span class="fw6">${esc(p.author)}</span><span class="badge badge-line" style="font-size:.68rem">${esc(p.type)}</span></div>
       <div class="muted fs-xs">${esc(p.group)} · ${esc(p.time)}</div></div>
     </div>
     <p class="mb12">${esc(p.text)}</p>
     <div class="row between">
       <div class="row gap12"><span class="muted fs-sm row gap4" style="cursor:pointer" onclick="toast('Obrigado pela tua reação')">${svg('heart')} ${p.reacts}</span>
-      <span class="muted fs-sm row gap4" style="cursor:pointer" onclick="toast('Respostas em breve nesta versão')">${svg('chat')} ${p.replies} respostas</span></div>
+      <span class="muted fs-sm row gap4" style="cursor:pointer" onclick="toast('Fio de respostas por implementar')">${svg('chat')} ${plural(p.replies,'resposta','respostas')}</span></div>
       ${p.tag?`<span class="badge badge-line">${esc(p.tag)}</span>`:''}
     </div>
   </div>`;
 }
 function commGroups(){
   return `<div class="grid g2">${GROUPS.map(g=>{const joined=S.joinedGroups.includes(g.id);return `<div class="card card-pad row between wrap gap12">
-    <div class="row gap12"><div class="av av-md" style="background:${g.color}1a;font-size:1.3rem">${g.flag}</div>
+    <div class="row gap12"><div class="av av-md" style="background:${g.color}1a;color:${g.color}">${cc(g.code)}</div>
     <div><div class="fw6">${esc(g.name)}</div><div class="muted fs-sm">${g.members.toLocaleString('pt-PT')} membros · ${esc(g.city)}</div></div></div>
-    <button class="btn ${joined?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleGroup('${g.id}')">${joined?'Membro ✓':'Seguir'}</button>
+    <button class="btn ${joined?'btn-ghost':'btn-primary'} btn-sm" onclick="toggleGroup('${g.id}')">${joined?'Membro':'Seguir'}</button>
   </div>`}).join('')}</div>`;
 }
-function toggleGroup(id){const i=S.joinedGroups.indexOf(id);if(i>=0){S.joinedGroups.splice(i,1);toast('Deixaste o grupo')}else{S.joinedGroups.push(id);toast('Entraste no grupo ✓')}save();go('community')}
+function toggleGroup(id){const i=S.joinedGroups.indexOf(id);if(i>=0){S.joinedGroups.splice(i,1);toast('Deixaste o grupo')}else{S.joinedGroups.push(id);toast('Entraste no grupo')}save();go('community')}
 function newPost(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb16">Publicar na comunidade</h2>
   <div class="field"><label>Grupo</label><select class="select">${GROUPS.map(g=>`<option>${esc(g.name)}</option>`).join('')}</select></div>
   <div class="field"><label>A tua pergunta ou partilha</label><textarea class="input" placeholder="Escreve com respeito. Perguntas claras ajudam a comunidade a responder-te melhor."></textarea></div>
   <div class="callout callout-info mb16">${svg('shield')}<div>A comunidade é moderada. Conteúdo abusivo ou spam é removido.</div></div>
-  <button class="btn btn-primary btn-block btn-lg" onclick="closeModal();toast('Publicação enviada para moderação ✓')">${svg('send')} Publicar</button></div>`)}
+  <button class="btn btn-primary btn-block btn-lg" onclick="closeModal();toast('Publicação enviada para moderação')">${svg('send')} Publicar</button></div>`)}
 
 /* ============================================================
    SERVIÇOS
@@ -1790,7 +1801,7 @@ function newPost(){openModal(`<div class="modal-pad"><button class="btn btn-quie
 let svcF='';
 ROUTES.services=()=>{
   const list=SERVICES.filter(s=>!svcF||s.cat===svcF);
-  return `${pageHead('Serviços','Tudo o que precisas, num só sítio.','Bancos, saúde, telecomunicações, associações e apoio social — perto de ti.')}
+  return `${pageHead('Serviços','Tudo o que precisas, num só sítio.','Bancos, saúde, telecomunicações, associações e apoio social, perto de ti.')}
   <div class="row wrap gap6 mb24"><span class="chip ${!svcF?'on':''}" onclick="svcF='';go('services')">Todos</span>
   ${SERVICE_CATS.map(c=>`<span class="chip ${svcF===c?'on':''}" onclick="svcF='${svcF===c?'':c}';go('services')">${esc(c)}</span>`).join('')}</div>
   ${list.length?`<div class="grid g3">${list.map(serviceCard).join('')}</div>`:emptyState('service','Sem serviços nesta categoria','Estamos a mapear mais serviços continuamente.',`<button class="btn btn-ghost" onclick="svcF='';go('services')">Ver todos</button>`)}`;
@@ -1816,7 +1827,7 @@ ROUTES.map=()=>{
     <div style="position:absolute;left:16px;bottom:16px;background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:10px 14px;box-shadow:var(--sh)"><div class="fw6 fs-sm">${esc(S.city)} e arredores</div><div class="muted fs-xs">${mapItems().length} resultados nesta camada</div></div>
     <div style="position:absolute;inset:0;pointer-events:none;background-image:linear-gradient(var(--line) 1px,transparent 1px),linear-gradient(90deg,var(--line) 1px,transparent 1px);background-size:48px 48px;opacity:.25"></div>
   </div>
-  <p class="muted fs-xs mt12">${svg('info')} Mapa ilustrativo para demonstração. Toca num marcador para ver detalhes.</p>`;
+  <p class="muted fs-xs mt12">${svg('info')} Posições aproximadas. Toca num marcador para ver detalhes.</p>`;
 };
 function mapItems(){
   if(mapLayer==='homes')return HOMES.map(h=>({x:h.x,y:h.y,id:h.id,open:'openHome',label:h.price+'€'}));
@@ -1846,7 +1857,7 @@ ROUTES.profile=()=>{
     <div class="row gap16 wrap">
       <div class="av av-lg" style="width:80px;height:80px;background:var(--clay);color:#fff">${initials(S.name)}</div>
       <div style="flex:1;min-width:200px"><h1 class="h1">${esc(S.name)}</h1>
-      <div class="row gap12 wrap muted mt4"><span class="row gap4">${countryFlag()} ${esc(countryName())}</span><span class="row gap4">${svg('pin')} ${esc(S.city)}</span></div>
+      <div class="row gap12 wrap muted mt4"><span class="row gap4">${cc(countryCode())} ${esc(countryName())}</span><span class="row gap4">${svg('pin')} ${esc(S.city)}</span></div>
       <div class="row wrap gap6 mt12">${sit.slice(0,3).map(s=>`<span class="badge badge-line">${esc(s)}</span>`).join('')}</div></div>
       <button class="btn btn-ghost" onclick="editProfile()">Editar perfil</button>
     </div>
@@ -1887,7 +1898,7 @@ ROUTES.profile=()=>{
     <hr class="divider">
     <div class="row between card-pad" style="padding:16px 20px;cursor:pointer" onclick="resetApp()"><div class="row gap12" style="color:var(--danger)">${svg('logout')}<span class="fw5">Recomeçar (terminar sessão)</span></div>${svg('chevr')}</div>
   </div>
-  <p class="muted fs-xs tc mt24">${esc(BRAND)} · onde Portugal começa a fazer sentido · versão de demonstração</p>`;
+  <p class="muted fs-xs tc mt24">${esc(BRAND)} · onde Portugal começa a fazer sentido</p>`;
 };
 ROUTES.contacted=()=>{
   const list=S.contactedPros.map(id=>PROS.find(x=>x.id===id)).filter(Boolean);
@@ -1899,9 +1910,9 @@ function editProfile(){openModal(`<div class="modal-pad"><button class="btn btn-
   <h2 class="h2 mb16">Editar perfil</h2>
   <div class="field"><label>Nome</label><input class="input" id="epName" value="${esc(S.name)}"></div>
   <div class="field"><label>Cidade</label><select class="select" id="epCity">${CITIES.map(c=>`<option ${c===S.city?'selected':''}>${esc(c)}</option>`).join('')}</select></div>
-  <div class="field"><label>País de origem</label><select class="select" id="epCountry">${COUNTRIES.map(c=>`<option value="${c.id}" ${c.id===S.country?'selected':''}>${c.flag} ${esc(c.name)}</option>`).join('')}</select></div>
+  <div class="field"><label>País de origem</label><select class="select" id="epCountry">${COUNTRIES.map(c=>`<option value="${c.id}" ${c.id===S.country?'selected':''}>${esc(c.name)}</option>`).join('')}</select></div>
   <button class="btn btn-primary btn-block btn-lg mt8" onclick="saveProfile()">Guardar alterações</button></div>`)}
-function saveProfile(){S.name=el('epName').value.trim()||S.name;S.city=el('epCity').value;S.country=el('epCountry').value;save();closeModal();renderShell();go('profile');toast('Perfil atualizado ✓')}
+function saveProfile(){S.name=el('epName').value.trim()||S.name;S.city=el('epCity').value;S.country=el('epCountry').value;save();closeModal();renderShell();go('profile');toast('Perfil atualizado')}
 function privacyModal(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <div class="av av-lg" style="background:var(--sage-soft);color:var(--sage);border-radius:16px;width:52px;height:52px">${svg('shield')}</div>
   <h2 class="h2 mt12 mb8">Privacidade e dados</h2>
@@ -1941,7 +1952,7 @@ async function exportarDados(){
   a.href=URL.createObjectURL(blob);
   a.download='bussola-os-meus-dados.json';
   a.click();setTimeout(()=>URL.revokeObjectURL(a.href),1000);
-  toast('Dados exportados ✓');
+  toast('Dados exportados');
 }
 
 function apagarTudo(){
@@ -1970,7 +1981,7 @@ async function apagarConfirmado(){
   doReset();
 }
 function resetApp(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-  <h2 class="h2 mb8">Recomeçar?</h2><p class="muted mb24">Isto limpa os teus dados de demonstração neste dispositivo e volta ao início.</p>
+  <h2 class="h2 mb8">Recomeçar?</h2><p class="muted mb24">Isto apaga os teus dados neste dispositivo e volta ao início.</p>
   <div class="row gap8"><button class="btn btn-ghost flex1" onclick="closeModal()">Cancelar</button><button class="btn btn-primary flex1" style="background:var(--danger)" onclick="doReset()">Recomeçar</button></div></div>`)}
 function doReset(){try{localStorage.removeItem(LS)}catch(e){}location.reload()}
 
@@ -2152,9 +2163,9 @@ async function contaSubmit(modo){
       : await sb.auth.signInWithPassword({email,password:pass});
     if(r.error)throw r.error;
     if(modo==='criar'&&!r.data.session){
-      closeModal();toast('Confirma o email para ativares a conta ✓');return;
+      closeModal();toast('Confirma o email para ativares a conta');return;
     }
-    closeModal();toast(modo==='criar'?'Conta criada — progresso guardado ✓':'Bem-vindo de volta ✓');
+    closeModal();toast(modo==='criar'?'Conta criada — progresso guardado':'Bem-vindo de volta');
   }catch(e){
     const m=String(e&&e.message||'');
     acErro(/Invalid login/i.test(m)?'Email ou palavra-passe incorretos.'
@@ -2414,9 +2425,9 @@ function aiAnswer(raw){
   if(aiHas(q,['cheguei','acabei de chegar','primeiro','por onde comeco','por onde começar','recem chegado','aterrei','o que devo tratar','o que fazer primeiro'])){
     const falta=PLAN.find(p=>!S.planDone[p.id])||PLAN[0];
     return {
-      text:`<p>Bem-vindo. A ordem que funciona melhor para quem chega é esta:</p>`+
+      text:`<p>A ordem que costuma funcionar melhor:</p>`+
         `<ul>${PLAN.map((p,i)=>`<li><span>${S.planDone[p.id]?svg('check'):'<b>'+p.n+'</b>'}</span><b>${esc(p.title)}</b> — ${esc(p.desc)}</li>`).join('')}</ul>`+
-        `<p style="margin-top:10px">Começa pelo <b>NIF</b>: é gratuito, tratas dele no mesmo dia nas Finanças, e quase tudo o resto depende dele — arrendar casa, assinar contrato de trabalho, abrir conta.</p>`,
+        `<p style="margin-top:10px">Começa pelo <b>NIF</b>: é gratuito e tratas dele no mesmo dia nas Finanças. Quase tudo o resto depende dele: arrendar casa, assinar contrato, abrir conta.</p>`,
       cards:[{ic:'card',t:'Como pedir o NIF',s:'Gratuito · atribuído no próprio dia',h:aiHandler(()=>{aiClose();openDoc('nif')})},
              {ic:'compass',t:'O teu plano de chegada',s:`Próximo passo: ${falta.title}`,h:aiHandler(()=>{aiClose();go('plan')})}],
       warn:AI_DISCLAIMER,
@@ -2454,7 +2465,7 @@ function aiAnswer(raw){
   /* 5. Burlas — antes de trabalho/casa: a segurança tem precedência
         sobre a intenção aparente ("querem enganar-me com um quarto") */
   if(aiHas(q,['burla','golpe','aldrab','enganar','engan','pediram me dinheiro','pediu me dinheiro','desconfio','desconfiar','fraude','roubar','suspeito','parece me estranho','e seguro']))
-    return {text:`<p>Fizeste bem em perguntar. Estes são os sinais mais comuns de burla:</p>`+
+    return {text:`<p>Sinais mais comuns de burla:</p>`+
       `<ul>${['Pedem sinal ou caução antes de te deixarem ver a casa','Preço muito abaixo do mercado para a zona','Só comunicam por mensagem e recusam encontro presencial','Pedem transferência para o estrangeiro ou por aplicações informais','Metem pressa para decidires "hoje"','Cobram-te para te candidatares a um emprego']
         .map(t=>`<li><span>${svg('warn')}</span>${esc(t)}</li>`).join('')}</ul>`+
       `<p style="margin-top:10px">Se algum destes sinais aparecer, <b>pára e não pagues nada</b>.</p>`,
@@ -2473,12 +2484,12 @@ function aiAnswer(raw){
 
   /* 7. Profissionais */
   if(aiHas(q,['advogado','advogada','solicitador','apoio juridico','juridico','consulta']))
-    return aiProsAnswer(raw,'Claro. Aqui tens profissionais verificados que podem ajudar-te.');
+    return aiProsAnswer(raw,'Profissionais com credenciais confirmadas pela equipa da Bússola.');
 
   /* 9. Serviços */
   if(aiHas(q,['banco','conta bancaria','cartao sim','telemovel','internet','telecomunicacoes','servico','associacao','apoio social','cnaim'])){
     const list=SERVICES.filter(s=>s.city===S.city||s.city==='Nacional');
-    return {text:`<p>Estes serviços costumam ser os primeiros de que precisas${S.city?' em '+esc(S.city):''}.</p>`,
+    return {text:`<p>Serviços que costumam vir primeiro${S.city?' em '+esc(S.city):''}.</p>`,
       cards:(list.length?list:SERVICES).slice(0,3).map(s=>({ic:s.icon,t:s.name,s:`${s.cat} · ${s.city}`,h:aiHandler(()=>{aiClose();openService(s.id)})})),
       acts:[{l:'Ver todos os serviços',h:aiHandler(()=>{aiClose();svcF='';go('services')})}],
       src:'Diretório de serviços'};
@@ -2486,11 +2497,11 @@ function aiAnswer(raw){
 
   /* 10. Eventos e comunidade */
   if(aiHas(q,['evento','eventos','festa','musica','kizomba','acontece','fazer no fim de semana']))
-    return {text:`<p>Isto é o que está a acontecer nos próximos dias.</p>`,
+    return {text:`<p>Nos próximos dias:</p>`,
       cards:EVENTS.slice(0,3).map(e=>({ic:'event',t:e.title,s:`${fmtDate(e.date)} · ${e.city} · ${e.price}`,h:aiHandler(()=>{aiClose();openEvent(e.id)})})),
       acts:[{l:'Ver todos os eventos',h:aiHandler(()=>{aiClose();evF='';go('events')})}],src:'Agenda da Bússola'};
   if(aiHas(q,['comunidade','conhecer pessoas','grupo','grupos','sozinho','sozinha','amigos','conterraneos']))
-    return {text:`<p>Não tens de passar por isto sozinho. Estes grupos são dos mais activos:</p>`,
+    return {text:`<p>Grupos mais activos na tua zona:</p>`,
       cards:GROUPS.slice(0,3).map(g=>({ic:'people',t:g.name,s:`${g.members.toLocaleString('pt-PT')} membros · ${g.city}`,h:aiHandler(()=>{aiClose();commTab='groups';go('community')})})),
       acts:[{l:'Entrar na comunidade',h:aiHandler(()=>{aiClose();commTab='feed';go('community')})}],src:'Comunidade da Bússola'};
 

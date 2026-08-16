@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#F7F4EF">
 <title>Bússola — onde Portugal começa a fazer sentido</title>
-<meta name="description" content="O teu guia de integração em Portugal. Documentação, trabalho, casa, apoio jurídico e comunidade — organizados num plano feito para ti. Para quem chega de Angola, Cabo Verde, Guiné-Bissau, Moçambique e São Tomé e Príncipe.">
+<meta name="description" content="O teu guia de integração em Portugal. Documentação, trabalho, casa, apoio jurídico e comunidade, organizados num plano feito para ti. Para quem chega de Angola, Cabo Verde, Guiné-Bissau, Moçambique e São Tomé e Príncipe.">
 <meta property="og:title" content="Bússola — onde Portugal começa a fazer sentido">
 <meta property="og:description" content="O teu guia de integração em Portugal: documentação, trabalho, casa, apoio jurídico e comunidade.">
 <meta property="og:locale" content="pt_PT">
@@ -113,7 +113,13 @@ img{max-width:100%}
   background:radial-gradient(circle,var(--sage-soft),transparent 65%);opacity:.55;pointer-events:none;z-index:0}
 .hero-in{position:relative;z-index:1;display:grid;grid-template-columns:1.08fr .92fr;gap:clamp(28px,5vw,56px);align-items:center}
 .hero h1{margin:18px 0 20px}
-.flags{display:flex;gap:6px;font-size:1.05rem;line-height:1}
+/* Marcas de país. Substituem bandeiras emoji, que não renderizam no
+   Windows e mudam de forma entre sistemas — isto é igual em todo o lado. */
+.flags{display:flex;gap:6px;line-height:1}
+.cc{display:inline-flex;align-items:center;justify-content:center;flex:none;
+  font-family:var(--serif);font-size:.7rem;font-weight:600;letter-spacing:.08em;
+  min-width:2.2em;height:1.7em;padding:0 .4em;border:1px solid var(--line);
+  border-radius:4px;color:var(--ink-2);background:var(--surface);line-height:1}
 .hero-cta{display:flex;gap:12px;flex-wrap:wrap;margin-top:30px}
 .hero-note{display:flex;gap:18px;flex-wrap:wrap;margin-top:24px;color:var(--ink-3);font-size:.86rem}
 .hero-note span{display:inline-flex;align-items:center;gap:.4em}
@@ -281,10 +287,10 @@ img{max-width:100%}
     <div>
       <div class="row wrapf" style="gap:10px">
         <span class="badge badge-clay">Para a comunidade PALOP em Portugal</span>
-        <span class="flags" aria-label="Angola, Cabo Verde, Guiné-Bissau, Moçambique, São Tomé e Príncipe">🇦🇴 🇨🇻 🇬🇼 🇲🇿 🇸🇹</span>
+        <span class="flags" aria-label="Angola, Cabo Verde, Guiné-Bissau, Moçambique, São Tomé e Príncipe"><span class="cc">AO</span><span class="cc">CV</span><span class="cc">GW</span><span class="cc">MZ</span><span class="cc">ST</span></span>
       </div>
       <h1 class="display">Onde Portugal<br>começa a fazer<br><span class="clay">sentido.</span></h1>
-      <p class="lead maxw-s">Chegar é só o princípio. A Bússola organiza o que vem a seguir — documentação, casa, trabalho e as pessoas certas — num plano feito para a tua situação.</p>
+      <p class="lead maxw-s">Chegar é só o princípio. A Bússola organiza o que vem a seguir: documentação, casa, trabalho e as pessoas certas, num plano feito para a tua situação.</p>
       <div class="hero-cta">
         <a href="/app" class="btn btn-primary btn-lg">Criar o meu plano
           <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 12h14M13 6l6 6-6 6"/></svg></a>
@@ -336,11 +342,11 @@ img{max-width:100%}
 <div class="strip">
   <div class="wrap strip-in">
     <span class="fs-sm muted hide-m">Feita para quem vem de</span>
-    <span class="strip-item"><b>🇦🇴</b> Angola</span>
-    <span class="strip-item"><b>🇨🇻</b> Cabo Verde</span>
-    <span class="strip-item"><b>🇬🇼</b> Guiné-Bissau</span>
-    <span class="strip-item"><b>🇲🇿</b> Moçambique</span>
-    <span class="strip-item"><b>🇸🇹</b> São Tomé e Príncipe</span>
+    <span class="strip-item"><span class="cc">AO</span> Angola</span>
+    <span class="strip-item"><span class="cc">CV</span> Cabo Verde</span>
+    <span class="strip-item"><span class="cc">GW</span> Guiné-Bissau</span>
+    <span class="strip-item"><span class="cc">MZ</span> Moçambique</span>
+    <span class="strip-item"><span class="cc">ST</span> São Tomé e Príncipe</span>
   </div>
 </div>
 
@@ -349,7 +355,7 @@ img{max-width:100%}
   <div class="wrap">
     <div class="rv" style="max-width:74ch">
       <div class="eyebrow mb16">Porque existimos</div>
-      <h2 class="h1 mb24">A informação existe. Só que está espalhada por dez sítios diferentes — e nenhum deles fala contigo.</h2>
+      <h2 class="h1 mb24">A informação existe. Só que está espalhada por dez sítios diferentes, e nenhum deles fala contigo.</h2>
       <p class="lead">Um portal para o NIF. Outro para a Segurança Social. Um grupo de mensagens para a casa. Um primo que conhece alguém. Pelo meio, quem se aproveita de quem ainda não sabe as regras.</p>
       <p class="lead mt16">A Bússola junta tudo num sítio só e diz-te <b class="clay">o que fazer a seguir</b> — pela tua situação, na tua cidade, na tua língua.</p>
     </div>
@@ -368,12 +374,12 @@ img{max-width:100%}
       <div class="card card-pad rv">
         <div class="badge badge-clay mb16">Passo 1</div>
         <h3 class="h3 mb8">Diz-nos onde estás</h3>
-        <p class="fs-sm muted">País de origem, cidade em Portugal e o que precisas de resolver agora — documentação, casa, trabalho, estudar ou abrir negócio.</p>
+        <p class="fs-sm muted">País de origem, cidade em Portugal e o que precisas de resolver agora: documentação, casa, trabalho, estudar ou abrir negócio.</p>
       </div>
       <div class="card card-pad rv" style="transition-delay:.1s">
         <div class="badge badge-clay mb16">Passo 2</div>
         <h3 class="h3 mb8">Recebes o teu plano</h3>
-        <p class="fs-sm muted">Cinco etapas por ordem de importância, com o primeiro passo já pronto a começar. Sem trinta menus, sem jargão jurídico.</p>
+        <p class="fs-sm muted">Cinco etapas por ordem de importância, com o primeiro passo pronto a começar. Sem trinta menus e sem jargão jurídico.</p>
       </div>
       <div class="card card-pad rv" style="transition-delay:.2s">
         <div class="badge badge-clay mb16">Passo 3</div>
@@ -394,7 +400,7 @@ img{max-width:100%}
     <div class="grid g4">
       <div class="pillar rv"><div class="pic" style="background:var(--clay-soft);color:var(--clay-deep)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/><path d="M10 13h6M10 17h6"/></svg></div>
-        <h3 class="h3">Documentação</h3><p>NIF, NISS, título de residência, reagrupamento familiar, nacionalidade. Passo a passo, com checklist.</p></div>
+        <h3 class="h3">Documentação</h3><p>NIF, NISS, título de residência, reagrupamento familiar, nacionalidade. Passo a passo, com checklist que guarda o teu progresso.</p></div>
 
       <div class="pillar rv" style="transition-delay:.06s"><div class="pic" style="background:var(--sage-soft);color:var(--sage)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="7" width="18" height="13" rx="2"/><path d="M8 7V5a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2M3 13h18"/></svg></div>
@@ -406,19 +412,19 @@ img{max-width:100%}
 
       <div class="pillar rv" style="transition-delay:.18s"><div class="pic" style="background:var(--sky-soft);color:var(--sky)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="M12 3v18"/><path d="M6 7h12"/><path d="m5 7-2 5a3 3 0 0 0 6 0z"/><path d="m19 7-2 5a3 3 0 0 0 6 0z"/><path d="M8 21h8"/></svg></div>
-        <h3 class="h3">Apoio jurídico</h3><p>Advogados e solicitadores com credenciais confirmadas, muitos deles a falar crioulo. Pedes consulta em minutos.</p></div>
+        <h3 class="h3">Apoio jurídico</h3><p>Advogados e solicitadores com credenciais confirmadas, muitos deles a falar crioulo. O pedido de consulta leva minutos.</p></div>
 
       <div class="pillar rv"><div class="pic" style="background:var(--clay-soft);color:var(--clay-deep)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M16 3v4M8 3v4M3 10h18"/></svg></div>
-        <h3 class="h3">Eventos</h3><p>Música, gastronomia, formação e encontros da comunidade — o que está a acontecer perto de ti esta semana.</p></div>
+        <h3 class="h3">Eventos</h3><p>Música, gastronomia, formação e encontros da comunidade. O que está a acontecer perto de ti esta semana.</p></div>
 
       <div class="pillar rv" style="transition-delay:.06s"><div class="pic" style="background:var(--sage-soft);color:var(--sage)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="9" cy="8" r="3"/><path d="M3 20a6 6 0 0 1 12 0"/><path d="M16 6a3 3 0 0 1 0 6M21 20a6 6 0 0 0-4-5.6"/></svg></div>
-        <h3 class="h3">Comunidade</h3><p>Grupos por país e cidade. Perguntas respondidas por quem já passou pelo mesmo — não por um robô.</p></div>
+        <h3 class="h3">Comunidade</h3><p>Grupos por país e cidade. Perguntas respondidas por quem já passou pelo mesmo, não por um robô.</p></div>
 
       <div class="pillar rv" style="transition-delay:.12s"><div class="pic" style="background:var(--gold-soft);color:var(--gold)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="3"/><path d="M12 2v3M12 19v3M2 12h3M19 12h3M5 5l2 2M17 17l2 2M19 5l-2 2M7 17l-2 2"/></svg></div>
-        <h3 class="h3">Serviços</h3><p>Bancos, saúde, telecomunicações, associações e apoio social — com o que precisas de levar a cada um.</p></div>
+        <h3 class="h3">Serviços</h3><p>Bancos, saúde, telecomunicações, associações e apoio social, com a lista do que levar a cada um.</p></div>
 
       <div class="pillar rv" style="transition-delay:.18s"><div class="pic" style="background:var(--sky-soft);color:var(--sky)">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><path d="m9 4-6 2v14l6-2 6 2 6-2V4l-6 2-6-2z"/><path d="M9 4v14M15 6v14"/></svg></div>
@@ -437,10 +443,10 @@ img{max-width:100%}
       <div class="stack" style="gap:12px">
         <div class="row" style="gap:11px;align-items:flex-start">
           <svg class="i sage" style="margin-top:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 12 5 5L20 6"/></svg>
-          <p class="fs-sm"><b>Sempre atualizado ao presente.</b> O SEF já não existe — os processos de residência são tratados pela AIMA, e é isso que vais ler aqui.</p></div>
+          <p class="fs-sm"><b>Sempre atualizado ao presente.</b> O SEF já não existe. Os processos de residência passaram para a AIMA, e é isso que vais ler aqui.</p></div>
         <div class="row" style="gap:11px;align-items:flex-start">
           <svg class="i sage" style="margin-top:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 12 5 5L20 6"/></svg>
-          <p class="fs-sm"><b>Ligação directa às entidades oficiais.</b> AIMA, Finanças, Segurança Social, SNS, IMT e IRN — sem sites intermediários.</p></div>
+          <p class="fs-sm"><b>Ligação directa às entidades oficiais.</b> AIMA, Finanças, Segurança Social, SNS, IMT e IRN, sem sites intermediários.</p></div>
         <div class="row" style="gap:11px;align-items:flex-start">
           <svg class="i sage" style="margin-top:4px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="m4 12 5 5L20 6"/></svg>
           <p class="fs-sm"><b>Avisos onde costuma haver abuso.</b> Dizemos-te o que é gratuito, para não pagares a quem te tenta cobrar por isso.</p></div>
@@ -489,7 +495,7 @@ img{max-width:100%}
 
       <div class="trust rv" style="transition-delay:.12s"><div class="tic" style="background:var(--sky-soft);color:var(--sky)">
         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><path d="M12 11v5M12 8v.5"/></svg></div>
-        <h3>Nunca fingimos ser advogados</h3><p>Damos orientação, não aconselhamento jurídico. Quando o teu caso precisa de um profissional, dizemos-to — e ajudamos a encontrá-lo.</p></div>
+        <h3>Nunca fingimos ser advogados</h3><p>Damos orientação, não aconselhamento jurídico. Quando o teu caso precisa de um profissional, dizemos-to e ajudamos a encontrá-lo.</p></div>
 
       <div class="trust rv" style="transition-delay:.18s"><div class="tic" style="background:var(--gold-soft);color:var(--gold)">
         <svg class="i" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="4" y="10" width="16" height="11" rx="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3"/></svg></div>
@@ -504,7 +510,7 @@ img{max-width:100%}
     <div class="center mb48 rv">
       <div class="eyebrow mb12">Para profissionais e empresas</div>
       <h2 class="h1 mb16">Chega a quem precisa mesmo de si.</h2>
-      <p class="lead mxa maxw">A app é e continuará gratuita para quem chega. Quem quer chegar a esta comunidade — com respeito e transparência — tem um painel próprio.</p>
+      <p class="lead mxa maxw">A app é e continuará gratuita para quem chega. Quem quer chegar a esta comunidade, com respeito e transparência, tem um painel próprio.</p>
     </div>
     <div class="grid g4 mb32">
       <div class="plan rv">
@@ -611,7 +617,7 @@ img{max-width:100%}
           <svg width="28" height="28" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--clay)" stroke-width="2.6"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--clay)"/><circle cx="20" cy="20" r="2" fill="var(--surface)"/></svg>
           Bússola</a>
         <p class="fs-sm muted" style="max-width:34ch">O teu guia de integração em Portugal. Feito com e para a comunidade PALOP.</p>
-        <div class="flags mt16">🇦🇴 🇨🇻 🇬🇼 🇲🇿 🇸🇹</div>
+        <div class="flags mt16" aria-label="Países PALOP"><span class="cc">AO</span><span class="cc">CV</span><span class="cc">GW</span><span class="cc">MZ</span><span class="cc">ST</span></div>
       </div>
       <div><h4>Plataforma</h4>
         <a href="/app">Entrar na Bússola</a><a href="#como">Como funciona</a><a href="#areas">O que resolves</a><a href="#confianca">Confiança e segurança</a></div>

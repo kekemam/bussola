@@ -72,6 +72,13 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 .pill-rej{background:var(--danger-soft);color:var(--danger)}
 .pill-susp{background:var(--surface-3);color:var(--ink-2)}
 .pill-live{background:var(--sage-soft);color:var(--sage)}
+/* Marca de país. Substitui bandeiras emoji, que não renderizam no Windows
+   e variam de forma entre sistemas — isto é idêntico em todo o lado. */
+.cc{display:inline-flex;align-items:center;justify-content:center;flex:none;
+  font-family:var(--serif);font-size:.64rem;font-weight:600;letter-spacing:.07em;
+  min-width:2.05em;height:1.5em;padding:0 .36em;border:1px solid var(--line);
+  border-radius:4px;color:var(--ink-2);background:var(--surface);line-height:1}
+
 .tag{display:inline-flex;align-items:center;gap:.35em;font-size:.72rem;font-weight:550;padding:.28em .58em;border-radius:var(--r-sm);background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
 
 /* layout */
@@ -275,6 +282,7 @@ const I={
   file:'<path d="M7 3h7l5 5v13H7z"/><path d="M14 3v5h5"/>',
 };
 function svg(n,c){return `<svg class="i ${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${I[n]||''}</svg>`}
+const cc=(c,x)=>`<span class="cc ${x||''}">${esc(c||'—')}</span>`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 
@@ -304,14 +312,14 @@ const FEED=[
   {ic:'event',c:'var(--sage)',t:'<b>Associação Kianda</b> publicou um evento',s:'Noite de Kizomba · Lisboa',time:'há 6 h'},
 ];
 const USERS=[
-  {id:'u1',name:'Maria Landim',email:'maria.landim@email.pt',country:'🇨🇻',city:'Lisboa',role:'Utilizador',status:'ok',joined:'12 Ago 2026',plan:'Gratuito'},
-  {id:'u2',name:'Domingas Teca',email:'d.teca@email.pt',country:'🇦🇴',city:'Setúbal',role:'Utilizador',status:'ok',joined:'11 Ago 2026',plan:'Premium'},
-  {id:'u3',name:'Nelson Baldé',email:'nelson.balde@email.pt',country:'🇬🇼',city:'Barreiro',role:'Utilizador',status:'ok',joined:'10 Ago 2026',plan:'Gratuito'},
-  {id:'u4',name:'Jandira Monteiro',email:'jandira.m@email.pt',country:'🇨🇻',city:'Amadora',role:'Utilizador',status:'susp',joined:'8 Ago 2026',plan:'Gratuito'},
-  {id:'u5',name:'Preciosa Lopes',email:'preciosa.l@email.pt',country:'🇦🇴',city:'Setúbal',role:'Utilizador',status:'ok',joined:'7 Ago 2026',plan:'Gratuito'},
-  {id:'u6',name:'Aderito Neves',email:'a.neves@email.pt',country:'🇸🇹',city:'Porto',role:'Utilizador',status:'ok',joined:'6 Ago 2026',plan:'Premium'},
-  {id:'u7',name:'Carla Sanca',email:'carla.sanca@email.pt',country:'🇬🇼',city:'Lisboa',role:'Utilizador',status:'ok',joined:'5 Ago 2026',plan:'Gratuito'},
-  {id:'u8',name:'Tomás Chissano',email:'t.chissano@email.pt',country:'🇲🇿',city:'Braga',role:'Utilizador',status:'ok',joined:'4 Ago 2026',plan:'Gratuito'},
+  {id:'u1',name:'Maria Landim',email:'maria.landim@email.pt',country:'CV',city:'Lisboa',role:'Utilizador',status:'ok',joined:'12 Ago 2026',plan:'Gratuito'},
+  {id:'u2',name:'Domingas Teca',email:'d.teca@email.pt',country:'AO',city:'Setúbal',role:'Utilizador',status:'ok',joined:'11 Ago 2026',plan:'Premium'},
+  {id:'u3',name:'Nelson Baldé',email:'nelson.balde@email.pt',country:'GW',city:'Barreiro',role:'Utilizador',status:'ok',joined:'10 Ago 2026',plan:'Gratuito'},
+  {id:'u4',name:'Jandira Monteiro',email:'jandira.m@email.pt',country:'CV',city:'Amadora',role:'Utilizador',status:'susp',joined:'8 Ago 2026',plan:'Gratuito'},
+  {id:'u5',name:'Preciosa Lopes',email:'preciosa.l@email.pt',country:'AO',city:'Setúbal',role:'Utilizador',status:'ok',joined:'7 Ago 2026',plan:'Gratuito'},
+  {id:'u6',name:'Aderito Neves',email:'a.neves@email.pt',country:'ST',city:'Porto',role:'Utilizador',status:'ok',joined:'6 Ago 2026',plan:'Premium'},
+  {id:'u7',name:'Carla Sanca',email:'carla.sanca@email.pt',country:'GW',city:'Lisboa',role:'Utilizador',status:'ok',joined:'5 Ago 2026',plan:'Gratuito'},
+  {id:'u8',name:'Tomás Chissano',email:'t.chissano@email.pt',country:'MZ',city:'Braga',role:'Utilizador',status:'ok',joined:'4 Ago 2026',plan:'Gratuito'},
 ];
 const PROS=[
   {id:'p1',name:'Dra. Helena Baptista',prof:'Advogada',city:'Lisboa',status:'ok',rating:4.9,cases:340,docs:'Cédula OA + comprovativos',sub:'Profissional'},
@@ -384,7 +392,7 @@ const INVOICES=[
   {id:'FT 2026/1038',who:'Aderito Neves',plan:'Premium',amount:'4,99€',status:'rej',date:'8 Ago'},
 ];
 /* Analytics */
-const ORIGINS=[{n:'Cabo Verde',v:38,f:'🇨🇻'},{n:'Angola',v:29,f:'🇦🇴'},{n:'Guiné-Bissau',v:14,f:'🇬🇼'},{n:'Moçambique',v:11,f:'🇲🇿'},{n:'São Tomé e Príncipe',v:8,f:'🇸🇹'}];
+const ORIGINS=[{n:'Cabo Verde',v:38,f:'CV'},{n:'Angola',v:29,f:'AO'},{n:'Guiné-Bissau',v:14,f:'GW'},{n:'Moçambique',v:11,f:'MZ'},{n:'São Tomé e Príncipe',v:8,f:'ST'}];
 const CITIESA=[{n:'Lisboa',v:34},{n:'Setúbal',v:16},{n:'Amadora',v:12},{n:'Almada',v:9},{n:'Porto',v:8},{n:'Sintra',v:6}];
 const CATEG=[{n:'Documentação',v:41},{n:'Trabalho',v:33},{n:'Habitação',v:28},{n:'Apoio jurídico',v:19},{n:'Eventos',v:11}];
 const NORESULT=[ // pesquisas sem resultados — insight fundamental (§40)
@@ -456,7 +464,7 @@ function renderShell(){
       <div class="sb-user">
         <div class="av av-sm" style="background:var(--clay);color:#fff">SA</div>
         <div style="line-height:1.2;min-width:0"><div class="fw6 fs-sm">Sofia Almeida</div><div class="muted fs-xs">Administradora</div></div>
-        <button class="btn btn-quiet btn-icon mla" onclick="toast('Sessão terminada (demonstração)')">${svg('logout')}</button>
+        <button class="btn btn-quiet btn-icon mla" onclick="toast('Sessão terminada ')">${svg('logout')}</button>
       </div>
     </div>`;
   el('topbar').innerHTML=`
@@ -494,7 +502,7 @@ R.dash=()=>{
   const max=Math.max(...GROWTH.map(g=>g.v));
   return `
   ${head('Visão geral','Como está a plataforma hoje · 12 de agosto de 2026',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado (demonstração)')">${svg('dl')} Exportar</button>
+    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado ')">${svg('dl')} Exportar</button>
     <button class="btn btn-primary btn-sm" onclick="go('reports')">${svg('flag')} Rever denúncias</button>`)}
 
   <div class="grid g4">
@@ -552,7 +560,7 @@ R.users=()=>{
   const rows=list.map(u=>`<tr>
     <td><div class="row gap8"><div class="av av-sm">${initials(u.name)}</div>
       <div style="min-width:0"><div class="fw6">${esc(u.name)}</div><div class="muted fs-xs">${esc(u.email)}</div></div></div></td>
-    <td>${u.country} ${esc(u.city)}</td>
+    <td><span class="row gap6">${cc(u.country)}${esc(u.city)}</span></td>
     <td><span class="tag">${esc(u.plan)}</span></td>
     <td class="muted fs-sm">${esc(u.joined)}</td>
     <td>${statusPill(u.status)}</td>
@@ -562,7 +570,7 @@ R.users=()=>{
     </div></td>
   </tr>`).join('');
   return `${head('Utilizadores','8.412 contas registadas · 642 novas nos últimos 7 dias',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('CSV exportado (demonstração)')">${svg('dl')} Exportar CSV</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="toast('CSV exportado ')">${svg('dl')} Exportar CSV</button>`)}
   <div class="row gap6 wrap mb16">
     ${[['','Todos'],['ok','Ativos'],['susp','Suspensos']].map(([v,l])=>`<span class="chip ${uFilter===v?'on':''}" onclick="uFilter='${v}';go('users')">${l}</span>`).join('')}
   </div>
@@ -574,7 +582,7 @@ function viewUser(id){const u=USERS.find(x=>x.id===id);
     <div class="row gap12 mb16"><div class="av av-md" style="background:var(--clay);color:#fff">${initials(u.name)}</div>
       <div><div class="h3">${esc(u.name)}</div><div class="muted fs-sm">${esc(u.email)}</div></div></div>
     <div class="grid g2 mb16" style="gap:10px">
-      ${[['País / cidade',u.country+' '+u.city],['Plano',u.plan],['Registo',u.joined],['Estado',u.status==='susp'?'Suspenso':'Ativo']]
+      ${[['País / cidade',u.country+' · '+u.city],['Plano',u.plan],['Registo',u.joined],['Estado',u.status==='susp'?'Suspenso':'Ativo']]
         .map(([k,v])=>`<div class="card card-pad" style="padding:12px 14px"><div class="eyebrow mb4">${k}</div><div class="fw6 fs-sm">${esc(v)}</div></div>`).join('')}
     </div>
     <div class="callout callout-info mb16">${svg('shield')}<div>Os dados pessoais estão protegidos por RGPD. Todas as consultas ficam registadas no log de auditoria.</div></div>
@@ -583,7 +591,7 @@ function viewUser(id){const u=USERS.find(x=>x.id===id);
   </div>`)}
 function suspendUser(id){const u=USERS.find(x=>x.id===id);u.status=u.status==='susp'?'ok':'susp';
   logAction(u.status==='susp'?'Suspendeu utilizador':'Reativou utilizador',u.name);
-  closeModal();go('users');toast(u.status==='susp'?'Conta suspensa':'Conta reativada ✓',u.status==='susp'?'err':'ok2')}
+  closeModal();go('users');toast(u.status==='susp'?'Conta suspensa':'Conta reativada',u.status==='susp'?'err':'ok2')}
 
 /* ============================================================
    PROFISSIONAIS
@@ -611,7 +619,7 @@ R.pros=()=>{
 function setPro(id,st){const p=PROS.find(x=>x.id===id);p.status=st;
   const v=VERIF.find(x=>x.name===p.name);if(v)v.status=st;
   logAction(st==='ok'?'Verificou profissional':'Rejeitou profissional',p.name);
-  go('pros');renderShell();toast(st==='ok'?'Profissional verificado ✓':'Profissional rejeitado',st==='ok'?'ok2':'err')}
+  go('pros');renderShell();toast(st==='ok'?'Profissional verificado':'Profissional rejeitado',st==='ok'?'ok2':'err')}
 
 /* ============================================================
    EMPRESAS
@@ -632,7 +640,7 @@ R.companies=()=>{
   ${tableWrap('Empresas registadas',`${COMPANIES.length} registos`,
     [{l:'Empresa'},{l:'Vagas'},{l:'Plano'},{l:'Estado'},{l:''}],rows)}`;
 };
-function setCompany(id,st){const c=COMPANIES.find(x=>x.id===id);c.status=st;logAction('Aprovou empresa',c.name);go('companies');toast('Empresa aprovada ✓','ok2')}
+function setCompany(id,st){const c=COMPANIES.find(x=>x.id===id);c.status=st;logAction('Aprovou empresa',c.name);go('companies');toast('Empresa aprovada','ok2')}
 
 /* ============================================================
    EMPREGOS
@@ -660,7 +668,7 @@ R.jobs=()=>{
   </div>
   ${tableWrap('Vagas',`${JOBSA.length} registos`,[{l:'Vaga'},{l:'Candidaturas'},{l:'Publicada'},{l:'Estado'},{l:''}],rows)}`;
 };
-function setJob(id,st){const j=JOBSA.find(x=>x.id===id);j.status=st;logAction(st==='live'?'Aprovou vaga':st==='rej'?'Rejeitou vaga':'Despublicou vaga',j.role);go('jobs');toast(st==='live'?'Vaga publicada ✓':st==='rej'?'Vaga rejeitada':'Vaga despublicada',st==='live'?'ok2':'err')}
+function setJob(id,st){const j=JOBSA.find(x=>x.id===id);j.status=st;logAction(st==='live'?'Aprovou vaga':st==='rej'?'Rejeitou vaga':'Despublicou vaga',j.role);go('jobs');toast(st==='live'?'Vaga publicada':st==='rej'?'Vaga rejeitada':'Vaga despublicada',st==='live'?'ok2':'err')}
 
 /* ============================================================
    HABITAÇÃO
@@ -683,7 +691,7 @@ R.homes=()=>{
   ${tableWrap('Anúncios',`${HOMESA.length} registos · ${HOMESA.filter(h=>h.flags).length} com denúncias`,
     [{l:'Anúncio'},{l:'Preço'},{l:'Denúncias'},{l:'Estado'},{l:''}],rows)}`;
 };
-function setHome(id,st){const h=HOMESA.find(x=>x.id===id);h.status=st;logAction(st==='live'?'Aprovou anúncio':st==='rej'?'Rejeitou anúncio':'Despublicou anúncio',h.title);go('homes');toast(st==='live'?'Anúncio publicado ✓':st==='rej'?'Anúncio rejeitado':'Anúncio despublicado',st==='live'?'ok2':'err')}
+function setHome(id,st){const h=HOMESA.find(x=>x.id===id);h.status=st;logAction(st==='live'?'Aprovou anúncio':st==='rej'?'Rejeitou anúncio':'Despublicou anúncio',h.title);go('homes');toast(st==='live'?'Anúncio publicado':st==='rej'?'Anúncio rejeitado':'Anúncio despublicado',st==='live'?'ok2':'err')}
 
 /* ============================================================
    EVENTOS
@@ -701,7 +709,7 @@ R.events=()=>{
   return `${head('Eventos','Eventos submetidos por organizadores e associações')}
   ${tableWrap('Eventos',`${EVENTSA.length} registos`,[{l:'Evento'},{l:'Data'},{l:'Participantes'},{l:'Estado'},{l:''}],rows)}`;
 };
-function setEvent(id,st){const e=EVENTSA.find(x=>x.id===id);e.status=st;logAction(st==='live'?'Aprovou evento':'Rejeitou evento',e.title);go('events');toast(st==='live'?'Evento publicado ✓':'Evento rejeitado',st==='live'?'ok2':'err')}
+function setEvent(id,st){const e=EVENTSA.find(x=>x.id===id);e.status=st;logAction(st==='live'?'Aprovou evento':'Rejeitou evento',e.title);go('events');toast(st==='live'?'Evento publicado':'Evento rejeitado',st==='live'?'ok2':'err')}
 
 /* ============================================================
    DENÚNCIAS / MODERAÇÃO
@@ -749,7 +757,7 @@ function askInfo(id){const q=QUEUE.find(x=>x.id===id);
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb4">Pedir informação</h2><p class="muted fs-sm mb16">Sobre "${esc(q.title)}"</p>
   <div class="field"><label>Mensagem para ${esc(q.by)}</label><textarea class="input">Olá, para podermos analisar o seu caso precisamos de informação adicional. Pode enviar-nos comprovativos que confirmem os dados do anúncio?</textarea></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Pedido de informação enviado ✓','ok2')">${svg('send')} Enviar pedido</button></div>`)}
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Pedido de informação enviado','ok2')">${svg('send')} Enviar pedido</button></div>`)}
 function showLog(){
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb4">Histórico de ações</h2><p class="muted fs-sm mb16">Registo de auditoria de todas as decisões administrativas.</p>
@@ -785,7 +793,7 @@ function setVerif(id,st){const v=VERIF.find(x=>x.id===id);v.status=st;
   const p=PROS.find(x=>x.name===v.name);if(p)p.status=st;
   logAction(st==='ok'?'Verificou':st==='rej'?'Rejeitou verificação de':'Pôs em análise',v.name);
   v.time=st==='ok'?'Verificado agora':st==='rej'?'Rejeitado':'Em análise';
-  go('verif');renderShell();toast(st==='ok'?'Entidade verificada ✓':st==='rej'?'Verificação rejeitada':'Movido para análise',st==='ok'?'ok2':st==='rej'?'err':'')}
+  go('verif');renderShell();toast(st==='ok'?'Entidade verificada':st==='rej'?'Verificação rejeitada':'Movido para análise',st==='ok'?'ok2':st==='rej'?'err':'')}
 
 /* ============================================================
    CONTEÚDO / DOCUMENTAÇÃO / COMUNIDADE
@@ -800,8 +808,8 @@ R.content=()=>{
   ];
   const rows=pages.map(p=>`<tr><td><div class="fw6">${esc(p.t)}</div><div class="muted fs-xs">${esc(p.c)}</div></td>
     <td class="muted fs-sm">${esc(p.up)}</td><td class="num">${p.v}</td><td>${statusPill(p.st)}</td>
-    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Editor de conteúdo (demonstração)')">${svg('eye')}</button></div></td></tr>`).join('');
-  return `${head('Conteúdo','Guias e artigos editoriais da plataforma',`<button class="btn btn-primary btn-sm" onclick="toast('Editor de conteúdo (demonstração)')">${svg('plus')} Novo artigo</button>`)}
+    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Editor de conteúdo ')">${svg('eye')}</button></div></td></tr>`).join('');
+  return `${head('Conteúdo','Guias e artigos editoriais da plataforma',`<button class="btn btn-primary btn-sm" onclick="toast('Editor de conteúdo ')">${svg('plus')} Novo artigo</button>`)}
   ${tableWrap('Artigos','5 registos',[{l:'Artigo'},{l:'Atualizado'},{l:'Visualizações'},{l:'Estado'},{l:''}],rows)}`;
 };
 R.docs=()=>{
@@ -816,7 +824,7 @@ R.docs=()=>{
   ];
   const rows=procs.map(p=>`<tr><td><div class="fw6">${esc(p.t)}</div><div class="muted fs-xs">${esc(p.c)}</div></td>
     <td class="muted fs-sm">${esc(p.rev)}</td><td>${statusPill(p.st)}</td>
-    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Editor de processo (demonstração)')">${svg('eye')}</button></div></td></tr>`).join('');
+    <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Editor de processo ')">${svg('eye')}</button></div></td></tr>`).join('');
   return `${head('Documentação','Processos legais publicados no centro de documentação')}
   <div class="callout callout-warn mb16">${svg('warn')}<div><b>Conteúdo sensível.</b> Informação legal desatualizada pode prejudicar pessoas. Revê cada processo sempre que houver alterações legislativas e mantém a data de revisão visível.</div></div>
   ${tableWrap('Processos',`${procs.length} processos publicados`,[{l:'Processo'},{l:'Revisão'},{l:'Estado'},{l:''}],rows)}`;
@@ -846,7 +854,7 @@ R.analytics=()=>{
   const bar=(list,key,max,color)=>list.map(x=>`<div class="progrow"><div class="pl fs-sm">${x.f?x.f+' ':''}${esc(x.n)}</div>
     <div class="pt"><i style="width:${Math.round(x.v/max*100)}%;background:${color||'var(--clay)'}"></i></div><div class="pv">${x.v}%</div></div>`).join('');
   return `${head('Analytics','Aquisição, ativação, retenção e o que falta na plataforma',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado (demonstração)')">${svg('dl')} Exportar</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado ')">${svg('dl')} Exportar</button>`)}
 
   <div class="card card-pad mb16">
     <div class="eyebrow mb4">Funil</div><div class="h3 mb16">Do visitante ao utilizador ativo</div>
@@ -885,7 +893,7 @@ R.payments=()=>{
     <td>${i.status==='ok'?'<span class="pill pill-ok"><i class="dot"></i>Paga</span>':i.status==='pend'?'<span class="pill pill-pend"><i class="dot"></i>Pendente</span>':'<span class="pill pill-rej"><i class="dot"></i>Falhou</span>'}</td>
     <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Fatura ${esc(i.id)}')">${svg('file')}</button></div></td></tr>`).join('');
   const totalSubs=PLANS.reduce((a,p)=>a+p.subs,0);
-  return `${head('Pagamentos','Planos, subscrições e faturação',`<button class="btn btn-ghost btn-sm" onclick="toast('Exportação contabilística (demonstração)')">${svg('dl')} Exportar</button>`)}
+  return `${head('Pagamentos','Planos, subscrições e faturação',`<button class="btn btn-ghost btn-sm" onclick="toast('Exportação contabilística ')">${svg('dl')} Exportar</button>`)}
   <div class="grid g4 mb16">
     ${[['Receita mensal','12.480€','euro','var(--sage)'],['Subscrições ativas',totalSubs,'card','var(--clay)'],['Receita média/conta','19,80€','chart','var(--sky)'],['Churn (30d)','2,4%','down','var(--gold)']]
       .map(([l,v,ic,c])=>`<div class="stat"><div class="ic" style="background:color-mix(in srgb,${c} 14%,transparent);color:${c}">${svg(ic)}</div><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}
@@ -895,7 +903,7 @@ R.payments=()=>{
       ${PLANS.map(p=>`<div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
         <div><div class="fw6 fs-sm">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.price)} · ${p.subs} subscrições</div></div>
         <div class="num fw6">${esc(p.rev)}</div></div>`).join('')}
-      <button class="btn btn-ghost btn-sm mt12" onclick="toast('Gestão de planos e preços (demonstração)')">${svg('settings')} Gerir planos e preços</button>
+      <button class="btn btn-ghost btn-sm mt12" onclick="toast('Gestão de planos e preços ')">${svg('settings')} Gerir planos e preços</button>
     </div>
     <div class="card card-pad">
       <div class="h3 mb4">Modelo de monetização</div><p class="muted fs-sm mb16">A experiência principal do utilizador é e mantém-se gratuita.</p>
@@ -936,7 +944,7 @@ function newCampaign(){openModal(`<div class="modal-pad"><button class="btn btn-
   <div class="field"><label>Segmento</label><select class="select"><option>Todos os utilizadores</option><option>À procura de emprego</option><option>À procura de casa</option><option>Recém-chegados (30 dias)</option><option>Por cidade</option></select></div>
   <div class="field"><label>Mensagem</label><textarea class="input" placeholder="Escreve de forma clara e útil. Evita linguagem de marketing agressiva."></textarea></div>
   <div class="callout callout-warn mb16">${svg('warn')}<div>Estimativa de alcance: <b>3.410 utilizadores</b>. Envios em massa não podem ser revertidos.</div></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Campanha guardada como rascunho ✓','ok2')">Guardar rascunho</button></div>`)}
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Campanha guardada como rascunho','ok2')">Guardar rascunho</button></div>`)}
 
 /* ============================================================
    CONFIGURAÇÕES
@@ -959,7 +967,7 @@ R.settings=()=>{
       <div class="h3 mb4">Perfis de acesso (RBAC)</div><p class="muted fs-sm mb16">Cada tipo de conta tem permissões próprias.</p>
       ${roles.map(([r,d])=>`<div class="row between" style="padding:10px 0;border-bottom:1px solid var(--line-2)">
         <div style="min-width:0"><div class="fw6 fs-sm">${esc(r)}</div><div class="muted fs-xs">${esc(d)}</div></div>
-        <button class="btn btn-quiet btn-xs" onclick="toast('Editor de permissões (demonstração)')">Editar</button></div>`).join('')}
+        <button class="btn btn-quiet btn-xs" onclick="toast('Editor de permissões ')">Editar</button></div>`).join('')}
     </div>
     <div class="stack" style="gap:16px">
       <div class="card card-pad">

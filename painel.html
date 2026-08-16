@@ -61,6 +61,13 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 .pill-anal{background:var(--sky-soft);color:var(--sky)}
 .pill-rej{background:var(--danger-soft);color:var(--danger)}
 .pill-off{background:var(--surface-3);color:var(--ink-2)}
+/* Marca de país. Substitui bandeiras emoji, que não renderizam no Windows
+   e variam de forma entre sistemas — isto é idêntico em todo o lado. */
+.cc{display:inline-flex;align-items:center;justify-content:center;flex:none;
+  font-family:var(--serif);font-size:.64rem;font-weight:600;letter-spacing:.07em;
+  min-width:2.05em;height:1.5em;padding:0 .36em;border:1px solid var(--line);
+  border-radius:4px;color:var(--ink-2);background:var(--surface);line-height:1}
+
 .tag{display:inline-flex;align-items:center;gap:.35em;font-size:.72rem;font-weight:550;padding:.28em .58em;border-radius:var(--r-sm);background:var(--surface-2);color:var(--ink-2);border:1px solid var(--line)}
 
 .shell{display:flex;min-height:100vh}
@@ -301,6 +308,7 @@ const I={
 function svg(n,c){return `<svg class="i ${c||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7">${I[n]||''}</svg>`}
 const el=id=>document.getElementById(id);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
+const cc=(c,x)=>`<span class="cc ${x||''}">${esc(c||'—')}</span>`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
 const stars=r=>{let s='';for(let i=1;i<=5;i++)s+=`<span style="color:${i<=Math.round(r)?'var(--gold)':'var(--line)'}">${svg('star')}</span>`;return `<span class="row" style="gap:1px">${s}</span>`};
@@ -334,13 +342,13 @@ const NAVS={
    ============================================================ */
 /* --- Profissional --- */
 let PEDIDOS=[
-  {id:'r1',name:'Domingas Teca',country:'🇦🇴',city:'Setúbal',subject:'Título de residência',status:'novo',time:'há 2 h',
+  {id:'r1',name:'Domingas Teca',country:'AO',city:'Setúbal',subject:'Título de residência',status:'novo',time:'há 2 h',
    text:'Cheguei de Angola há 3 meses com visto de procura de trabalho. Já tenho contrato assinado e quero pedir o título de residência, mas não sei se posso fazê-lo sem sair do país. Pode ajudar-me?'},
-  {id:'r2',name:'Nelson Baldé',country:'🇬🇼',city:'Barreiro',subject:'Reagrupamento familiar',status:'novo',time:'há 5 h',
+  {id:'r2',name:'Nelson Baldé',country:'GW',city:'Barreiro',subject:'Reagrupamento familiar',status:'novo',time:'há 5 h',
    text:'Tenho título de residência válido e quero trazer a minha esposa e o meu filho de 6 anos. Queria saber que documentos preciso e quanto tempo demora normalmente.'},
-  {id:'r3',name:'Jandira Monteiro',country:'🇨🇻',city:'Amadora',subject:'Nacionalidade portuguesa',status:'aceite',time:'ontem',
+  {id:'r3',name:'Jandira Monteiro',country:'CV',city:'Amadora',subject:'Nacionalidade portuguesa',status:'aceite',time:'ontem',
    text:'Vivo em Portugal há 6 anos com residência legal contínua. Queria perceber se já reúno condições para pedir a nacionalidade e o que preciso preparar.'},
-  {id:'r4',name:'Aderito Neves',country:'🇸🇹',city:'Porto',subject:'Renovação de título',status:'concluido',time:'há 4 dias',
+  {id:'r4',name:'Aderito Neves',country:'ST',city:'Porto',subject:'Renovação de título',status:'concluido',time:'há 4 dias',
    text:'O meu título expira no próximo mês e queria tratar da renovação com apoio, para não falhar prazos.'},
 ];
 let CONSULTAS=[
@@ -351,10 +359,10 @@ let CONSULTAS=[
   {id:'c5',d:15,day:'5ª',t:'14:00',dur:'30 min',who:'Carla Sanca',type:'Seguimento',mode:'Online'},
 ];
 const REVIEWS=[
-  {who:'Jandira M.',country:'🇨🇻',r:5,time:'há 1 semana',t:'Explicou-me tudo com paciência e numa linguagem que eu percebi. Saí da consulta a saber exatamente o que fazer. Recomendo muito.'},
-  {who:'Aderito N.',country:'🇸🇹',r:5,time:'há 2 semanas',t:'Tratou da minha renovação sem stress. Respondeu sempre às mensagens no mesmo dia.'},
-  {who:'Paulo S.',country:'🇦🇴',r:4,time:'há 3 semanas',t:'Muito profissional e honesta — disse-me logo o que era possível e o que não era. Só demorou um pouco a agendar.'},
-  {who:'Carla S.',country:'🇬🇼',r:5,time:'há 1 mês',t:'Senti-me tratada com respeito, coisa que nem sempre acontece. Fez toda a diferença no meu processo.'},
+  {who:'Jandira M.',country:'CV',r:5,time:'há 1 semana',t:'Explicou-me tudo com paciência e numa linguagem que eu percebi. Saí da consulta a saber exatamente o que fazer. Recomendo muito.'},
+  {who:'Aderito N.',country:'ST',r:5,time:'há 2 semanas',t:'Tratou da minha renovação sem stress. Respondeu sempre às mensagens no mesmo dia.'},
+  {who:'Paulo S.',country:'AO',r:4,time:'há 3 semanas',t:'Muito profissional e honesta — disse-me logo o que era possível e o que não era. Só demorou um pouco a agendar.'},
+  {who:'Carla S.',country:'GW',r:5,time:'há 1 mês',t:'Senti-me tratada com respeito, coisa que nem sempre acontece. Fez toda a diferença no meu processo.'},
 ];
 /* --- Empresa --- */
 let VAGAS=[
@@ -364,14 +372,14 @@ let VAGAS=[
   {id:'v4',role:'Carpinteiro de cofragem',city:'Almada',salary:'1.400€',type:'Tempo inteiro',status:'draft',apps:0,views:0,posted:'—'},
 ];
 let CANDS=[
-  {id:'a1',name:'Nelson Baldé',country:'🇬🇼',city:'Barreiro',vaga:'Servente / Ajudante',exp:'2 anos em construção',st:'Nova',time:'há 1 h'},
-  {id:'a2',name:'Tomás Chissano',country:'🇲🇿',city:'Almada',vaga:'Servente / Ajudante',exp:'Sem experiência',st:'Nova',time:'há 3 h'},
-  {id:'a3',name:'Paulo Semedo',country:'🇨🇻',city:'Seixal',vaga:'Pedreiro',exp:'8 anos, Cabo Verde',st:'Em análise',time:'ontem'},
-  {id:'a4',name:'Mário Fonseca',country:'🇦🇴',city:'Almada',vaga:'Servente / Ajudante',exp:'1 ano',st:'Em análise',time:'ontem'},
-  {id:'a5',name:'Ivo Delgado',country:'🇨🇻',city:'Lisboa',vaga:'Encarregado de obra',exp:'12 anos, chefia de equipa',st:'Entrevista',time:'há 2 dias'},
-  {id:'a6',name:'Bruno Tavares',country:'🇬🇼',city:'Almada',vaga:'Pedreiro',exp:'5 anos',st:'Entrevista',time:'há 3 dias'},
-  {id:'a7',name:'Aníbal Costa',country:'🇦🇴',city:'Seixal',vaga:'Pedreiro',exp:'6 anos',st:'Oferta',time:'há 4 dias'},
-  {id:'a8',name:'Rui Barros',country:'🇲🇿',city:'Lisboa',vaga:'Servente / Ajudante',exp:'Sem experiência',st:'Rejeitada',time:'há 5 dias'},
+  {id:'a1',name:'Nelson Baldé',country:'GW',city:'Barreiro',vaga:'Servente / Ajudante',exp:'2 anos em construção',st:'Nova',time:'há 1 h'},
+  {id:'a2',name:'Tomás Chissano',country:'MZ',city:'Almada',vaga:'Servente / Ajudante',exp:'Sem experiência',st:'Nova',time:'há 3 h'},
+  {id:'a3',name:'Paulo Semedo',country:'CV',city:'Seixal',vaga:'Pedreiro',exp:'8 anos, Cabo Verde',st:'Em análise',time:'ontem'},
+  {id:'a4',name:'Mário Fonseca',country:'AO',city:'Almada',vaga:'Servente / Ajudante',exp:'1 ano',st:'Em análise',time:'ontem'},
+  {id:'a5',name:'Ivo Delgado',country:'CV',city:'Lisboa',vaga:'Encarregado de obra',exp:'12 anos, chefia de equipa',st:'Entrevista',time:'há 2 dias'},
+  {id:'a6',name:'Bruno Tavares',country:'GW',city:'Almada',vaga:'Pedreiro',exp:'5 anos',st:'Entrevista',time:'há 3 dias'},
+  {id:'a7',name:'Aníbal Costa',country:'AO',city:'Seixal',vaga:'Pedreiro',exp:'6 anos',st:'Oferta',time:'há 4 dias'},
+  {id:'a8',name:'Rui Barros',country:'MZ',city:'Lisboa',vaga:'Servente / Ajudante',exp:'Sem experiência',st:'Rejeitada',time:'há 5 dias'},
 ];
 const CAND_STATES=['Nova','Em análise','Entrevista','Oferta','Rejeitada'];
 /* --- Anunciante --- */
@@ -382,10 +390,10 @@ let ANUNCIOS=[
   {id:'n4',title:'T3 familiar — Azeitão',city:'Setúbal',price:1150,type:'Casa',status:'pend',views:0,favs:0,leads:0,posted:'12 Ago'},
 ];
 let LEADS=[
-  {id:'l1',name:'Preciosa Lopes',country:'🇦🇴',anuncio:'Quarto individual — Bocage',msg:'Boa tarde, o quarto ainda está disponível? Posso visitar esta semana?',time:'há 40 min',novo:true},
-  {id:'l2',name:'Carla Sanca',country:'🇬🇼',anuncio:'T1 renovado — Bela Vista',msg:'Tenho contrato de trabalho e recibos. É possível agendar visita para sábado?',time:'há 2 h',novo:true},
-  {id:'l3',name:'Domingas Teca',country:'🇦🇴',anuncio:'T1 renovado — Bela Vista',msg:'As despesas de água e luz estão incluídas no valor?',time:'há 6 h',novo:false},
-  {id:'l4',name:'Tomás Chissano',country:'🇲🇿',anuncio:'T2 com varanda — Monte Belo',msg:'Aceitam agregado familiar com duas crianças?',time:'ontem',novo:false},
+  {id:'l1',name:'Preciosa Lopes',country:'AO',anuncio:'Quarto individual — Bocage',msg:'Boa tarde, o quarto ainda está disponível? Posso visitar esta semana?',time:'há 40 min',novo:true},
+  {id:'l2',name:'Carla Sanca',country:'GW',anuncio:'T1 renovado — Bela Vista',msg:'Tenho contrato de trabalho e recibos. É possível agendar visita para sábado?',time:'há 2 h',novo:true},
+  {id:'l3',name:'Domingas Teca',country:'AO',anuncio:'T1 renovado — Bela Vista',msg:'As despesas de água e luz estão incluídas no valor?',time:'há 6 h',novo:false},
+  {id:'l4',name:'Tomás Chissano',country:'MZ',anuncio:'T2 com varanda — Monte Belo',msg:'Aceitam agregado familiar com duas crianças?',time:'ontem',novo:false},
 ];
 /* --- Organizador --- */
 let MEUS_EVENTOS=[
@@ -394,60 +402,60 @@ let MEUS_EVENTOS=[
   {id:'e3',title:'Festa de Aniversário da Associação',date:'5 Set 2026',time:'20:00',venue:'A definir',price:'15€',status:'draft',going:0,views:0,cap:400},
 ];
 const PARTICIPANTES=[
-  {name:'Jandira Monteiro',country:'🇨🇻',ev:'Noite de Kizomba & Semba',when:'há 2 h',st:'Confirmado'},
-  {name:'Nelson Baldé',country:'🇬🇼',ev:'Noite de Kizomba & Semba',when:'há 5 h',st:'Confirmado'},
-  {name:'Domingas Teca',country:'🇦🇴',ev:'Roda de Conversa: Primeiros meses',when:'ontem',st:'Confirmado'},
-  {name:'Aderito Neves',country:'🇸🇹',ev:'Noite de Kizomba & Semba',when:'ontem',st:'Confirmado'},
-  {name:'Preciosa Lopes',country:'🇦🇴',ev:'Roda de Conversa: Primeiros meses',when:'há 2 dias',st:'Confirmado'},
+  {name:'Jandira Monteiro',country:'CV',ev:'Noite de Kizomba & Semba',when:'há 2 h',st:'Confirmado'},
+  {name:'Nelson Baldé',country:'GW',ev:'Noite de Kizomba & Semba',when:'há 5 h',st:'Confirmado'},
+  {name:'Domingas Teca',country:'AO',ev:'Roda de Conversa: Primeiros meses',when:'ontem',st:'Confirmado'},
+  {name:'Aderito Neves',country:'ST',ev:'Noite de Kizomba & Semba',when:'ontem',st:'Confirmado'},
+  {name:'Preciosa Lopes',country:'AO',ev:'Roda de Conversa: Primeiros meses',when:'há 2 dias',st:'Confirmado'},
 ];
 /* --- Mensagens (partilhado; por papel) --- */
 let CONVS={
   pro:[
-    {id:'m1',who:'Domingas Teca',country:'🇦🇴',ctx:'Título de residência',unread:2,msgs:[
+    {id:'m1',who:'Domingas Teca',country:'AO',ctx:'Título de residência',unread:2,msgs:[
       {s:'auto',t:'Conversa iniciada a partir de um pedido de consulta na Bússola.'},
       {s:'them',t:'Boa tarde, Dra. Helena. Recebeu o meu pedido sobre o título de residência?',tm:'14:02'},
       {s:'me',t:'Boa tarde, Domingas. Recebi sim. Já tem o contrato de trabalho assinado?',tm:'14:20'},
       {s:'them',t:'Tenho, assinei na semana passada. Posso enviar-lhe?',tm:'14:24'},
       {s:'them',t:'E preciso de mais alguma coisa além do contrato?',tm:'14:25'},
     ]},
-    {id:'m2',who:'Nelson Baldé',country:'🇬🇼',ctx:'Reagrupamento familiar',unread:0,msgs:[
+    {id:'m2',who:'Nelson Baldé',country:'GW',ctx:'Reagrupamento familiar',unread:0,msgs:[
       {s:'auto',t:'Conversa iniciada a partir de um pedido de consulta na Bússola.'},
       {s:'them',t:'Bom dia. Queria trazer a minha família. Quanto costuma demorar?',tm:'09:10'},
       {s:'me',t:'Bom dia, Nelson. Os prazos variam bastante. Vamos marcar uma consulta para eu ver a sua situação em concreto?',tm:'09:32'},
       {s:'them',t:'Sim, por favor. Tenho disponibilidade a partir de quarta.',tm:'09:40'},
     ]},
-    {id:'m3',who:'Jandira Monteiro',country:'🇨🇻',ctx:'Nacionalidade',unread:0,msgs:[
+    {id:'m3',who:'Jandira Monteiro',country:'CV',ctx:'Nacionalidade',unread:0,msgs:[
       {s:'them',t:'Muito obrigada pela consulta de ontem. Fiquei muito mais tranquila.',tm:'11:15'},
       {s:'me',t:'Ainda bem, Jandira. Vá reunindo os documentos e falamos para a semana.',tm:'11:40'},
     ]},
   ],
   empresa:[
-    {id:'m1',who:'Nelson Baldé',country:'🇬🇼',ctx:'Servente / Ajudante',unread:1,msgs:[
+    {id:'m1',who:'Nelson Baldé',country:'GW',ctx:'Servente / Ajudante',unread:1,msgs:[
       {s:'auto',t:'Candidatura recebida através da Bússola.'},
       {s:'me',t:'Bom dia, Nelson. Recebemos a sua candidatura. Tem disponibilidade para começar este mês?',tm:'08:40'},
       {s:'them',t:'Bom dia. Tenho sim, posso começar quando precisarem.',tm:'09:05'},
     ]},
-    {id:'m2',who:'Ivo Delgado',country:'🇨🇻',ctx:'Encarregado de obra',unread:0,msgs:[
+    {id:'m2',who:'Ivo Delgado',country:'CV',ctx:'Encarregado de obra',unread:0,msgs:[
       {s:'me',t:'Boa tarde, Ivo. Podemos fazer a entrevista na quinta às 10h, no escritório do Feijó?',tm:'16:20'},
       {s:'them',t:'Boa tarde. Perfeito, lá estarei. Obrigado pela oportunidade.',tm:'16:45'},
     ]},
   ],
   anunciante:[
-    {id:'m1',who:'Preciosa Lopes',country:'🇦🇴',ctx:'Quarto — Bocage',unread:1,msgs:[
+    {id:'m1',who:'Preciosa Lopes',country:'AO',ctx:'Quarto — Bocage',unread:1,msgs:[
       {s:'auto',t:'Contacto a partir do anúncio "Quarto individual — Bocage".'},
       {s:'them',t:'Boa tarde, o quarto ainda está disponível? Posso visitar esta semana?',tm:'15:10'},
     ]},
-    {id:'m2',who:'Carla Sanca',country:'🇬🇼',ctx:'T1 — Bela Vista',unread:0,msgs:[
+    {id:'m2',who:'Carla Sanca',country:'GW',ctx:'T1 — Bela Vista',unread:0,msgs:[
       {s:'them',t:'Tenho contrato de trabalho e recibos. Posso visitar sábado?',tm:'13:02'},
       {s:'me',t:'Boa tarde, Carla. Sábado às 11h está bom para si?',tm:'13:30'},
       {s:'them',t:'Está perfeito, obrigada!',tm:'13:33'},
     ]},
   ],
   organizador:[
-    {id:'m1',who:'Jandira Monteiro',country:'🇨🇻',ctx:'Noite de Kizomba',unread:1,msgs:[
+    {id:'m1',who:'Jandira Monteiro',country:'CV',ctx:'Noite de Kizomba',unread:1,msgs:[
       {s:'them',t:'Boa noite! O evento tem entrada para menores acompanhados?',tm:'21:12'},
     ]},
-    {id:'m2',who:'Casa da Cultura',country:'🏛️',ctx:'Parceria',unread:0,msgs:[
+    {id:'m2',who:'Casa da Cultura',country:'INST',ctx:'Parceria',unread:0,msgs:[
       {s:'them',t:'Temos interesse em acolher a próxima roda de conversa.',tm:'10:00'},
       {s:'me',t:'Excelente! Enviamos proposta de datas até sexta.',tm:'10:25'},
     ]},
@@ -545,7 +553,7 @@ function emptyState(ic,t,m,cta){return `<div class="state"><div class="ill">${sv
 V['pro:dash']=()=>{
   const novos=PEDIDOS.filter(p=>p.status==='novo');
   const a=R().accent;
-  return `${head('Bom dia, Dra. Helena','Isto é o que precisa da sua atenção hoje.')}
+  return `${head('Bom dia, Dra. Helena','O que precisa da sua atenção.')}
   <div class="grid g4 mb24">
     ${statTile('Pedidos por responder',novos.length,'inbox',a,'+2')}
     ${statTile('Consultas esta semana',CONSULTAS.length,'cal','var(--sky)')}
@@ -557,11 +565,11 @@ V['pro:dash']=()=>{
       <div class="row between mb16"><div><div class="eyebrow mb4">Por responder</div><div class="h3">Pedidos recentes</div></div>
         <button class="btn btn-quiet btn-sm" onclick="go('pedidos')">Ver todos ${svg('arrow')}</button></div>
       ${novos.length?novos.map(p=>`<div class="row gap12" style="padding:12px 0;border-bottom:1px solid var(--line-2);cursor:pointer" onclick="openPedido('${p.id}')">
-        <div class="av av-sm">${p.country}</div>
+        ${cc(p.country)}
         <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(p.name)} · <span class="muted fw5">${esc(p.subject)}</span></div>
         <div class="muted fs-xs line-clamp2">${esc(p.text)}</div></div>
         <span class="muted fs-xs">${esc(p.time)}</span></div>`).join('')
-      :`<p class="muted">Sem pedidos por responder. Bom trabalho.</p>`}
+      :`<p class="muted">Sem pedidos por responder.</p>`}
     </div>
     <div class="card card-pad">
       <div class="eyebrow mb4">Hoje</div><div class="h3 mb16">Próximas consultas</div>
@@ -575,7 +583,7 @@ V['pro:dash']=()=>{
 };
 V['pro:pedidos']=()=>{
   const rows=PEDIDOS.map(p=>`<tr>
-    <td><div class="row gap8"><div class="av av-sm">${p.country}</div>
+    <td><div class="row gap8">${cc(p.country)}
       <div><div class="fw6">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.city)}</div></div></div></td>
     <td class="fs-sm">${esc(p.subject)}</td>
     <td class="muted fs-sm">${esc(p.time)}</td>
@@ -589,7 +597,7 @@ V['pro:pedidos']=()=>{
 function openPedido(id){
   const p=PEDIDOS.find(x=>x.id===id);if(!p)return;
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-    <div class="row gap12 mb16"><div class="av av-md">${p.country}</div>
+    <div class="row gap12 mb16">${cc(p.country)}
       <div><div class="h3">${esc(p.name)}</div><div class="muted fs-sm">${esc(p.city)} · ${esc(p.time)}</div></div></div>
     <span class="tag mb12">${esc(p.subject)}</span>
     <div class="card card-pad mb16" style="background:var(--surface-2)"><p class="fs-sm">${esc(p.text)}</p></div>
@@ -600,7 +608,7 @@ function openPedido(id){
     :`<button class="btn btn-ghost btn-block" onclick="closeModal();go('msgs')">${svg('chat')} Abrir conversa</button>`}
   </div>`);
 }
-function aceitar(id){const p=PEDIDOS.find(x=>x.id===id);p.status='aceite';save();closeModal();renderShell();go('pedidos');toast('Pedido aceite — conversa aberta ✓','ok2')}
+function aceitar(id){const p=PEDIDOS.find(x=>x.id===id);p.status='aceite';save();closeModal();renderShell();go('pedidos');toast('Pedido aceite — conversa aberta','ok2')}
 function recusar(id){const p=PEDIDOS.find(x=>x.id===id);p.status='concluido';save();closeModal();renderShell();go('pedidos');toast('Pedido recusado com nota ao cliente')}
 function newConsulta(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb16">Marcar consulta</h2>
@@ -608,7 +616,7 @@ function newConsulta(){openModal(`<div class="modal-pad"><button class="btn btn-
   <div class="row gap8"><div class="field flex1"><label>Data</label><input class="input" type="date" value="2026-08-14"></div>
   <div class="field flex1"><label>Hora</label><input class="input" type="time" value="10:00"></div></div>
   <div class="field"><label>Modalidade</label><select class="select"><option>Online</option><option>Presencial</option></select></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Consulta marcada ✓','ok2')">Marcar consulta</button></div>`)}
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Consulta marcada','ok2')">Marcar consulta</button></div>`)}
 V['pro:agenda']=()=>{
   const dias=[{d:12,n:'2ª feira',t:true},{d:13,n:'3ª feira'},{d:14,n:'4ª feira'},{d:15,n:'5ª feira'},{d:16,n:'6ª feira'}];
   return `${head('Consultas','Semana de 12 a 16 de agosto de 2026',`
@@ -643,7 +651,7 @@ V['pro:reviews']=()=>{
     </div>
     <div class="stack" style="gap:12px">
       ${REVIEWS.map(r=>`<div class="card card-pad">
-        <div class="row between mb8"><div class="row gap8"><div class="av av-sm">${r.country}</div>
+        <div class="row between mb8"><div class="row gap8">${cc(r.country)}
           <div><div class="fw6 fs-sm">${esc(r.who)}</div><div class="muted fs-xs">${esc(r.time)}</div></div></div>
           ${stars(r.r)}</div>
         <p class="fs-sm">${esc(r.t)}</p>
@@ -660,7 +668,7 @@ V['pro:reviews']=()=>{
 V['empresa:dash']=()=>{
   const a=R().accent;const novas=CANDS.filter(c=>c.st==='Nova').length;
   const totalApps=VAGAS.reduce((s,v)=>s+v.apps,0),totalViews=VAGAS.reduce((s,v)=>s+v.views,0);
-  return `${head('Bom dia, Edifer Obras','O estado do seu recrutamento hoje.')}
+  return `${head('Bom dia, Edifer Obras','Estado do recrutamento.')}
   <div class="grid g4 mb24">
     ${statTile('Vagas publicadas',VAGAS.filter(v=>v.status==='live').length,'work',a)}
     ${statTile('Candidaturas novas',novas,'users','var(--clay)','+5')}
@@ -672,7 +680,7 @@ V['empresa:dash']=()=>{
       <div class="row between mb16"><div><div class="eyebrow mb4">A precisar de decisão</div><div class="h3">Candidaturas novas</div></div>
         <button class="btn btn-quiet btn-sm" onclick="go('candidaturas')">Ver todas ${svg('arrow')}</button></div>
       ${CANDS.filter(c=>c.st==='Nova').map(c=>`<div class="row gap12" style="padding:12px 0;border-bottom:1px solid var(--line-2);cursor:pointer" onclick="openCand('${c.id}')">
-        <div class="av av-sm">${c.country}</div>
+        ${cc(c.country)}
         <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.name)}</div><div class="muted fs-xs">${esc(c.vaga)} · ${esc(c.exp)}</div></div>
         <span class="muted fs-xs">${esc(c.time)}</span></div>`).join('')}
     </div>
@@ -693,13 +701,13 @@ V['empresa:vagas']=()=>{
     <td>${pill(v.status)}</td>
     <td><div class="t-actions">
       ${v.status==='draft'?`<button class="btn btn-sage btn-xs" onclick="pubVaga('${v.id}')">${svg('check')} Publicar</button>`
-      :`<button class="btn btn-quiet btn-icon" onclick="toast('Editor de vaga (demonstração)')">${svg('edit')}</button>
+      :`<button class="btn btn-quiet btn-icon" onclick="toast('Edição de vaga por implementar')">${svg('edit')}</button>
         <button class="btn btn-quiet btn-icon" onclick="pauseVaga('${v.id}')" title="Despublicar">${svg('pause')}</button>`}
     </div></td></tr>`).join('');
   return `${head('Vagas','As suas ofertas de emprego na Bússola',`<button class="btn btn-primary btn-sm" onclick="newVaga()">${svg('plus')} Nova vaga</button>`)}
   ${tableWrap('Vagas',`${VAGAS.length} registos`,['Vaga','Salário','Candidaturas','Visualizações','Estado',''],rows)}`;
 };
-function pubVaga(id){const v=VAGAS.find(x=>x.id===id);v.status='live';v.posted='12 Ago';go('vagas');toast('Vaga publicada ✓','ok2')}
+function pubVaga(id){const v=VAGAS.find(x=>x.id===id);v.status='live';v.posted='12 Ago';go('vagas');toast('Vaga publicada','ok2')}
 function pauseVaga(id){const v=VAGAS.find(x=>x.id===id);v.status='draft';go('vagas');toast('Vaga despublicada')}
 function newVaga(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb16">Nova vaga</h2>
@@ -709,14 +717,14 @@ function newVaga(){openModal(`<div class="modal-pad"><button class="btn btn-quie
   <div class="field"><label>Tipo</label><select class="select"><option>Tempo inteiro</option><option>Part-time</option><option>Turnos</option></select></div>
   <div class="field"><label>Descrição</label><textarea class="input" placeholder="Descreva a função, o ambiente e o que oferece."></textarea></div>
   <div class="callout callout-sage mb16">${svg('info')}<div>Indique se aceita candidatos <b>sem experiência</b> — é o filtro mais usado por quem procura o primeiro emprego em Portugal.</div></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Vaga submetida para aprovação ✓','ok2')">Publicar vaga</button></div>`)}
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Vaga submetida para aprovação','ok2')">Publicar vaga</button></div>`)}
 V['empresa:candidaturas']=()=>{
   return `${head('Candidaturas','Arraste o processo de cada candidato até à decisão')}
   <div class="kan">
     ${CAND_STATES.map(st=>{const list=CANDS.filter(c=>c.st===st);
       return `<div class="kan-col"><h4>${st}<span>${list.length}</span></h4>
       ${list.map(c=>`<div class="kan-card" onclick="openCand('${c.id}')">
-        <div class="row gap8 mb8"><div class="av av-xs">${c.country}</div><span class="fw6 fs-sm">${esc(c.name)}</span></div>
+        <div class="row gap8 mb8">${cc(c.country)}<span class="fw6 fs-sm">${esc(c.name)}</span></div>
         <div class="muted fs-xs">${esc(c.vaga)}</div><div class="muted fs-xs">${esc(c.exp)}</div>
         <div class="muted fs-xs mt8">${esc(c.time)}</div></div>`).join('')
       ||`<div class="muted fs-xs tc" style="padding:14px 0">—</div>`}</div>`}).join('')}
@@ -726,7 +734,7 @@ function openCand(id){
   const c=CANDS.find(x=>x.id===id);if(!c)return;
   const i=CAND_STATES.indexOf(c.st);
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-    <div class="row gap12 mb16"><div class="av av-md">${c.country}</div>
+    <div class="row gap12 mb16">${cc(c.country)}
       <div><div class="h3">${esc(c.name)}</div><div class="muted fs-sm">${esc(c.city)} · candidatou-se ${esc(c.time)}</div></div></div>
     <div class="grid g2 mb16" style="gap:10px">
       ${[['Vaga',c.vaga],['Experiência',c.exp],['Estado',c.st],['Contacto','Através da Bússola']].map(([k,v])=>
@@ -746,7 +754,7 @@ function moveCand(id,st){const c=CANDS.find(x=>x.id===id);c.st=st;save();closeMo
 V['anunciante:dash']=()=>{
   const a=R().accent;
   const views=ANUNCIOS.reduce((s,x)=>s+x.views,0),favs=ANUNCIOS.reduce((s,x)=>s+x.favs,0),leads=ANUNCIOS.reduce((s,x)=>s+x.leads,0);
-  return `${head('Bom dia, Sado Habitat','Como estão os seus anúncios esta semana.')}
+  return `${head('Bom dia, Sado Habitat','Desempenho dos anúncios esta semana.')}
   <div class="grid g4 mb24">
     ${statTile('Anúncios ativos',ANUNCIOS.filter(x=>x.status==='live').length,'home',a)}
     ${statTile('Visualizações',views.toLocaleString('pt-PT'),'eye','var(--sky)','+22%')}
@@ -758,7 +766,7 @@ V['anunciante:dash']=()=>{
       <div class="row between mb16"><div><div class="eyebrow mb4">Novos contactos</div><div class="h3">Interessados recentes</div></div>
         <button class="btn btn-quiet btn-sm" onclick="go('interessados')">Ver todos ${svg('arrow')}</button></div>
       ${LEADS.slice(0,4).map(l=>`<div class="row gap12" style="padding:12px 0;border-bottom:1px solid var(--line-2);cursor:pointer" onclick="openLead('${l.id}')">
-        <div class="av av-sm">${l.country}</div>
+        ${cc(l.country)}
         <div style="flex:1;min-width:0"><div class="row gap6"><span class="fw6 fs-sm">${esc(l.name)}</span>${l.novo?'<span class="pill pill-anal"><i class="dot"></i>Novo</span>':''}</div>
         <div class="muted fs-xs">${esc(l.anuncio)}</div><div class="muted fs-xs line-clamp2">${esc(l.msg)}</div></div>
         <span class="muted fs-xs">${esc(l.time)}</span></div>`).join('')}
@@ -779,7 +787,7 @@ V['anunciante:anuncios']=()=>{
     <td class="num">${x.views.toLocaleString('pt-PT')}</td><td class="num">${x.favs}</td><td class="num">${x.leads}</td>
     <td>${pill(x.status)}</td>
     <td><div class="t-actions">
-      <button class="btn btn-quiet btn-icon" onclick="toast('Editor de anúncio (demonstração)')">${svg('edit')}</button>
+      <button class="btn btn-quiet btn-icon" onclick="toast('Edição de anúncio por implementar')">${svg('edit')}</button>
       ${x.status==='live'?`<button class="btn btn-quiet btn-icon" onclick="pauseAnuncio('${x.id}')" title="Despublicar">${svg('pause')}</button>`:''}
     </div></td></tr>`).join('');
   return `${head('Anúncios','Os seus imóveis publicados na Bússola',`<button class="btn btn-primary btn-sm" onclick="newAnuncio()">${svg('plus')} Novo anúncio</button>`)}
@@ -795,10 +803,10 @@ function newAnuncio(){openModal(`<div class="modal-pad"><button class="btn btn-q
   <div class="field flex1"><label>Caução</label><select class="select"><option>1 mês</option><option>2 meses</option><option>Sem caução</option></select></div></div>
   <div class="field"><label>Descrição</label><textarea class="input" placeholder="Descreva o imóvel, a zona e as condições com honestidade."></textarea></div>
   <div class="callout callout-warn mb16">${svg('warn')}<div>Anúncios com preços irrealistas ou sem morada aproximada são retidos para análise antes de publicar.</div></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Anúncio submetido para aprovação ✓','ok2')">Submeter anúncio</button></div>`)}
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Anúncio submetido para aprovação','ok2')">Submeter anúncio</button></div>`)}
 V['anunciante:interessados']=()=>{
   const rows=LEADS.map(l=>`<tr>
-    <td><div class="row gap8"><div class="av av-sm">${l.country}</div>
+    <td><div class="row gap8">${cc(l.country)}
       <div><div class="row gap6"><span class="fw6">${esc(l.name)}</span>${l.novo?'<span class="pill pill-anal"><i class="dot"></i>Novo</span>':''}</div>
       <div class="muted fs-xs">${esc(l.anuncio)}</div></div></div></td>
     <td class="fs-sm" style="max-width:320px">${esc(l.msg)}</td>
@@ -810,12 +818,12 @@ V['anunciante:interessados']=()=>{
 };
 function openLead(id){const l=LEADS.find(x=>x.id===id);if(!l)return;l.novo=false;
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-    <div class="row gap12 mb12"><div class="av av-md">${l.country}</div>
+    <div class="row gap12 mb12">${cc(l.country)}
       <div><div class="h3">${esc(l.name)}</div><div class="muted fs-sm">${esc(l.anuncio)} · ${esc(l.time)}</div></div></div>
     <div class="card card-pad mb16" style="background:var(--surface-2)"><p class="fs-sm">${esc(l.msg)}</p></div>
     <div class="field"><label>A sua resposta</label><textarea class="input">Boa tarde, obrigado pelo interesse. O imóvel ainda está disponível. Podemos agendar visita esta semana.</textarea></div>
     <div class="callout callout-warn mb16">${svg('shield')}<div>Nunca peça pagamentos antes da visita — é a regra que protege ambas as partes.</div></div>
-    <button class="btn btn-primary btn-block" onclick="closeModal();renderShell();go('interessados');toast('Resposta enviada ✓','ok2')">${svg('send')} Enviar resposta</button></div>`)}
+    <button class="btn btn-primary btn-block" onclick="closeModal();renderShell();go('interessados');toast('Resposta enviada','ok2')">${svg('send')} Enviar resposta</button></div>`)}
 
 /* ============================================================
    ORGANIZADOR
@@ -823,7 +831,7 @@ function openLead(id){const l=LEADS.find(x=>x.id===id);if(!l)return;l.novo=false
 V['organizador:dash']=()=>{
   const a=R().accent;
   const going=MEUS_EVENTOS.reduce((s,e)=>s+e.going,0),views=MEUS_EVENTOS.reduce((s,e)=>s+e.views,0);
-  return `${head('Bom dia, Associação Kianda','Os seus eventos e a comunidade que os segue.')}
+  return `${head('Bom dia, Associação Kianda','Eventos e participação.')}
   <div class="grid g4 mb24">
     ${statTile('Eventos publicados',MEUS_EVENTOS.filter(e=>e.status==='live').length,'event',a)}
     ${statTile('Participantes',going,'users','var(--clay)','+38')}
@@ -842,7 +850,7 @@ V['organizador:dash']=()=>{
     <div class="card card-pad">
       <div class="eyebrow mb4">Comunidade</div><div class="h3 mb16">Inscrições recentes</div>
       ${PARTICIPANTES.slice(0,5).map(p=>`<div class="row gap8" style="padding:9px 0;border-bottom:1px solid var(--line-2)">
-        <div class="av av-xs">${p.country}</div><div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(p.name)}</div>
+        ${cc(p.country)}<div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(p.name)}</div>
         <div class="muted fs-xs">${esc(p.ev)}</div></div><span class="muted fs-xs">${esc(p.when)}</span></div>`).join('')}
     </div>
   </div>`;
@@ -856,12 +864,12 @@ V['organizador:eventos']=()=>{
     <td>${pill(e.status)}</td>
     <td><div class="t-actions">
       ${e.status==='draft'?`<button class="btn btn-sage btn-xs" onclick="pubEvento('${e.id}')">${svg('check')} Publicar</button>`
-      :`<button class="btn btn-quiet btn-icon" onclick="toast('Editor de evento (demonstração)')">${svg('edit')}</button>`}
+      :`<button class="btn btn-quiet btn-icon" onclick="toast('Edição de evento por implementar')">${svg('edit')}</button>`}
     </div></td></tr>`).join('');
   return `${head('Eventos','Os eventos da sua organização',`<button class="btn btn-primary btn-sm" onclick="newEvento()">${svg('plus')} Novo evento</button>`)}
   ${tableWrap('Eventos',`${MEUS_EVENTOS.length} registos`,['Evento','Data','Preço','Participantes','Visualizações','Estado',''],rows)}`;
 };
-function pubEvento(id){const e=MEUS_EVENTOS.find(x=>x.id===id);e.status='live';go('eventos');toast('Evento submetido para aprovação ✓','ok2')}
+function pubEvento(id){const e=MEUS_EVENTOS.find(x=>x.id===id);e.status='live';go('eventos');toast('Evento submetido para aprovação','ok2')}
 function newEvento(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb16">Novo evento</h2>
   <div class="field"><label>Título</label><input class="input" placeholder="Ex: Noite de Kizomba & Semba"></div>
@@ -871,15 +879,15 @@ function newEvento(){openModal(`<div class="modal-pad"><button class="btn btn-qu
   <div class="row gap8"><div class="field flex1"><label>Local</label><input class="input" placeholder="Espaço, cidade"></div>
   <div class="field flex1"><label>Preço</label><input class="input" placeholder="Gratuito ou 10€"></div></div>
   <div class="field"><label>Descrição</label><textarea class="input" placeholder="O que vai acontecer e para quem é."></textarea></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Evento submetido para aprovação ✓','ok2')">Submeter evento</button></div>`)}
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Evento submetido para aprovação','ok2')">Submeter evento</button></div>`)}
 V['organizador:participantes']=()=>{
   const rows=PARTICIPANTES.map(p=>`<tr>
-    <td><div class="row gap8"><div class="av av-sm">${p.country}</div><span class="fw6">${esc(p.name)}</span></div></td>
+    <td><div class="row gap8">${cc(p.country)}<span class="fw6">${esc(p.name)}</span></div></td>
     <td class="fs-sm">${esc(p.ev)}</td><td class="muted fs-sm">${esc(p.when)}</td>
     <td><span class="pill pill-ok"><i class="dot"></i>${esc(p.st)}</span></td>
     <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="go('msgs')">${svg('chat')}</button></div></td></tr>`).join('');
   return `${head('Participantes','Quem vai aos seus eventos',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Lista exportada (demonstração)')">${svg('dl')} Exportar lista</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="toast('Lista exportada')">${svg('dl')} Exportar lista</button>`)}
   ${tableWrap('Inscrições',`${PARTICIPANTES.length} confirmadas`,['Pessoa','Evento','Inscrição','Estado',''],rows)}
   <div class="callout callout-info mt16">${svg('shield')}<div>Só recebe o nome e o contacto de quem se inscreveu, e apenas para efeitos do evento. Não pode usar estes dados para outras comunicações sem consentimento.</div></div>`;
 };
@@ -896,7 +904,7 @@ V.msgs=()=>{
   <div class="msg-wrap">
     <div class="conv-list">
       ${list.map(x=>`<div class="conv ${x.id===P.conv?'on':''}" onclick="openConv('${x.id}')">
-        <div class="av av-sm">${x.country}</div>
+        ${cc(x.country)}
         <div style="flex:1;min-width:0"><div class="cn"><span>${esc(x.who)}</span>${x.unread?'<span class="unread-dot"></span>':''}</div>
         <div class="cp">${esc(x.ctx)}</div>
         <div class="cp">${esc((x.msgs[x.msgs.length-1]||{}).t||'')}</div></div>
@@ -904,7 +912,7 @@ V.msgs=()=>{
     </div>
     <div class="thread">
       <div class="thread-head">
-        <div class="av av-sm">${c.country}</div>
+        ${cc(c.country)}
         <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.who)}</div><div class="muted fs-xs">${esc(c.ctx)}</div></div>
         <button class="btn btn-quiet btn-icon" title="Bloquear" onclick="blockConv()">${svg('ban')}</button>
         <button class="btn btn-quiet btn-icon" title="Denunciar" onclick="reportConv()">${svg('flag')}</button>
@@ -914,7 +922,7 @@ V.msgs=()=>{
           :`<div class="bub ${m.s==='me'?'me':'them'}">${esc(m.t)}${m.tm?`<div class="tm">${esc(m.tm)}</div>`:''}</div>`).join('')}
       </div>
       <div class="composer">
-        <button class="btn btn-quiet btn-icon" onclick="toast('Anexos disponíveis na versão final')">${svg('clip')}</button>
+        <button class="btn btn-quiet btn-icon" onclick="toast('Anexos por implementar')">${svg('clip')}</button>
         <textarea id="msgIn" placeholder="Escreva a sua mensagem…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();sendMsg()}"></textarea>
         <button class="btn btn-primary btn-icon" onclick="sendMsg()">${svg('send')}</button>
       </div>
@@ -927,7 +935,7 @@ function sendMsg(){
   const inp=el('msgIn');if(!inp)return;const t=inp.value.trim();if(!t)return;
   const c=(CONVS[P.role]||[]).find(x=>x.id===P.conv);if(!c)return;
   const now=new Date();c.msgs.push({s:'me',t,tm:String(now.getHours()).padStart(2,'0')+':'+String(now.getMinutes()).padStart(2,'0')});
-  inp.value='';go('msgs');toast('Mensagem enviada ✓','ok2');
+  inp.value='';go('msgs');toast('Mensagem enviada','ok2');
 }
 function blockConv(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb8">Bloquear contacto?</h2><p class="muted mb24">Esta pessoa deixa de poder enviar-lhe mensagens. Pode desbloquear a qualquer momento nas definições.</p>
@@ -937,7 +945,7 @@ function reportConv(){openModal(`<div class="modal-pad"><button class="btn btn-q
   <h2 class="h2 mb8">Denunciar conversa</h2><p class="muted mb16">A equipa de moderação analisa todas as denúncias.</p>
   <div class="stack gap8 mb16">${['Spam ou angariação','Assédio ou desrespeito','Tentativa de burla','Conteúdo impróprio','Outro'].map(r=>
     `<label class="card card-pad row gap8" style="padding:12px 14px;cursor:pointer"><input type="radio" name="rep" style="accent-color:var(--accent)"><span class="fs-sm fw5">${r}</span></label>`).join('')}</div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Denúncia enviada para moderação ✓','ok2')">Enviar denúncia</button></div>`)}
+  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Denúncia enviada para moderação','ok2')">Enviar denúncia</button></div>`)}
 
 /* ============================================================
    PERFIL + FATURAÇÃO (partilhados)
@@ -945,14 +953,14 @@ function reportConv(){openModal(`<div class="modal-pad"><button class="btn btn-q
 V.perfil=()=>{
   const r=R();
   const campos={
-    pro:[['Nome','Dra. Helena Baptista'],['Profissão','Advogada'],['Cédula profissional','Verificada ✓'],['Cidade','Lisboa'],['Especialidades','Direito de Imigração · Nacionalidade'],['Idiomas','Português · Crioulo cabo-verdiano · Inglês'],['Preço base','60€ / consulta'],['Modalidade','Online e presencial']],
-    empresa:[['Empresa','Edifer Obras'],['Setor','Construção civil'],['NIF','Verificado ✓'],['Cidade','Almada'],['Dimensão','40–80 trabalhadores'],['Contacto','recrutamento@edifer.exemplo.pt'],['Sobre','Empresa de construção com obras na margem sul.']],
-    anunciante:[['Agência','Sado Habitat'],['Licença AMI','Verificada ✓'],['Cidade','Setúbal'],['Imóveis ativos','3'],['Contacto','geral@sadohabitat.exemplo.pt'],['Sobre','Mediação imobiliária na península de Setúbal.']],
-    organizador:[['Organização','Associação Kianda'],['Tipo','Associação cultural'],['NIPC','Verificado ✓'],['Cidade','Lisboa'],['Fundada em','2014'],['Sobre','Promoção da cultura angolana e cabo-verdiana em Portugal.']],
+    pro:[['Nome','Dra. Helena Baptista'],['Profissão','Advogada'],['Cédula profissional','Verificada'],['Cidade','Lisboa'],['Especialidades','Direito de Imigração · Nacionalidade'],['Idiomas','Português · Crioulo cabo-verdiano · Inglês'],['Preço base','60€ / consulta'],['Modalidade','Online e presencial']],
+    empresa:[['Empresa','Edifer Obras'],['Setor','Construção civil'],['NIF','Verificado'],['Cidade','Almada'],['Dimensão','40–80 trabalhadores'],['Contacto','recrutamento@edifer.exemplo.pt'],['Sobre','Empresa de construção com obras na margem sul.']],
+    anunciante:[['Agência','Sado Habitat'],['Licença AMI','Verificada'],['Cidade','Setúbal'],['Imóveis ativos','3'],['Contacto','geral@sadohabitat.exemplo.pt'],['Sobre','Mediação imobiliária na península de Setúbal.']],
+    organizador:[['Organização','Associação Kianda'],['Tipo','Associação cultural'],['NIPC','Verificado'],['Cidade','Lisboa'],['Fundada em','2014'],['Sobre','Promoção da cultura angolana e cabo-verdiana em Portugal.']],
   }[P.role];
   return `${head('Perfil público','É assim que as pessoas o veem na Bússola',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Pré-visualização do perfil público')">${svg('eye')} Ver como público</button>
-    <button class="btn btn-primary btn-sm" onclick="toast('Alterações guardadas ✓','ok2')">Guardar alterações</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="toast('Pré-visualização por implementar')">${svg('eye')} Ver como público</button>
+    <button class="btn btn-primary btn-sm" onclick="toast('Alterações guardadas','ok2')">Guardar alterações</button>`)}
   <div class="grid" style="grid-template-columns:1fr 320px;align-items:start">
     <div class="card card-pad">
       <div class="h3 mb16">Informação</div>
@@ -963,7 +971,7 @@ V.perfil=()=>{
         <div class="av av-lg" style="margin:0 auto 12px;background:${r.accent};color:#fff">${initials(r.who)}</div>
         <div class="fw6">${esc(r.who)}</div><div class="muted fs-sm">${esc(r.sub)}</div>
         <span class="pill pill-ok mt12"><i class="dot"></i>Verificado</span>
-        <button class="btn btn-ghost btn-sm btn-block mt16" onclick="toast('Carregamento de fotografia (demonstração)')">Alterar fotografia</button>
+        <button class="btn btn-ghost btn-sm btn-block mt16" onclick="toast('Carregamento de fotografia por implementar')">Alterar fotografia</button>
       </div>
       <div class="card card-pad">
         <div class="h3 mb12">Visibilidade</div>
@@ -994,14 +1002,14 @@ V.faturacao=()=>{
            organizador:['Eventos ilimitados','Gestão de participantes','Página de organizador','Estatísticas de alcance']}[P.role]
           .map(x=>`<div class="row gap8 fs-sm"><span style="color:${r.accent};width:16px">${svg('check')}</span>${x}</div>`).join('')}
       </div>
-      <div class="row gap8"><button class="btn btn-ghost btn-sm flex1" onclick="toast('Gestão de subscrição (demonstração)')">Gerir subscrição</button>
+      <div class="row gap8"><button class="btn btn-ghost btn-sm flex1" onclick="toast('Gestão de subscrição por implementar')">Gerir subscrição</button>
       <button class="btn btn-quiet btn-sm" onclick="cancelSub()">Cancelar</button></div>
     </div>
     <div class="card card-pad">
       <div class="h3 mb4">Método de pagamento</div><p class="muted fs-sm mb16">Próxima cobrança a 10 de setembro de 2026.</p>
       <div class="card card-pad row gap12" style="padding:14px;background:var(--surface-2)">
         ${svg('card')}<div style="flex:1"><div class="fw6 fs-sm">Cartão terminado em 4821</div><div class="muted fs-xs">Validade 09/28</div></div>
-        <button class="btn btn-quiet btn-xs" onclick="toast('Alteração de método de pagamento (demonstração)')">Alterar</button>
+        <button class="btn btn-quiet btn-xs" onclick="toast('Alteração de cartão por implementar')">Alterar</button>
       </div>
       <div class="callout callout-info mt16">${svg('info')}<div>Os dados de pagamento são tratados por um fornecedor certificado. A Bússola não guarda o número do seu cartão.</div></div>
     </div>
