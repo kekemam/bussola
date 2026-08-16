@@ -413,6 +413,100 @@ const FUNNEL=[{n:'Visitantes',v:24800,p:100},{n:'Registos',v:8412,p:34},{n:'Onbo
 const el=id=>document.getElementById(id);
 const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 let A={route:'dash',theme:'light'};
+
+/* ============================================================
+   LIGAÇÃO AO BACKEND
+   ------------------------------------------------------------
+   A consola é servida ao cliente, por isso não usa a service_role:
+   essa chave ignora o RLS e ficaria pública. O administrador
+   autentica-se normalmente e o acesso alargado vem de estar na
+   tabela platform_admins.
+
+   Sem sessão de administrador, os ecrãs mostram os dados de
+   demonstração e dizem-no de forma visível.
+   ============================================================ */
+const SB_URL='https://wtbskvimckdsypmuyxen.supabase.co';
+const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0YnNrdmltY2tkc3lwbXV5eGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY5MjYsImV4cCI6MjEwMjE0MjkyNn0.5ds-vniFcG5W9DUVaYDBbca48Z1EkT0Otqj1X742dtg';
+let sb=null, SB_ON=false, SB_USER=null, EH_ADMIN=false;
+let DB={empresas:[],anuncios:[],destaques:[],pacotes:[],receita:[],perguntas:[]};
+const aoVivo=()=>!!(SB_ON&&EH_ADMIN);
+
+async function sbInit(){
+  try{
+    const m=await import('https://esm.sh/@supabase/supabase-js@2');
+    sb=m.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'bussola_admin_auth'}});
+    const {data}=await sb.auth.getSession();
+    SB_USER=data?.session?.user||null; SB_ON=true;
+    sb.auth.onAuthStateChange(async(ev,s)=>{SB_USER=s?.user||null;await verificarAdmin();renderShell();go(A.route)});
+    await verificarAdmin();
+    if(EH_ADMIN)await carregarTudo();
+    renderShell();go(A.route);
+  }catch(e){SB_ON=false;console.warn('Consola em modo local:',e&&e.message)}
+}
+/* Só é administrador quem tiver linha em platform_admins.
+   A tabela não aceita escrita do cliente: ninguém se promove. */
+async function verificarAdmin(){
+  EH_ADMIN=false;
+  if(!SB_USER)return;
+  try{
+    const {data}=await sb.from('platform_admins').select('role').eq('user_id',SB_USER.id).maybeSingle();
+    EH_ADMIN=!!data;
+  }catch(e){EH_ADMIN=false}
+}
+async function carregarTudo(){
+  try{
+    const [emp,anun,dest,pac,rec,perg]=await Promise.all([
+      sb.from('v_empresas_resumo').select('*'),
+      sb.from('listings').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('boosts').select('*').order('created_at',{ascending:false}).limit(200),
+      sb.from('v_pacotes_vendidos').select('*'),
+      sb.from('v_receita_destaques').select('*'),
+      sb.from('ai_queries').select('question,answered,intent,city,created_at').order('created_at',{ascending:false}).limit(100),
+    ]);
+    DB.empresas=emp.data||[]; DB.anuncios=anun.data||[]; DB.destaques=dest.data||[];
+    DB.pacotes=pac.data||[]; DB.receita=rec.data||[]; DB.perguntas=perg.data||[];
+  }catch(e){console.warn('carregar dados falhou:',e&&e.message)}
+}
+const eur=c=>((c||0)/100).toLocaleString('pt-PT',{minimumFractionDigits:0})+'€';
+
+/* Numa consola, confundir dados reais com dados de exemplo leva a
+   decisões erradas. O ecrã diz sempre de onde vêm os números. */
+function avisoFonte(){
+  if(aoVivo())return '';
+  return `<div class="callout callout-warn mb16">${svg('warn')}<div><b>Dados de demonstração.</b> ${
+    SB_USER?'Esta conta não tem acesso de administrador.'
+           :'<a onclick="loginModal()" style="cursor:pointer;text-decoration:underline">Entra na consola</a> para veres os dados reais da plataforma.'}</div></div>`;
+}
+
+/* ---------- Sessão ---------- */
+function loginModal(){
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="av av-md" style="background:var(--clay-soft);color:var(--clay-deep);border-radius:14px">${svg('shield')}</div>
+    <h2 class="h2 mt12 mb4">Entrar na consola</h2>
+    <p class="muted mb16">Acesso restrito a administradores da plataforma.</p>
+    <div class="field"><label>Email</label><input class="input" id="lgEmail" type="email" autocomplete="email"></div>
+    <div class="field"><label>Palavra-passe</label><input class="input" id="lgPass" type="password" autocomplete="current-password"></div>
+    <div id="lgErro"></div>
+    <button class="btn btn-primary btn-block" id="lgBtn" onclick="loginSubmit()">Entrar</button>
+  </div>`);
+  setTimeout(()=>{const e=el('lgEmail');if(e)e.focus()},220);
+}
+async function loginSubmit(){
+  if(!SB_ON)return el('lgErro').innerHTML=`<div class="callout callout-warn mb12">${svg('warn')}<div>Sem ligação ao servidor.</div></div>`;
+  const b=el('lgBtn');b.disabled=true;b.textContent='A entrar…';
+  try{
+    const r=await sb.auth.signInWithPassword({email:el('lgEmail').value.trim(),password:el('lgPass').value});
+    if(r.error)throw r.error;
+    await verificarAdmin();
+    if(!EH_ADMIN){await sb.auth.signOut();throw new Error('sem_permissao')}
+    await carregarTudo();closeModal();renderShell();go(A.route);toast('Sessão iniciada','ok2');
+  }catch(e){
+    el('lgErro').innerHTML=`<div class="callout callout-warn mb12">${svg('warn')}<div>${
+      e.message==='sem_permissao'?'Esta conta não tem acesso à consola.':'Email ou palavra-passe incorretos.'}</div></div>`;
+    b.disabled=false;b.textContent='Entrar';
+  }
+}
+async function sairConsola(){try{await sb.auth.signOut()}catch(e){}EH_ADMIN=false;renderShell();go('dash');toast('Sessão terminada')}
 try{const r=localStorage.getItem('bussola_admin');if(r)A=Object.assign(A,JSON.parse(r))}catch(e){}
 function save(){try{localStorage.setItem('bussola_admin',JSON.stringify({route:A.route,theme:A.theme}))}catch(e){}}
 function applyTheme(){document.documentElement.setAttribute('data-theme',A.theme);const m=document.querySelector('meta[name=theme-color]');if(m)m.content=A.theme==='dark'?'#141210':'#F5F1EA'}
@@ -473,8 +567,13 @@ function renderShell(){
     <button class="btn btn-ghost btn-icon menu-btn" onclick="el('sidebar').classList.toggle('open')">${svg('menu')}</button>
     <div class="search-wrap" style="max-width:380px;flex:1">${svg('search')}<input class="input" placeholder="Pesquisar utilizadores, anúncios, empresas…" onkeydown="if(event.key==='Enter'){toast('Pesquisa: '+this.value)}"></div>
     <div class="row gap8 mla">
-      <span class="pill pill-ok hide-m"><i class="dot"></i>Sistema operacional</span>
+      ${aoVivo()
+        ? `<span class="pill pill-ok hide-m"><i class="dot"></i>Dados reais</span>`
+        : `<span class="pill pill-pend hide-m"><i class="dot"></i>Demonstração</span>`}
       <button class="btn btn-ghost btn-sm" onclick="go('reports')">${svg('flag')} ${QUEUE.length} na fila</button>
+      ${aoVivo()
+        ? `<button class="btn btn-quiet btn-icon" onclick="sairConsola()" title="Terminar sessão">${svg('logout')}</button>`
+        : `<button class="btn btn-primary btn-sm" onclick="loginModal()">Entrar</button>`}
     </div>`;
 }
 function mark(s){return `<svg width="${s}" height="${s}" viewBox="0 0 40 40" fill="none"><circle cx="20" cy="20" r="18" stroke="var(--clay)" stroke-width="2.6"/><path d="M26 14l-4 9-9 4 4-9z" fill="var(--clay)"/><circle cx="20" cy="20" r="2" fill="var(--surface)"/></svg>`}
@@ -634,7 +733,11 @@ function setPro(id,st){const p=PROS.find(x=>x.id===id);p.status=st;
    EMPRESAS
    ============================================================ */
 R.companies=()=>{
-  const rows=COMPANIES.map(c=>`<tr>
+  // Com sessão de administrador vêm da base de dados; sem ela, demonstração.
+  const fonte=aoVivo()?DB.empresas.map(c=>({id:c.id,name:c.name,sector:c.category,city:c.city||'—',
+      jobs:c.anuncios_publicados,sub:c.destaques_ativos+' destaques',
+      status:c.verification==='verified'?'ok':c.verification==='rejected'?'rej':'pend'})):COMPANIES;
+  const rows=fonte.map(c=>`<tr>
     <td><div class="row gap8"><div class="av av-sm" style="border-radius:9px">${svg('building')}</div>
       <div><div class="fw6">${esc(c.name)}</div><div class="muted fs-xs">${esc(c.sector)} · ${esc(c.city)}</div></div></div></td>
     <td class="num">${c.jobs}</td>
@@ -645,11 +748,23 @@ R.companies=()=>{
       <button class="btn btn-quiet btn-icon" onclick="toast('Perfil de ${esc(c.name)}')">${svg('eye')}</button>
     </div></td>
   </tr>`).join('');
-  return `${head('Empresas','Entidades que publicam vagas e anúncios')}
-  ${tableWrap('Empresas registadas',`${COMPANIES.length} registos`,
-    [{l:'Empresa'},{l:'Vagas'},{l:'Plano'},{l:'Estado'},{l:''}],rows)}`;
+  return `${head('Empresas','Registo gratuito. Entidades que publicam vagas, imóveis e eventos')}
+  ${avisoFonte()}
+  ${tableWrap('Empresas registadas',`${fonte.length} ${fonte.length===1?'registo':'registos'}`,
+    [{l:'Empresa'},{l:'Anúncios'},{l:'Destaques'},{l:'Estado'},{l:''}],rows)}`;
 };
-function setCompany(id,st){const c=COMPANIES.find(x=>x.id===id);c.status=st;logAction('Aprovou empresa',c.name);go('companies');toast('Empresa aprovada','ok2')}
+async function setCompany(id,st){
+  if(aoVivo()){
+    try{
+      const {error}=await sb.from('companies').update({verification:st==='ok'?'verified':'rejected'}).eq('id',id);
+      if(error)throw error;
+      await carregarTudo();go('companies');
+      return toast('Empresa verificada','ok2');
+    }catch(e){return toast('Não foi possível: '+e.message,'err')}
+  }
+  const c=COMPANIES.find(x=>x.id===id);if(c){c.status=st;logAction('Aprovou empresa',c.name)}
+  go('companies');toast('Empresa aprovada','ok2');
+}
 
 /* ============================================================
    EMPREGOS
@@ -897,19 +1012,28 @@ R.analytics=()=>{
    PAGAMENTOS
    ============================================================ */
 R.payments=()=>{
-  const rows=INVOICES.map(i=>`<tr><td class="fw6">${esc(i.id)}</td><td>${esc(i.who)}</td><td><span class="tag">${esc(i.plan)}</span></td>
+  const linhas=aoVivo()?DB.destaques.map(b=>({id:'DS '+b.receipt_no,who:(DB.empresas.find(e=>e.id===b.company_id)||{}).name||'—',
+      plan:b.days+' dias',amount:eur(b.price_cents),date:new Date(b.created_at).toLocaleDateString('pt-PT'),
+      status:b.status==='refunded'?'fail':'ok'})):INVOICES;
+  const rows=linhas.map(i=>`<tr><td class="fw6">${esc(i.id)}</td><td>${esc(i.who)}</td><td><span class="tag">${esc(i.plan)}</span></td>
     <td class="num fw6">${esc(i.amount)}</td><td class="muted fs-sm">${esc(i.date)}</td>
     <td>${i.status==='ok'?'<span class="pill pill-ok"><i class="dot"></i>Paga</span>':i.status==='pend'?'<span class="pill pill-pend"><i class="dot"></i>Pendente</span>':'<span class="pill pill-rej"><i class="dot"></i>Falhou</span>'}</td>
     <td><div class="t-actions"><button class="btn btn-quiet btn-icon" onclick="toast('Fatura ${esc(i.id)}')">${svg('file')}</button></div></td></tr>`).join('');
-  const totalSubs=PLANS.reduce((a,p)=>a+p.subs,0);
+  const vivo=aoVivo();
+  const pacotes=vivo?DB.pacotes.map(x=>({name:x.name,price:eur(x.price_cents),subs:Number(x.vendidos),rev:eur(x.receita_cents)})):PLANS;
+  const totalSubs=pacotes.reduce((a,x)=>a+x.subs,0);
+  const receitaMes=vivo?eur((DB.receita[0]||{}).receita_cents||0):'7.141€';
+  const mediaDest=vivo?eur((DB.receita[0]||{}).media_cents||0):'14,40€';
+  const ativosAgora=vivo?DB.destaques.filter(b=>b.status==='active'&&new Date(b.ends_at)>new Date()).length:63;
   return `${head('Pagamentos','Receita por destaque de anúncio · não há mensalidades',`<button class="btn btn-ghost btn-sm" onclick="toast('Exportação contabilística por implementar')">${svg('dl')} Exportar</button>`)}
+  ${avisoFonte()}
   <div class="grid g4 mb16">
-    ${[['Receita do mês','7.141€','euro','var(--sage)'],['Destaques comprados',totalSubs,'star','var(--clay)'],['Valor médio por destaque','14,40€','chart','var(--sky)'],['Anúncios destacados agora','63','eye','var(--gold)']]
+    ${[['Receita do mês',receitaMes,'euro','var(--sage)'],['Destaques comprados',totalSubs,'star','var(--clay)'],['Valor médio por destaque',mediaDest,'chart','var(--sky)'],['Anúncios destacados agora',ativosAgora,'eye','var(--gold)']]
       .map(([l,v,ic,c])=>`<div class="stat"><div class="ic" style="background:color-mix(in srgb,${c} 14%,transparent);color:${c}">${svg(ic)}</div><div class="v">${v}</div><div class="l">${l}</div></div>`).join('')}
   </div>
   <div class="grid g2 mb16" style="align-items:start">
     <div class="card card-pad"><div class="h3 mb16">Pacotes de destaque</div>
-      ${PLANS.map(p=>`<div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
+      ${pacotes.map(p=>`<div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
         <div><div class="fw6 fs-sm">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.price)} · ${p.subs} comprados</div></div>
         <div class="num fw6">${esc(p.rev)}</div></div>`).join('')}
       <button class="btn btn-ghost btn-sm mt12" onclick="toast('Gestão de pacotes por implementar')">${svg('settings')} Gerir pacotes e preços</button>
@@ -1009,6 +1133,7 @@ R.settings=()=>{
    ARRANQUE
    ============================================================ */
 applyTheme();renderShell();go(A.route||'dash');
+sbInit();   // assíncrono: a consola já está utilizável
 el('scrim').addEventListener('click',closeModal);
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 </script>
