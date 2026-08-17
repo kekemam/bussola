@@ -1981,10 +1981,24 @@ function apagarTudo(){
     <div class="row gap8"><button class="btn btn-ghost flex1" onclick="closeModal()">Cancelar</button>
     <button class="btn flex1" style="background:var(--danger);color:#fff" onclick="apagarConfirmado()">Apagar tudo</button></div></div>`);
 }
+/* Apagar ficheiros do utilizador. Apagar a conta não os leva atrás:
+   não há cascata de auth.users para storage. Sem isto, documentos de
+   identidade ficavam no servidor depois de a pessoa pedir para sair. */
+async function apagarFicheiros(uid){
+  for(const balde of ['documentos','avatars']){
+    try{
+      const {data}=await sb.storage.from(balde).list(uid,{limit:100});
+      if(data&&data.length){
+        await sb.storage.from(balde).remove(data.map(f=>`${uid}/${f.name}`));
+      }
+    }catch(e){console.warn('limpar '+balde+' falhou:',e&&e.message)}
+  }
+}
 async function apagarConfirmado(){
   if(signedIn()){
     try{
       const uid=SB_USER.id;
+      await apagarFicheiros(uid);            // ficheiros primeiro: depois do signOut já não há permissão
       await Promise.all([
         sb.from('plan_progress').delete().eq('user_id',uid),
         sb.from('doc_checklist').delete().eq('user_id',uid),

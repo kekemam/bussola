@@ -1039,10 +1039,12 @@ V.perfil=()=>{
     </div>
     <div class="stack" style="gap:16px">
       <div class="card card-pad tc">
-        <div class="av av-lg" style="margin:0 auto 12px;background:${r.accent};color:#fff">${initials(r.who)}</div>
+        <div class="av av-lg" style="margin:0 auto 12px;background:${r.accent};color:#fff">${
+          fotoAtual()?`<img src="${esc(fotoAtual())}" alt="" style="width:100%;height:100%;object-fit:cover">`:initials(r.who)}</div>
         <div class="fw6">${esc(r.who)}</div><div class="muted fs-sm">${esc(r.sub)}</div>
         <span class="pill pill-ok mt12"><i class="dot"></i>Verificado</span>
-        <button class="btn btn-ghost btn-sm btn-block mt16" onclick="toast('Carregamento de fotografia por implementar')">Alterar fotografia</button>
+        <button class="btn btn-ghost btn-sm btn-block mt16" onclick="el('fotoInput').click()">${svg('plus')} Alterar fotografia</button>
+        <input type="file" id="fotoInput" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="enviarFoto(this)">
       </div>
       <div class="card card-pad">
         <div class="h3 mb12">Visibilidade</div>
@@ -1175,6 +1177,44 @@ async function contaSubmit(modo){
   }
 }
 async function sairPainel(){try{await sb.auth.signOut()}catch(e){}EMPRESA=null;ANUNCIOS_DB=[];toast('Sessão terminada');renderShell();go('dash')}
+
+/* ============================================================
+   FICHEIROS
+   ------------------------------------------------------------
+   O balde valida tipo e tamanho do lado do servidor, mas validar
+   também aqui evita esperar por um upload que vai ser recusado.
+   ============================================================ */
+const MAX_FOTO=2*1024*1024;   // igual ao limite do balde `avatars`
+async function enviarFoto(input){
+  const f=input.files&&input.files[0]; input.value='';
+  if(!f)return;
+  if(!['image/jpeg','image/png','image/webp'].includes(f.type))
+    return toast('A fotografia tem de ser JPG, PNG ou WEBP','err');
+  if(f.size>MAX_FOTO)
+    return toast('A fotografia não pode passar de 2 MB','err');
+  if(!ligado()&&!comSessao())
+    return toast('Entra na tua conta para guardar a fotografia','err');
+
+  const uid=SB_USER.id;
+  const ext=({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'})[f.type];
+  const caminho=`${uid}/perfil.${ext}`;
+  toast('A enviar…');
+  try{
+    const {error}=await sb.storage.from('avatars').upload(caminho,f,{upsert:true,contentType:f.type});
+    if(error)throw error;
+    const {data}=sb.storage.from('avatars').getPublicUrl(caminho);
+    FOTO_URL=data.publicUrl+'?v='+Date.now();   // rebenta a cache do CDN
+    if(EMPRESA){ try{ await sb.from('companies').update({logo_url:FOTO_URL}).eq('id',EMPRESA.id) }catch(e){} }
+    renderShell(); go(P.route);
+    toast('Fotografia actualizada','ok2');
+  }catch(e){
+    toast(/exceeded|size/i.test(e.message)?'Ficheiro demasiado grande':'Não foi possível enviar','err');
+  }
+}
+let FOTO_URL=null;
+/* A que acabou de ser enviada tem prioridade sobre a que veio da BD,
+   para a mudança se ver sem esperar por um recarregamento. */
+const fotoAtual=()=>FOTO_URL||(EMPRESA&&EMPRESA.logo_url)||null;
 
 /* Mostra o perfil como quem procura o vê. Só o que é realmente
    público: nada de estatísticas, faturação ou contactos internos. */
