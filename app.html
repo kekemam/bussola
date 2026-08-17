@@ -615,6 +615,7 @@ const I = {
   reload:'<path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5"/><path d="M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/>',
   eye:'<path d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7-10-7-10-7z"/><circle cx="12" cy="12" r="3"/>',
   wifi:'<path d="M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M12 19h.01"/>',
+  mail:'<rect x="3" y="5" width="18" height="14" rx="2"/><path d="m3 7 9 6 9-6"/>',
 };
 function svg(name,cls){return `<svg class="i ${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${I[name]||''}</svg>`}
 
@@ -994,7 +995,9 @@ function boot(){
     if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();openCmdk()}
     if(e.key==='Escape'){closeModal();closeCmdk()}
   });
-  el('scrim').addEventListener('click',()=>{closeModal();closeCmdk()});
+  /* Durante a recuperação o modal não se fecha por engano: sem ele a pessoa
+     ficava numa sessão de recuperação sem forma de definir a palavra-passe. */
+  el('scrim').addEventListener('click',()=>{if(RECUPERACAO)return;closeModal();closeCmdk()});
 }
 
 /* ============================================================
@@ -2164,6 +2167,9 @@ const profis  = ()=>LIVE.pros   || PROS;
 const SB_URL='https://wtbskvimckdsypmuyxen.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0YnNrdmltY2tkc3lwbXV5eGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY5MjYsImV4cCI6MjEwMjE0MjkyNn0.5ds-vniFcG5W9DUVaYDBbca48Z1EkT0Otqj1X742dtg';
 let sb=null, SB_ON=false, SB_USER=null, syncTimer=null, SB_SYNCING=false;
+/* Sessão aberta pela ligação de recuperação: só serve para trocar a
+   palavra-passe, por isso trava a sincronização e a entrada na app. */
+let RECUPERACAO=false;
 
 async function sbInit(){
   try{
@@ -2174,10 +2180,17 @@ async function sbInit(){
     SB_ON=true;
     sb.auth.onAuthStateChange(async(ev,s)=>{
       SB_USER=s?.user||null;
+      /* Chegou pela ligação do email: a sessão serve só para trocar a
+         palavra-passe. Não sincronizar nem entrar na app antes disso. */
+      if(ev==='PASSWORD_RECOVERY'){RECUPERACAO=true;novaPasseModal();return}
+      if(RECUPERACAO)return;
       if(ev==='SIGNED_IN'){await syncPull();await syncPush()}
       renderShell();if(S.onboarded)go(S.route);
     });
-    if(SB_USER){await syncPull();if(S.onboarded){renderShell();go(S.route)}}
+    /* O evento pode disparar antes de este código correr. O fragmento do URL
+       diz que viemos de uma ligação de recuperação. */
+    if(/type=recovery/.test(location.hash||'')){RECUPERACAO=true;novaPasseModal()}
+    else if(SB_USER){await syncPull();if(S.onboarded){renderShell();go(S.route)}}
     carregarAnunciosPublicos();
   }catch(e){
     SB_ON=false; // esm.sh em baixo, sem rede, browser antigo — a app continua a funcionar
@@ -2362,21 +2375,27 @@ async function syncPull(){
 }
 
 /* ---------- Conta ---------- */
+const AC_TITULO={criar:'Guardar o meu progresso',entrar:'Entrar na minha conta',recuperar:'Recuperar o acesso'};
+const AC_SUB={
+  criar:'Cria uma conta para não perderes o teu plano se mudares de telemóvel. Não precisas de nenhum documento.',
+  entrar:'Entra para recuperares o teu plano e o que guardaste.',
+  recuperar:'Escreve o email da tua conta. Enviamos-te uma ligação para definires uma palavra-passe nova.'};
+const AC_BOTAO={criar:'Criar conta',entrar:'Entrar',recuperar:'Enviar ligação'};
 function contaModal(modo){
   modo=modo||'entrar';
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
     <div class="av av-lg" style="background:var(--clay-soft);color:var(--clay-deep);border-radius:16px;width:52px;height:52px">${svg('shield')}</div>
-    <h2 class="h2 mt12 mb4">${modo==='criar'?'Guardar o meu progresso':'Entrar na minha conta'}</h2>
-    <p class="muted mb16">${modo==='criar'
-      ? 'Cria uma conta para não perderes o teu plano se mudares de telemóvel. Não precisas de nenhum documento.'
-      : 'Entra para recuperares o teu plano e o que guardaste.'}</p>
+    <h2 class="h2 mt12 mb4">${AC_TITULO[modo]}</h2>
+    <p class="muted mb16">${AC_SUB[modo]}</p>
     <div class="field"><label>Email</label><input class="input" id="acEmail" type="email" placeholder="o.teu@email.pt" autocomplete="email"></div>
-    <div class="field"><label>Palavra-passe</label><input class="input" id="acPass" type="password" placeholder="Pelo menos 8 caracteres" autocomplete="${modo==='criar'?'new-password':'current-password'}"></div>
+    ${modo==='recuperar'?'':`<div class="field"><label>Palavra-passe</label><input class="input" id="acPass" type="password" placeholder="Pelo menos 8 caracteres" autocomplete="${modo==='criar'?'new-password':'current-password'}"></div>`}
     <div id="acErro"></div>
-    <button class="btn btn-primary btn-block btn-lg mt8" id="acBtn" onclick="contaSubmit('${modo}')">${modo==='criar'?'Criar conta':'Entrar'}</button>
-    <p class="tc fs-sm muted mt16">${modo==='criar'
-      ? 'Já tens conta? <a onclick="contaModal(&#39;entrar&#39;)" class="clay fw6" style="cursor:pointer">Entrar</a>'
-      : 'Ainda não tens conta? <a onclick="contaModal(&#39;criar&#39;)" class="clay fw6" style="cursor:pointer">Criar conta</a>'}</p>
+    <button class="btn btn-primary btn-block btn-lg mt8" id="acBtn" onclick="contaSubmit('${modo}')">${AC_BOTAO[modo]}</button>
+    ${modo==='entrar'?`<p class="tc fs-sm mt12"><a onclick="contaModal(&#39;recuperar&#39;)" class="muted" style="cursor:pointer;text-decoration:underline">Esqueci-me da palavra-passe</a></p>`:''}
+    <p class="tc fs-sm muted mt16">${
+      modo==='criar'?'Já tens conta? <a onclick="contaModal(&#39;entrar&#39;)" class="clay fw6" style="cursor:pointer">Entrar</a>'
+      :modo==='recuperar'?'<a onclick="contaModal(&#39;entrar&#39;)" class="clay fw6" style="cursor:pointer">Voltar a entrar</a>'
+      :'Ainda não tens conta? <a onclick="contaModal(&#39;criar&#39;)" class="clay fw6" style="cursor:pointer">Criar conta</a>'}</p>
     <div class="callout callout-info mt16">${svg('shield')}<div>Os teus dados são teus. Podes exportá-los ou apagar a conta a qualquer momento.</div></div>
   </div>`);
   setTimeout(()=>{const e=el('acEmail');if(e)e.focus()},240);
@@ -2384,10 +2403,11 @@ function contaModal(modo){
 function acErro(msg){const d=el('acErro');if(d)d.innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(msg)}</div></div>`}
 async function contaSubmit(modo){
   if(!SB_ON){acErro('Sem ligação ao servidor. O teu progresso continua guardado neste dispositivo.');return}
-  const email=(el('acEmail').value||'').trim(), pass=el('acPass').value||'';
+  const email=(el('acEmail').value||'').trim(), pass=(el('acPass')||{}).value||'';
   if(!email||!email.includes('@')){acErro('Escreve um email válido.');return}
-  if(pass.length<8){acErro('A palavra-passe precisa de pelo menos 8 caracteres.');return}
+  if(modo!=='recuperar'&&pass.length<8){acErro('A palavra-passe precisa de pelo menos 8 caracteres.');return}
   const btn=el('acBtn');btn.disabled=true;btn.textContent='A processar…';
+  if(modo==='recuperar')return pedirRecuperacao(email,btn);
   try{
     const r=modo==='criar'
       ? await sb.auth.signUp({email,password:pass,options:{data:{name:S.name}}})
@@ -2422,9 +2442,88 @@ async function contaSubmit(modo){
       :/already registered/i.test(m)?'Este email já tem conta. Tenta entrar.'
       :/rate/i.test(m)?'Demasiadas tentativas. Espera um pouco.'
       :'Não foi possível concluir. Tenta novamente.');
-    btn.disabled=false;btn.textContent=modo==='criar'?'Criar conta':'Entrar';
+    btn.disabled=false;btn.textContent=AC_BOTAO[modo];
   }
 }
+
+/* ---------- Recuperação de palavra-passe ---------- */
+/* O Supabase manda um email com uma ligação de uso único que traz a pessoa
+   de volta a /app já com uma sessão de recuperação. É aí que se define a
+   nova palavra-passe. */
+async function pedirRecuperacao(email,btn){
+  try{
+    const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/app'});
+    if(error&&/rate|limit|seconds/i.test(error.message||'')){
+      acErro('Já pediste há pouco. Espera um minuto antes de tentares outra vez.');
+      btn.disabled=false;btn.textContent=AC_BOTAO.recuperar;return;
+    }
+    /* Falha de envio do lado do servidor não pode virar "verifica o teu
+       email": a pessoa ficava à espera de uma mensagem que nunca sai. Um
+       email desconhecido não chega aqui — nesse caso o Supabase responde
+       com sucesso, de propósito, para não revelar quem tem conta. */
+    if(error){
+      console.warn('recuperação:',error.message);
+      acErro('Não conseguimos enviar o email neste momento. Tenta outra vez daqui a pouco.');
+      btn.disabled=false;btn.textContent=AC_BOTAO.recuperar;return;
+    }
+    closeModal();
+    openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+      <div class="av av-lg" style="background:var(--sage-soft);color:var(--sage-deep);border-radius:16px;width:52px;height:52px">${svg('mail')}</div>
+      <h2 class="h2 mt12 mb4">Verifica o teu email</h2>
+      <p class="muted mb16">Se existir uma conta com <b>${esc(email)}</b>, chega lá uma ligação para definires uma palavra-passe nova. É válida durante uma hora e só pode ser usada uma vez.</p>
+      <div class="callout callout-info mb16">${svg('shield')}<div>Não encontras o email? Vê no lixo ou no spam. Enquanto não usares a ligação, a palavra-passe antiga continua a funcionar.</div></div>
+      <button class="btn btn-primary btn-block" onclick="closeModal()">Entendido</button>
+    </div>`);
+  }catch(e){
+    acErro('Não foi possível enviar. Tenta novamente daqui a pouco.');
+    btn.disabled=false;btn.textContent=AC_BOTAO.recuperar;
+  }
+}
+
+/* Ecrã de definir a nova palavra-passe. Só aparece com sessão de
+   recuperação — sem ela, `updateUser` seria recusado pelo servidor. */
+function novaPasseModal(){
+  openModal(`<div class="modal-pad">
+    <div class="av av-lg" style="background:var(--clay-soft);color:var(--clay-deep);border-radius:16px;width:52px;height:52px">${svg('shield')}</div>
+    <h2 class="h2 mt12 mb4">Define a tua nova palavra-passe</h2>
+    <p class="muted mb16">Escolhe uma que não uses noutro sítio. Pelo menos 8 caracteres.</p>
+    <div class="field"><label>Nova palavra-passe</label><input class="input" id="npPass" type="password" autocomplete="new-password"></div>
+    <div class="field"><label>Repete para confirmar</label><input class="input" id="npPass2" type="password" autocomplete="new-password"></div>
+    <div id="npErro"></div>
+    <button class="btn btn-primary btn-block btn-lg mt8" id="npBtn" onclick="guardarNovaPasse()">Guardar e entrar</button>
+  </div>`);
+  setTimeout(()=>{const e=el('npPass');if(e)e.focus()},240);
+}
+function npErro(msg){const d=el('npErro');if(d)d.innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(msg)}</div></div>`}
+async function guardarNovaPasse(){
+  const p1=el('npPass').value||'', p2=el('npPass2').value||'';
+  if(p1.length<8){npErro('A palavra-passe precisa de pelo menos 8 caracteres.');return}
+  if(p1!==p2){npErro('As duas não coincidem.');return}
+  const btn=el('npBtn');btn.disabled=true;btn.textContent='A guardar…';
+  try{
+    const {error}=await sb.auth.updateUser({password:p1});
+    if(error)throw error;
+    RECUPERACAO=false;
+    limparUrlRecuperacao();
+    await syncPull();
+    closeModal();
+    if(el('ob').classList.contains('live')&&S.onboarded){el('ob').classList.remove('live');startApp()}
+    else if(!el('ob').classList.contains('live'))go(S.route);
+    toast('Palavra-passe alterada','ok2');
+  }catch(e){
+    const m=String(e&&e.message||'');
+    npErro(/expired|invalid/i.test(m)?'Esta ligação expirou. Pede uma nova a partir de "Esqueci-me da palavra-passe".'
+      :/should be different|same/i.test(m)?'Escolhe uma palavra-passe diferente da anterior.'
+      :'Não foi possível guardar. Tenta novamente.');
+    btn.disabled=false;btn.textContent='Guardar e entrar';
+  }
+}
+/* A ligação traz o token no fragmento do URL. Fica fora do histórico e dos
+   registos do servidor, mas convém não o deixar na barra de endereço. */
+function limparUrlRecuperacao(){
+  try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+}
+
 async function sairConta(){
   try{await sb.auth.signOut()}catch(e){}
   /* Sair tem de deixar o aparelho limpo: os dados estão no servidor e quem

@@ -428,6 +428,9 @@ let A={route:'dash',theme:'light'};
 const SB_URL='https://wtbskvimckdsypmuyxen.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0YnNrdmltY2tkc3lwbXV5eGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY5MjYsImV4cCI6MjEwMjE0MjkyNn0.5ds-vniFcG5W9DUVaYDBbca48Z1EkT0Otqj1X742dtg';
 let sb=null, SB_ON=false, SB_USER=null, EH_ADMIN=false;
+/* Sessão aberta pela ligação de recuperação: só serve para trocar a
+   palavra-passe, e não dá acesso à consola por si só. */
+let RECUPERACAO=false;
 let DB={empresas:[],anuncios:[],destaques:[],pacotes:[],receita:[],perguntas:[],perfis:[],fila:[]};
 /* Anúncios por tipo, com o nome da empresa já resolvido. */
 const porTipo=(k)=>DB.anuncios.filter(a=>a.kind===k).map(a=>Object.assign({},a,{
@@ -441,10 +444,16 @@ async function sbInit(){
     sb=m.createClient(SB_URL,SB_ANON,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'bussola_admin_auth'}});
     const {data}=await sb.auth.getSession();
     SB_USER=data?.session?.user||null; SB_ON=true;
-    sb.auth.onAuthStateChange(async(ev,s)=>{SB_USER=s?.user||null;await verificarAdmin();renderShell();go(A.route)});
+    sb.auth.onAuthStateChange(async(ev,s)=>{
+      SB_USER=s?.user||null;
+      if(ev==='PASSWORD_RECOVERY'){RECUPERACAO=true;novaPasseModal();return}
+      if(RECUPERACAO)return;
+      await verificarAdmin();renderShell();go(A.route);
+    });
     await verificarAdmin();
     if(EH_ADMIN)await carregarTudo();
     renderShell();go(A.route);
+    if(/type=recovery/.test(location.hash||'')){RECUPERACAO=true;novaPasseModal()}
   }catch(e){SB_ON=false;console.warn('Consola em modo local:',e&&e.message)}
 }
 /* Só é administrador quem tiver linha em platform_admins.
@@ -618,6 +627,7 @@ function loginModal(){
     <div class="field"><label>Palavra-passe</label><input class="input" id="lgPass" type="password" autocomplete="current-password"></div>
     <div id="lgErro"></div>
     <button class="btn btn-primary btn-block" id="lgBtn" onclick="loginSubmit()">Entrar</button>
+    <p class="tc fs-sm mt12"><a onclick="recuperarModal()" class="muted" style="cursor:pointer;text-decoration:underline">Esqueci-me da palavra-passe</a></p>
   </div>`);
   setTimeout(()=>{const e=el('lgEmail');if(e)e.focus()},220);
 }
@@ -636,6 +646,77 @@ async function loginSubmit(){
     b.disabled=false;b.textContent='Entrar';
   }
 }
+/* ---------- Recuperação de palavra-passe ---------- */
+function recuperarModal(){
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="av av-md" style="background:var(--clay-soft);color:var(--clay-deep);border-radius:14px">${svg('shield')}</div>
+    <h2 class="h2 mt12 mb4">Recuperar o acesso</h2>
+    <p class="muted mb16">Escreve o email da conta de administrador. Enviamos uma ligação para definires uma palavra-passe nova.</p>
+    <div class="field"><label>Email</label><input class="input" id="rcEmail" type="email" autocomplete="email"></div>
+    <div id="rcErro"></div>
+    <button class="btn btn-primary btn-block" id="rcBtn" onclick="pedirRecuperacao()">Enviar ligação</button>
+  </div>`);
+  setTimeout(()=>{const e=el('rcEmail');if(e)e.focus()},220);
+}
+function rcErro(m){const d=el('rcErro');if(d)d.innerHTML=`<div class="callout callout-warn mb12">${svg('warn')}<div>${esc(m)}</div></div>`}
+async function pedirRecuperacao(){
+  if(!SB_ON)return rcErro('Sem ligação ao servidor.');
+  const email=(el('rcEmail').value||'').trim();
+  if(!email||!email.includes('@'))return rcErro('Escreve um email válido.');
+  const b=el('rcBtn');b.disabled=true;b.textContent='A enviar…';
+  try{
+    const {error}=await sb.auth.resetPasswordForEmail(email,{redirectTo:location.origin+'/admin'});
+    if(error&&/rate|limit|seconds/i.test(error.message||'')){
+      rcErro('Já pediste há pouco. Espera um minuto.');b.disabled=false;b.textContent='Enviar ligação';return;
+    }
+    /* Falha de envio não pode virar "verifica o email": ficava-se à espera
+       de uma mensagem que nunca sai. Email desconhecido não chega aqui. */
+    if(error){
+      console.warn('recuperação:',error.message);
+      rcErro('Não conseguimos enviar o email neste momento. Tenta outra vez daqui a pouco.');
+      b.disabled=false;b.textContent='Enviar ligação';return;
+    }
+    closeModal();toast('Se existir uma conta com esse email, a ligação segue para lá','ok2');
+  }catch(e){rcErro('Não foi possível enviar.');b.disabled=false;b.textContent='Enviar ligação'}
+}
+function novaPasseModal(){
+  openModal(`<div class="modal-pad">
+    <div class="av av-md" style="background:var(--clay-soft);color:var(--clay-deep);border-radius:14px">${svg('shield')}</div>
+    <h2 class="h2 mt12 mb4">Define a tua nova palavra-passe</h2>
+    <p class="muted mb16">Escolhe uma que não uses noutro sítio. Pelo menos 8 caracteres.</p>
+    <div class="field"><label>Nova palavra-passe</label><input class="input" id="npPass" type="password" autocomplete="new-password"></div>
+    <div class="field"><label>Repete para confirmar</label><input class="input" id="npPass2" type="password" autocomplete="new-password"></div>
+    <div id="npErro"></div>
+    <button class="btn btn-primary btn-block" id="npBtn" onclick="guardarNovaPasse()">Guardar e entrar</button>
+  </div>`);
+  setTimeout(()=>{const e=el('npPass');if(e)e.focus()},220);
+}
+function npErro(m){const d=el('npErro');if(d)d.innerHTML=`<div class="callout callout-warn mb12">${svg('warn')}<div>${esc(m)}</div></div>`}
+async function guardarNovaPasse(){
+  const p1=el('npPass').value||'', p2=el('npPass2').value||'';
+  if(p1.length<8)return npErro('A palavra-passe precisa de pelo menos 8 caracteres.');
+  if(p1!==p2)return npErro('As duas não coincidem.');
+  const b=el('npBtn');b.disabled=true;b.textContent='A guardar…';
+  try{
+    const {error}=await sb.auth.updateUser({password:p1});
+    if(error)throw error;
+    RECUPERACAO=false;
+    try{history.replaceState(null,'',location.pathname+location.search)}catch(e){}
+    /* A palavra-passe nova não dá acesso à consola por si só: continua a
+       valer só quem tem linha em platform_admins. */
+    await verificarAdmin();
+    if(!EH_ADMIN){await sb.auth.signOut();closeModal();renderShell();go('dash');
+      return toast('Palavra-passe alterada. Esta conta não tem acesso à consola.')}
+    await carregarTudo();closeModal();renderShell();go(A.route);toast('Palavra-passe alterada','ok2');
+  }catch(e){
+    const m=String(e&&e.message||'');
+    npErro(/expired|invalid/i.test(m)?'Esta ligação expirou. Pede uma nova.'
+      :/should be different|same/i.test(m)?'Escolhe uma diferente da anterior.'
+      :'Não foi possível guardar.');
+    b.disabled=false;b.textContent='Guardar e entrar';
+  }
+}
+
 async function sairConsola(){try{await sb.auth.signOut()}catch(e){}EH_ADMIN=false;renderShell();go('dash');toast('Sessão terminada')}
 try{const r=localStorage.getItem('bussola_admin');if(r)A=Object.assign(A,JSON.parse(r))}catch(e){}
 function save(){try{localStorage.setItem('bussola_admin',JSON.stringify({route:A.route,theme:A.theme}))}catch(e){}}
@@ -1331,7 +1412,7 @@ R.settings=()=>{
    ============================================================ */
 applyTheme();renderShell();go(A.route||'dash');
 sbInit();   // assíncrono: a consola já está utilizável
-el('scrim').addEventListener('click',closeModal);
+el('scrim').addEventListener('click',()=>{if(RECUPERACAO)return;closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 </script>
 </body>
