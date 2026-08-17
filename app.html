@@ -1204,7 +1204,7 @@ ROUTES.home=()=>{
     {icon:'doc',label:'Documentação',r:'docs',c:'var(--clay)',meta:plural(DOCS.length,'processo','processos')},
     {icon:'work',label:'Trabalho',r:'jobs',c:'var(--sage)',meta:plural(nVagas,'vaga','vagas')+(vagasLocais?' em '+S.city:'')},
     {icon:'home2',label:'Casa',r:'homes',c:'var(--gold)',meta:`desde ${Math.min(...casas().map(h=>h.price))}€/mês`},
-    {icon:'law',label:'Apoio jurídico',r:'pros',c:'var(--sky)',meta:plural(PROS.length,'verificado','verificados')},
+    {icon:'law',label:'Apoio jurídico',r:'pros',c:'var(--sky)',meta:plural(profis().filter(p=>p.verified).length,'verificado','verificados')},
   ];
   const nearJobs=vagas().filter(j=>j.city===S.city).slice(0,3);
   const nearJobsShow=(nearJobs.length?nearJobs:vagas().slice(0,3));
@@ -1364,7 +1364,8 @@ function eventCardMini(e){
   const d=fmtDay(e.date);const saved=S.savedEvents.includes(e.id);
   return `<div class="card card-hover" style="width:260px;overflow:hidden" onclick="openEvent('${e.id}')">
     <div class="photo" style="height:120px;background:linear-gradient(135deg,${e.color},${e.color}bb)">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.9">${svg(catIcon(e.cat),'')}</div>
+      ${capa(e)?`<img src="${esc(capa(e))}" alt="" loading="lazy">`
+        :`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.9">${svg(catIcon(e.cat),'')}</div>`}
       <div style="position:absolute;top:12px;left:12px;background:var(--surface);border-radius:10px;padding:6px 10px;text-align:center;line-height:1"><div class="num" style="font-size:1.2rem">${d.d}</div><div class="fs-xs muted">${d.m}</div></div>
     </div>
     <div class="card-pad" style="padding:16px">
@@ -1666,7 +1667,7 @@ ROUTES.pros=()=>{
   </div>
   <div id="proList"></div>`;
 };
-function filterPros(){return PROS.filter(p=>{
+function filterPros(){return profis().filter(p=>{
   const q=(proF.q||'').toLowerCase();
   if(q&&!(p.name.toLowerCase().includes(q)||p.city.toLowerCase().includes(q)||p.spec.join(' ').toLowerCase().includes(q)||p.prof.toLowerCase().includes(q)))return false;
   if(proF.spec&&!p.spec.includes(proF.spec))return false;
@@ -1680,11 +1681,12 @@ function renderProList(){const l=filterPros();const t=el('proList');if(!t)return
 function proCard(p){
   return `<div class="card card-pad card-hover" onclick="openPro('${p.id}')">
     <div class="row gap12">
-      <div class="av av-lg" style="width:60px;height:60px">${initials(p.name)}</div>
+      <div class="av av-lg" style="width:60px;height:60px">${p.foto?`<img src="${esc(p.foto)}" alt="" style="width:100%;height:100%;object-fit:cover">`:initials(p.name)}</div>
       <div style="flex:1;min-width:0">
         <div class="row gap6 wrap"><h3 class="h3" style="font-size:1.05rem">${esc(p.name)}</h3>${p.verified?`<span class="verified">${svg('shield')}</span>`:''}</div>
         <div class="muted fs-sm">${esc(p.prof)} · ${esc(p.city)}</div>
-        <div class="row gap6 mt4">${stars(p.rating)}<span class="fs-sm fw6">${p.rating}</span><span class="muted fs-xs">(${p.reviews})</span></div>
+        ${p.rating?`<div class="row gap6 mt4">${stars(p.rating)}<span class="fs-sm fw6">${p.rating}</span><span class="muted fs-xs">(${p.reviews})</span></div>`
+          :`<div class="muted fs-xs mt4">Ainda sem avaliações</div>`}
       </div>
     </div>
     <div class="row wrap gap6 mt12">${p.spec.slice(0,2).map(s=>`<span class="badge badge-line">${esc(s)}</span>`).join('')}</div>
@@ -1692,25 +1694,26 @@ function proCard(p){
   </div>`;
 }
 function openPro(id){
-  const p=PROS.find(x=>x.id===id);if(!p)return;const contacted=S.contactedPros.includes(id);
+  const p=profis().find(x=>x.id===id);if(!p)return;const contacted=S.contactedPros.includes(id);
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-    <div class="row gap16"><div class="av av-lg" style="width:72px;height:72px">${initials(p.name)}</div>
+    <div class="row gap16"><div class="av av-lg" style="width:72px;height:72px">${p.foto?`<img src="${esc(p.foto)}" alt="" style="width:100%;height:100%;object-fit:cover">`:initials(p.name)}</div>
       <div><div class="row gap6 wrap"><h2 class="h2">${esc(p.name)}</h2>${p.verified?`<span class="verified">${svg('shield')} Verificado</span>`:''}</div>
       <div class="muted">${esc(p.prof)} · ${esc(p.city)}</div>
-      <div class="row gap6 mt4">${stars(p.rating)}<span class="fw6 fs-sm">${p.rating}</span><span class="muted fs-xs">${p.reviews} avaliações · ${p.cases} casos</span></div></div>
+      ${p.rating?`<div class="row gap6 mt4">${stars(p.rating)}<span class="fw6 fs-sm">${p.rating}</span><span class="muted fs-xs">${p.reviews} avaliações${p.cases?' · '+p.cases+' casos':''}</span></div>`
+        :`<div class="muted fs-xs mt4">Perfil recente, ainda sem avaliações</div>`}</div>
     </div>
     <p class="mt16 mb16">${esc(p.bio)}</p>
     <div class="grid g2 mb16" style="gap:10px">
       <div class="card card-pad" style="padding:12px 14px"><div class="eyebrow mb4">Experiência</div><div class="fw6 fs-sm">${esc(p.exp)}</div></div>
       <div class="card card-pad" style="padding:12px 14px"><div class="eyebrow mb4">Preço</div><div class="fw6 fs-sm">${esc(p.price)}</div></div>
     </div>
-    <div class="eyebrow mb8">Especialidades</div><div class="row wrap gap6 mb12">${p.spec.map(s=>`<span class="badge badge-clay">${esc(s)}</span>`).join('')}</div>
+    ${p.spec.length?`<div class="eyebrow mb8">Especialidades</div><div class="row wrap gap6 mb12">${p.spec.map(s=>`<span class="badge badge-clay">${esc(s)}</span>`).join('')}</div>`:''}
     <div class="eyebrow mb8">Idiomas</div><div class="row wrap gap6 mb12">${p.langs.map(l=>`<span class="badge badge-line">${esc(l)}</span>`).join('')}</div>
     <div class="row wrap gap6 mb24">${p.online?'<span class="badge badge-sage">'+svg('wifi')+' Online</span>':''}${p.inperson?'<span class="badge badge-sage">'+svg('pin')+' Presencial</span>':''}</div>
     <button class="btn btn-primary btn-block btn-lg" onclick="requestConsult('${p.id}')">${contacted?'Pedido enviado':'Pedir consulta'}</button>
   </div>`);
 }
-function requestConsult(id){const p=PROS.find(x=>x.id===id);
+function requestConsult(id){const p=profis().find(x=>x.id===id);
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb4">Pedir consulta</h2><p class="muted mb16">com ${esc(p.name)}</p>
   <div class="field"><label>Explica brevemente o teu caso</label><textarea class="input" placeholder="Ex: Cheguei de Angola há 3 meses e preciso de ajuda com o meu título de residência…"></textarea></div>
@@ -1737,7 +1740,8 @@ function eventCard(e){
   const d=fmtDay(e.date);const going=S.savedEvents.includes(e.id);
   return `<div class="card card-hover" style="overflow:hidden" onclick="openEvent('${e.id}')">
     <div class="photo" style="height:150px;background:linear-gradient(135deg,${e.color},${e.color}bb)">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.85">${svg(catIcon(e.cat))}</div>
+      ${capa(e)?`<img src="${esc(capa(e))}" alt="" loading="lazy">`
+        :`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.85">${svg(catIcon(e.cat))}</div>`}
       <div style="position:absolute;top:12px;left:12px;background:var(--surface);border-radius:12px;padding:8px 12px;text-align:center;line-height:1"><div class="num" style="font-size:1.4rem">${d.d}</div><div class="fs-xs muted">${d.m}</div></div>
       ${going?`<span class="badge badge-sage" style="position:absolute;top:12px;right:12px">${svg('check')} Vou</span>`:''}
     </div>
@@ -1752,7 +1756,9 @@ function eventCard(e){
 function openEvent(id){
   const e=eventosL().find(x=>x.id===id);if(!e)return;const going=S.savedEvents.includes(id);
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()" style="background:var(--surface);z-index:2">${svg('x')}</button>
-    <div class="photo" style="height:170px;border-radius:var(--r);margin-bottom:16px;background:linear-gradient(135deg,${e.color},${e.color}bb)"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.9">${svg(catIcon(e.cat))}</div></div>
+    <div class="photo" style="height:180px;border-radius:var(--r);margin-bottom:16px;background:linear-gradient(135deg,${e.color},${e.color}bb)">
+      ${capa(e)?`<img src="${esc(capa(e))}" alt="">`
+        :`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:#fff;opacity:.9">${svg(catIcon(e.cat))}</div>`}</div>
     <span class="badge badge-line mb8">${esc(e.cat)}</span>
     <h2 class="h2 mb12">${esc(e.title)}</h2>
     <div class="stack gap8 mb16">
@@ -1864,7 +1870,7 @@ ROUTES.map=()=>{
 function mapItems(){
   if(mapLayer==='homes')return casas().map(h=>({x:h.x,y:h.y,id:h.id,open:'openHome',label:h.price+'€'}));
   if(mapLayer==='jobs')return vagas().slice(0,6).map((j,i)=>({x:15+i*13,y:30+(i%3)*18,id:j.id,open:'openJob',label:''}));
-  if(mapLayer==='pros')return PROS.map((p,i)=>({x:20+i*15,y:35+(i%2)*22,id:p.id,open:'openPro',label:''}));
+  if(mapLayer==='pros')return profis().map((p,i)=>({x:20+i*15,y:35+(i%2)*22,id:p.id,open:'openPro',label:''}));
   if(mapLayer==='services')return SERVICES.map((s,i)=>({x:18+i*13,y:28+(i%3)*20,id:s.id,open:'openService',label:''}));
   return eventosL().map((e,i)=>({x:16+i*13,y:32+(i%3)*18,id:e.id,open:'openEvent',label:''}));
 }
@@ -1933,7 +1939,7 @@ ROUTES.profile=()=>{
   <p class="muted fs-xs tc mt24">${esc(BRAND)} · your new life, connected</p>`;
 };
 ROUTES.contacted=()=>{
-  const list=S.contactedPros.map(id=>PROS.find(x=>x.id===id)).filter(Boolean);
+  const list=S.contactedPros.map(id=>profis().find(x=>x.id===id)).filter(Boolean);
   return `<button class="btn btn-quiet btn-sm mb16" onclick="go('profile')">${svg('chevl')} Voltar ao perfil</button>
   ${pageHead('Profissionais contactados','Os teus pedidos de consulta.','')}
   ${list.length?`<div class="grid g2">${list.map(proCard).join('')}</div>`:emptyState('law','Ainda sem contactos','Quando pedires uma consulta, o profissional aparece aqui.',`<button class="btn btn-primary" onclick="go('pros')">Ver profissionais</button>`)}`;
@@ -2054,7 +2060,7 @@ function searchIndex(){
   DOCS.forEach(d=>idx.push({cat:'Documentação',t:d.title,s:d.cat,ic:'doc',go:()=>openDoc(d.id)}));
   vagas().forEach(j=>idx.push({cat:'Trabalho',t:j.role,s:j.company+' · '+j.city,ic:'work',go:()=>openJob(j.id)}));
   casas().forEach(h=>idx.push({cat:'Casa',t:h.title,s:h.price+'€ · '+h.city,ic:'home2',go:()=>openHome(h.id)}));
-  PROS.forEach(p=>idx.push({cat:'Profissionais',t:p.name,s:p.prof+' · '+p.spec[0],ic:'law',go:()=>openPro(p.id)}));
+  profis().forEach(p=>idx.push({cat:'Profissionais',t:p.name,s:p.prof+' · '+(p.spec[0]||p.city),ic:'law',go:()=>openPro(p.id)}));
   eventosL().forEach(e=>idx.push({cat:'Eventos',t:e.title,s:e.city+' · '+e.cat,ic:'event',go:()=>openEvent(e.id)}));
   SERVICES.forEach(s=>idx.push({cat:'Serviços',t:s.name,s:s.cat,ic:'service',go:()=>openService(s.id)}));
   NAV.forEach(n=>idx.push({cat:'Ir para',t:n.label,s:'',ic:n.icon,go:()=>go(n.r)}));
@@ -2098,7 +2104,7 @@ function cmdkGo(i){const r=cmdkResults[i];if(!r)return;closeCmdk();setTimeout(()
    que uma empresa publica, é isso que as pessoas veem. Sem isto o
    circuito não fecha: a empresa paga um destaque que ninguém encontra.
 ------------------------------------------------------------ */
-let LIVE={jobs:null,homes:null,events:null};
+let LIVE={jobs:null,homes:null,events:null,pros:null};
 /* O destaque tem de se ver, senão a empresa não sabe o que comprou.
    Discreto: assinala, não grita. */
 /* Primeira imagem do anúncio, quando existe. */
@@ -2112,6 +2118,7 @@ const badgeDestaque=()=>`<span class="badge badge-gold">${svg('star')} Destacado
 const vagas   = ()=>LIVE.jobs   || JOBS;
 const casas   = ()=>LIVE.homes  || HOMES;
 const eventosL= ()=>LIVE.events || EVENTS;
+const profis  = ()=>LIVE.pros   || PROS;
 
 const SB_URL='https://wtbskvimckdsypmuyxen.supabase.co';
 const SB_ANON='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Ind0YnNrdmltY2tkc3lwbXV5eGVuIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODY1NjY5MjYsImV4cCI6MjEwMjE0MjkyNn0.5ds-vniFcG5W9DUVaYDBbca48Z1EkT0Otqj1X742dtg';
@@ -2143,6 +2150,28 @@ const signedIn=()=>!!SB_USER;
 async function carregarAnunciosPublicos(){
   if(!SB_ON)return;
   try{
+    /* As empresas vêm primeiro e sem depender dos anúncios: um escritório
+       de advogados aparece no directório de profissionais mesmo que nunca
+       publique nada. */
+    const {data:emp}=await sb.from('companies')
+      .select('id,name,category,city,about,verification,logo_url');
+    const nomeDe=id=>(emp||[]).find(e=>e.id===id)||{};
+
+    /* Profissionais não são anúncios: são empresas da categoria Advogados. */
+    const pros=(emp||[])
+      .filter(c=>c.category==='Advogados'&&c.verification!=='rejected'&&c.verification!=='suspended')
+      .map(c=>({
+        id:c.id, name:c.name, prof:'Advogado(a)',
+        /* sem campo de especialidades na ficha, não se inventam áreas */
+        spec:[], city:c.city||'—', langs:['Português'], exp:'—',
+        rating:null, reviews:0, cases:null,
+        verified:c.verification==='verified',
+        price:'Sob consulta', online:true, inperson:true,
+        avail:c.verification==='verified'?'Disponível':'Perfil em verificação',
+        bio:c.about||'', foto:c.logo_url||null
+      }));
+    if(pros.length)LIVE.pros=pros;
+
     /* boosted_until vem no próprio anúncio: chega para ordenar sem
        expor quanto a empresa pagou nem o histórico de compras. */
     const {data:l}=await sb.from('listings')
@@ -2150,10 +2179,11 @@ async function carregarAnunciosPublicos(){
       .eq('status','published')
       .order('boosted_until',{ascending:false,nullsFirst:false})
       .order('published_at',{ascending:false});
-    if(!l||!l.length)return;                    // sem anúncios reais, ficam os exemplos
+    if(!l||!l.length){                          // sem anúncios reais, ficam os exemplos
+      if(pros.length&&S.onboarded)go(S.route);
+      return;
+    }
 
-    const {data:emp}=await sb.from('companies').select('id,name,verification');
-    const nomeDe=id=>(emp||[]).find(e=>e.id===id)||{};
     const destacado=x=>!!(x.boosted_until&&new Date(x.boosted_until)>new Date());
 
     const ordena=(a,b)=>(b.destaque?1:0)-(a.destaque?1:0)
@@ -2191,7 +2221,7 @@ async function carregarAnunciosPublicos(){
     if(jobs.length)LIVE.jobs=jobs;
     if(homes.length)LIVE.homes=homes;
     if(evs.length)LIVE.events=evs;
-    if(S.onboarded&&(jobs.length||homes.length||evs.length))go(S.route);
+    if(S.onboarded&&(jobs.length||homes.length||evs.length||pros.length))go(S.route);
   }catch(e){console.warn('anúncios reais indisponíveis:',e&&e.message)}
 }
 function tempoDesde(iso){
@@ -2504,11 +2534,11 @@ function aiHomesAnswer(q){
 }
 function aiProsAnswer(q,motivo){
   const n=aiNorm(q);
-  let list=PROS.slice();
-  if(aiHas(n,['nacionalidade']))list=PROS.filter(p=>p.spec.includes('Nacionalidade'));
-  else if(aiHas(n,['familia','reagrupamento','esposa','marido','filho','filhos']))list=PROS.filter(p=>p.spec.includes('Reagrupamento familiar'));
-  else if(aiHas(n,['trabalho','contrato','despedi','patrao','salario']))list=PROS.filter(p=>p.spec.includes('Direito do Trabalho'));
-  if(!list.length)list=PROS.slice();
+  let list=profis().slice();
+  if(aiHas(n,['nacionalidade']))list=profis().filter(p=>p.spec.includes('Nacionalidade'));
+  else if(aiHas(n,['familia','reagrupamento','esposa','marido','filho','filhos']))list=profis().filter(p=>p.spec.includes('Reagrupamento familiar'));
+  else if(aiHas(n,['trabalho','contrato','despedi','patrao','salario']))list=profis().filter(p=>p.spec.includes('Direito do Trabalho'));
+  if(!list.length)list=profis().slice();
   const local=list.filter(p=>p.city===S.city);
   const top=(local.length?local:list).slice(0,3);
   return {
@@ -2523,7 +2553,7 @@ function aiEscalate(q){
   return {
     text:`<p><b>Esta situação pode depender do teu caso.</b> Posso ajudar-te a encontrar um profissional.</p>`+
       `<p>Não te vou dar uma resposta jurídica, porque prazos, recursos e situações irregulares dependem de detalhes que só um advogado ou solicitador pode avaliar contigo — e uma resposta errada aqui podia prejudicar-te a sério.</p>`,
-    cards:PROS.filter(p=>p.spec.includes('Direito de Imigração')).slice(0,2).map(p=>({
+    cards:profis().filter(p=>p.spec.includes('Direito de Imigração')).slice(0,2).map(p=>({
       ic:'law',t:p.name,s:`${p.prof} · ${p.city} · ${p.avail}`,h:aiHandler(()=>{aiClose();openPro(p.id)})})),
     acts:[{l:'Ver apoio jurídico',h:aiHandler(()=>{aiClose();proF={q:'',spec:'Direito de Imigração',mode:''};go('pros')})},
           {l:'Serviços de apoio gratuito',h:aiHandler(()=>{aiClose();svcF='Apoio social';go('services')}),soft:true}],
@@ -2689,7 +2719,7 @@ function aiBuildContext(q){
     documentacao:DOCS.map(d=>({id:d.id,titulo:d.title,cat:d.cat,resumo:d.summary,precisa:d.need,passos:d.steps,onde:d.where,custo:d.cost,prazos:d.deadline,alerta:d.alert,faq:d.faq})),
     trabalho:vagas().map(j=>({id:j.id,cargo:j.role,empresa:j.company,cidade:j.city,salario:j.salary,semExperiencia:!j.exp})),
     habitacao:casas().map(h=>({id:h.id,titulo:h.title,cidade:h.city,preco:h.price,tipo:h.type,verificado:h.verified})),
-    profissionais:PROS.map(p=>({id:p.id,nome:p.name,prof:p.prof,cidade:p.city,especialidades:p.spec,idiomas:p.langs,preco:p.price})),
+    profissionais:profis().map(p=>({id:p.id,nome:p.name,prof:p.prof,cidade:p.city,especialidades:p.spec,idiomas:p.langs,preco:p.price})),
     servicos:SERVICES.map(s=>({id:s.id,nome:s.name,cat:s.cat,cidade:s.city,desc:s.desc})),
     eventos:eventosL().map(e=>({id:e.id,titulo:e.title,cat:e.cat,data:e.date,hora:e.time,cidade:e.city,local:e.venue,preco:e.price}))
     /* as regras vivem no system prompt da Edge Function, fora do alcance do cliente */

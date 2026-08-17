@@ -554,6 +554,8 @@ let P={role:'pro',route:'dash',theme:'light',conv:'m1'};
 try{const r=localStorage.getItem('bussola_painel');if(r)P=Object.assign(P,JSON.parse(r))}catch(e){}
 function save(){try{localStorage.setItem('bussola_painel',JSON.stringify(P))}catch(e){}}
 const R=()=>ROLES[P.role];
+/* Com sessão, quem está no painel é a empresa real — não o exemplo. */
+const quemSou=()=>(EMPRESA&&EMPRESA.name)||R().who;
 function unread(){return (CONVS[P.role]||[]).reduce((a,c)=>a+(c.unread||0),0)}
 function applyTheme(){document.documentElement.setAttribute('data-theme',P.theme);const m=document.querySelector('meta[name=theme-color]');if(m)m.content=P.theme==='dark'?'#16140F':'#F7F4EF'}
 function applyAccent(){const r=R();document.documentElement.style.setProperty('--accent',r.accent);document.documentElement.style.setProperty('--accent-soft',r.soft);document.documentElement.style.setProperty('--accent-tint',P.theme==='dark'?'#241812':r.tint)}
@@ -661,7 +663,7 @@ function emptyState(ic,t,m,cta){return `<div class="state"><div class="ill">${sv
 V['pro:dash']=()=>{
   const novos=PEDIDOS.filter(p=>p.status==='novo');
   const a=R().accent;
-  return `${head('Bom dia, Dra. Helena','O que precisa da sua atenção.')}
+  return `${head('Bom dia, '+quemSou(),'O que precisa da sua atenção.')}
   <div class="grid g4 mb24">
     ${statTile('Pedidos por responder',novos.length,'inbox',a,'+2')}
     ${statTile('Consultas esta semana',CONSULTAS.length,'cal','var(--sky)')}
@@ -776,7 +778,7 @@ V['pro:reviews']=()=>{
 V['empresa:dash']=()=>{
   const a=R().accent;const novas=CANDS.filter(c=>c.st==='Nova').length;
   const totalApps=VAGAS.reduce((s,v)=>s+v.apps,0),totalViews=VAGAS.reduce((s,v)=>s+v.views,0);
-  return `${head('Bom dia, Edifer Obras','Estado do recrutamento.')}
+  return `${head('Bom dia, '+quemSou(),'Estado do recrutamento.')}
   <div class="grid g4 mb24">
     ${statTile('Vagas publicadas',VAGAS.filter(v=>v.status==='live').length,'work',a)}
     ${statTile('Candidaturas novas',novas,'users','var(--clay)','+5')}
@@ -856,7 +858,7 @@ function moveCand(id,st){const c=CANDS.find(x=>x.id===id);c.st=st;save();closeMo
 V['anunciante:dash']=()=>{
   const a=R().accent;
   const views=ANUNCIOS.reduce((s,x)=>s+x.views,0),favs=ANUNCIOS.reduce((s,x)=>s+x.favs,0),leads=ANUNCIOS.reduce((s,x)=>s+x.leads,0);
-  return `${head('Bom dia, Sado Habitat','Desempenho dos anúncios esta semana.')}
+  return `${head('Bom dia, '+quemSou(),'Desempenho dos anúncios esta semana.')}
   <div class="grid g4 mb24">
     ${statTile('Anúncios ativos',ANUNCIOS.filter(x=>x.status==='live').length,'home',a)}
     ${statTile('Visualizações',views.toLocaleString('pt-PT'),'eye','var(--sky)','+22%')}
@@ -927,7 +929,7 @@ function openLead(id){const l=LEADS.find(x=>x.id===id);if(!l)return;l.novo=false
 V['organizador:dash']=()=>{
   const a=R().accent;
   const going=MEUS_EVENTOS.reduce((s,e)=>s+e.going,0),views=MEUS_EVENTOS.reduce((s,e)=>s+e.views,0);
-  return `${head('Bom dia, Associação Kianda','Eventos e participação.')}
+  return `${head('Bom dia, '+quemSou(),'Eventos e participação.')}
   <div class="grid g4 mb24">
     ${statTile('Eventos publicados',MEUS_EVENTOS.filter(e=>e.status==='live').length,'event',a)}
     ${statTile('Participantes',going,'users','var(--clay)','+38')}
@@ -940,8 +942,8 @@ V['organizador:dash']=()=>{
         <button class="btn btn-quiet btn-sm" onclick="go('eventos')">Ver todos ${svg('arrow')}</button></div>
       ${MEUS_EVENTOS.filter(e=>e.status==='live').map(e=>`<div class="row gap12" style="padding:12px 0;border-bottom:1px solid var(--line-2)">
         <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(e.title)}</div><div class="muted fs-xs">${esc(e.date)} · ${esc(e.time)} · ${esc(e.venue)}</div>
-        <div class="row gap8 mt8"><div class="pt" style="flex:1;height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden"><i style="display:block;height:100%;width:${Math.round(e.going/e.cap*100)}%;background:${a}"></i></div>
-        <span class="fs-xs muted">${e.going}/${e.cap}</span></div></div></div>`).join('')}
+        ${e.cap?`<div class="row gap8 mt8"><div class="pt" style="flex:1;height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden"><i style="display:block;height:100%;width:${Math.round(e.going/e.cap*100)}%;background:${a}"></i></div>
+        <span class="fs-xs muted">${e.going}/${e.cap}</span></div>`:''}</div></div>`).join('')}
     </div>
     <div class="card card-pad">
       <div class="eyebrow mb4">Comunidade</div><div class="h3 mb16">Inscrições recentes</div>
@@ -953,8 +955,9 @@ V['organizador:dash']=()=>{
 };
 V['organizador:eventos']=()=>{
   const rows=MEUS_EVENTOS.map(e=>`<tr>
-    <td><div class="row gap6 wrap"><span class="fw6">${esc(e.title)}</span>${pillDestaque(e)}</div>
-        <div class="muted fs-xs">${esc(e.venue)}</div></td>
+    <td><div class="row gap8">${(((e.details||{}).imagens||[])[0])?`<img class="linha-thumb" src="${esc(((e.details||{}).imagens||[])[0])}" alt="" loading="lazy">`:''}
+      <div><div class="row gap6 wrap"><span class="fw6">${esc(e.title)}</span>${pillDestaque(e)}</div>
+      <div class="muted fs-xs">${esc(e.venue)}</div></div></div></td>
     <td class="fs-sm">${esc(e.date)}<div class="muted fs-xs">${esc(e.time)}</div></td>
     <td class="fs-sm">${esc(e.price)}</td>
     <td class="num">${e.going}/${e.cap}</td><td class="num">${e.views.toLocaleString('pt-PT')}</td>
@@ -1113,6 +1116,12 @@ async function carregarPacotes(){
   }catch(e){/* fica com os valores locais */}
 }
 
+/* Categoria escolhida no registo → painel correspondente. As restantes
+   categorias (Serviços, Formação, Saúde…) são perfis profissionais. */
+function papelDaCategoria(cat){
+  return ({Advogados:'pro',Empregos:'empresa',Imobiliárias:'anunciante',Eventos:'organizador'})[cat]||'pro';
+}
+
 /* Empresa do utilizador com sessão, e os seus anúncios. */
 async function carregarEmpresa(){
   if(!comSessao())return;
@@ -1121,6 +1130,10 @@ async function carregarEmpresa(){
     if(!mem||!mem.length){EMPRESA=null;return}
     const {data:co}=await sb.from('companies').select('*').eq('id',mem[0].company_id).maybeSingle();
     EMPRESA=co||null;
+    /* O painel tem de abrir no papel da empresa: sem isto um escritório
+       de advogados aterrava no painel guardado da sessão anterior (ou no
+       de demonstração) e nunca via os seus próprios ecrãs. */
+    if(EMPRESA)P.role=papelDaCategoria(EMPRESA.category);
     if(EMPRESA)await carregarAnuncios();
   }catch(e){console.warn('carregar empresa falhou:',e&&e.message)}
 }
@@ -1137,9 +1150,38 @@ async function carregarAnuncios(){
       return Object.assign({},x,{destaque:dd?{ate:dd.ends_at,dias:0,pacote:dd.package_id}:null});
     }));
     ANUNCIOS_DB=comDestaque;
+    adaptarTabelas();
   }catch(e){console.warn('carregar anúncios falhou:',e&&e.message)}
 }
 let ANUNCIOS_DB=[];
+
+/* As tabelas do painel foram escritas sobre os arrays de demonstração.
+   Com sessão, esses arrays passam a ser os anúncios reais da empresa —
+   assim as vistas, o editor e a compra de destaque continuam iguais e
+   deixam de mostrar dados de outra empresa a quem entra na sua conta. */
+const ESTADO_DEMO={published:'live',draft:'draft',review:'pend',paused:'pend'};
+function adaptarTabelas(){
+  const vivos=ANUNCIOS_DB.filter(x=>x.status!=='removed');
+  const base=x=>({id:x.id,details:x.details||{},destaque:x.destaque,
+    status:ESTADO_DEMO[x.status]||'draft',posted:dataCurta(x.published_at||x.created_at),
+    /* métricas de audiência ainda não são recolhidas: zero é o valor honesto */
+    views:0});
+  VAGAS=vivos.filter(x=>x.kind==='job').map(x=>{const d=x.details||{};return Object.assign(base(x),{
+    role:x.title,city:x.city||'—',salary:d.salario||'A combinar',type:d.tipo||'Tempo inteiro',apps:0})});
+  ANUNCIOS=vivos.filter(x=>x.kind==='home').map(x=>{const d=x.details||{};return Object.assign(base(x),{
+    title:x.title,city:x.city||'—',price:Math.round((x.price_cents||0)/100),
+    type:d.tipo||'Apartamento',favs:0,leads:0})});
+  MEUS_EVENTOS=vivos.filter(x=>x.kind==='event').map(x=>{const d=x.details||{};return Object.assign(base(x),{
+    title:x.title,date:dataCurta(d.data)||'A definir',time:d.hora||'—',
+    venue:d.local||(x.city||'A anunciar'),
+    price:x.price_cents?((x.price_cents/100)+'€'):'Gratuito',
+    going:0,cap:Number(d.lotacao)||0})});
+}
+function dataCurta(iso){
+  if(!iso)return '';
+  const d=new Date(iso); if(isNaN(d))return String(iso);
+  return d.toLocaleDateString('pt-PT',{day:'numeric',month:'short',year:'numeric'});
+}
 
 /* Compra real: passa pela Edge Function, que confirma o pagamento
    antes de gravar. Nunca escreve o destaque a partir do cliente. */
@@ -1263,16 +1305,27 @@ async function enviarFoto(input){
   if(!ligado()&&!comSessao())
     return toast('Entra na tua conta para guardar a fotografia','err');
 
-  const uid=SB_USER.id;
   const ext=({'image/jpeg':'jpg','image/png':'png','image/webp':'webp'})[f.type];
-  const caminho=`${uid}/perfil.${ext}`;
+  /* O logótipo pertence à empresa, não a quem o enviou. Se ficasse na
+     pasta pessoal, uma empresa com dois gestores teria o logótipo
+     debaixo de um deles — e apagar essa conta levava-o atrás. */
+  const balde=EMPRESA?'empresas':'avatars';
+  const pasta=EMPRESA?EMPRESA.id:SB_USER.id;
+  const caminho=`${pasta}/logo.${ext}`;
   toast('A enviar…');
   try{
-    const {error}=await sb.storage.from('avatars').upload(caminho,f,{upsert:true,contentType:f.type});
+    const {error}=await sb.storage.from(balde).upload(caminho,f,{upsert:true,contentType:f.type});
     if(error)throw error;
-    const {data}=sb.storage.from('avatars').getPublicUrl(caminho);
+    const {data}=sb.storage.from(balde).getPublicUrl(caminho);
     FOTO_URL=data.publicUrl+'?v='+Date.now();   // rebenta a cache do CDN
-    if(EMPRESA){ try{ await sb.from('companies').update({logo_url:FOTO_URL}).eq('id',EMPRESA.id) }catch(e){} }
+    if(EMPRESA){
+      try{
+        await sb.from('companies').update({logo_url:FOTO_URL}).eq('id',EMPRESA.id);
+        EMPRESA.logo_url=FOTO_URL;
+      }catch(e){}
+    }else{
+      try{ await sb.from('profiles').update({avatar_url:FOTO_URL}).eq('id',SB_USER.id) }catch(e){}
+    }
     renderShell(); go(P.route);
     toast('Fotografia actualizada','ok2');
   }catch(e){
