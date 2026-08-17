@@ -611,22 +611,48 @@ function renderShell(){
       <button class="btn btn-primary btn-sm" onclick="primaryAction()" title="${primaryLabel()}">${svg('plus')}<span class="lbl-m">${primaryLabel()}</span></button>
     </div>`;
 }
+/* Marca KEVIMA: azulejo escuro com o K metálico facetado.
+   Cada face do K é um polígono com o seu próprio gradiente — é isso que
+   dá o aspeto de metal dobrado em vez de uma letra chapada. */
 function markK(s,mono){
-  const g='k'+Math.random().toString(36).slice(2,7);
-  return `<svg width="${s}" height="${s}" viewBox="0 0 40 40" fill="none" role="img" aria-label="KEVIMA">
-    <defs>
-      <linearGradient id="${g}a" x1="0" y1="0" x2="1" y2="1">
-        <stop offset="0" stop-color="#F2F2F2"/><stop offset=".45" stop-color="#9A9A9A"/>
-        <stop offset=".55" stop-color="#D8D8D8"/><stop offset="1" stop-color="#6E6E6E"/>
+  const p='k'+Math.random().toString(36).slice(2,7);
+  const f=n=>mono?'currentColor':`url(#${p}${n})`;
+  const K=`<path d="M132 96h44v320h-44z" fill="${f(1)}"/>
+    <path d="M176 96h28v320h-28z" fill="${f(2)}"/>
+    <path d="M204 175 256 96h41L204 230z" fill="${f(3)}"/>
+    <path d="M297 96h41L204 285v-55z" fill="${f(4)}"/>
+    <path d="M204 285 380 416h-55L204 326z" fill="${f(5)}"/>
+    <path d="M204 326 325 416h-55l-66-49z" fill="${f(6)}"/>`;
+  const abre=`<svg width="${s}" height="${s}" viewBox="0 0 512 512" fill="none" role="img" aria-label="KEVIMA">`;
+  if(mono)return abre+K+`</svg>`;
+  return abre+`<defs>
+      <linearGradient id="${p}t" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#3E3E3E"/><stop offset=".36" stop-color="#1B1B1B"/><stop offset="1" stop-color="#070707"/>
       </linearGradient>
-      <linearGradient id="${g}b" x1="1" y1="0" x2="0" y2="1">
-        <stop offset="0" stop-color="#C9C9C9"/><stop offset=".5" stop-color="#7C7C7C"/>
-        <stop offset="1" stop-color="#EDEDED"/>
+      <linearGradient id="${p}r" x1="0" y1="0" x2="0" y2="1">
+        <stop offset="0" stop-color="#9A9A9A" stop-opacity=".75"/><stop offset=".4" stop-color="#9A9A9A" stop-opacity="0"/>
+      </linearGradient>
+      <linearGradient id="${p}1" x1="0" y1="0" x2="1" y2=".2">
+        <stop offset="0" stop-color="#FFFFFF"/><stop offset=".5" stop-color="#DCDCDC"/><stop offset="1" stop-color="#ADADAD"/>
+      </linearGradient>
+      <linearGradient id="${p}2" x1="0" y1="0" x2="1" y2=".25">
+        <stop offset="0" stop-color="#8E8E8E"/><stop offset="1" stop-color="#5A5A5A"/>
+      </linearGradient>
+      <linearGradient id="${p}3" x1="0" y1="1" x2="1" y2="0">
+        <stop offset="0" stop-color="#6B6B6B"/><stop offset="1" stop-color="#A9A9A9"/>
+      </linearGradient>
+      <linearGradient id="${p}4" x1="0" y1="1" x2=".7" y2="0">
+        <stop offset="0" stop-color="#C4C4C4"/><stop offset=".55" stop-color="#F6F6F6"/><stop offset="1" stop-color="#FFFFFF"/>
+      </linearGradient>
+      <linearGradient id="${p}5" x1="0" y1="0" x2="1" y2=".7">
+        <stop offset="0" stop-color="#FBFBFB"/><stop offset=".55" stop-color="#D5D5D5"/><stop offset="1" stop-color="#A2A2A2"/>
+      </linearGradient>
+      <linearGradient id="${p}6" x1="0" y1="0" x2="1" y2=".7">
+        <stop offset="0" stop-color="#8A8A8A"/><stop offset=".6" stop-color="#666666"/><stop offset="1" stop-color="#464646"/>
       </linearGradient>
     </defs>
-    <path d="M7.5 5h6.8v30H7.5z" fill="${mono?'currentColor':`url(#${g}a)`}"/>
-    <path d="M33 5h-8.6L16.2 16.6v7.9L24.4 35H33L21.6 20.5z" fill="${mono?'currentColor':`url(#${g}b)`}"/>
-  </svg>`;
+    <rect x="16" y="16" width="480" height="480" rx="118" fill="url(#${p}t)"/>
+    <rect x="17.5" y="17.5" width="477" height="477" rx="116.5" fill="none" stroke="url(#${p}r)" stroke-width="3"/>`+K+`</svg>`;
 }
 const mark=(s)=>markK(s);
 function primaryLabel(){return {pro:'Nova consulta',empresa:'Nova vaga',anunciante:'Novo anúncio',organizador:'Novo evento'}[P.role]}
