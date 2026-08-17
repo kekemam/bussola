@@ -365,7 +365,10 @@ kbd{font-family:var(--sans);font-size:.72rem;background:var(--surface-2);border:
 .link-official svg{width:1em;height:1em}
 
 /* ---- Onboarding ---- */
-.ob{position:fixed;inset:0;z-index:300;background:var(--paper);overflow-y:auto;display:none}
+/* Abaixo do scrim (100) e do modal (110) de propósito: o ecrã de entrada
+   é um overlay sobre a app, mas as caixas de diálogo — como a de entrar
+   na conta — têm de aparecer por cima dele. */
+.ob{position:fixed;inset:0;z-index:95;background:var(--paper);overflow-y:auto;display:none}
 .ob.live{display:block}
 .ob-wrap{max-width:520px;margin:0 auto;min-height:100vh;display:flex;flex-direction:column;padding:clamp(24px,5vw,48px) 24px}
 .ob-top{display:flex;align-items:center;gap:12px;margin-bottom:auto;padding-top:8px}
@@ -920,13 +923,22 @@ const NOTIFS=[
    ESTADO
    ============================================================ */
 const LS='bussola_v1';
-let S={
-  onboarded:false, name:'', country:null, city:'', situations:[],
+/* `uid` guarda a quem pertence o que está neste dispositivo. Vazio = progresso
+   anónimo, que pode ser adotado pela conta em que a pessoa entrar. */
+const ESTADO_INICIAL=()=>({
+  onboarded:false, uid:null, name:'', country:null, city:'', situations:[],
   theme:'light', route:'home',
   planDone:{}, docChecks:{}, savedJobs:[], appliedJobs:{}, savedHomes:[],
   savedEvents:[], joinedGroups:['g4'], contactedPros:[],
   notifs:JSON.parse(JSON.stringify(NOTIFS)),
-};
+});
+let S=ESTADO_INICIAL();
+/* Apaga o que é da conta anterior, preservando o que é do aparelho. */
+function limparLocal(){
+  const tema=S.theme;
+  S=ESTADO_INICIAL(); S.theme=tema;
+  try{localStorage.removeItem(LS)}catch(e){}
+}
 function save(){
   try{localStorage.setItem(LS,JSON.stringify(S))}catch(e){}
   if(typeof syncSoon==='function')syncSoon();   // empurra para o servidor se houver conta
@@ -1001,8 +1013,11 @@ function drawOb(){
       <div class="eyebrow mb12">${esc(BRAND)}</div>
       <h1 class="display">Bem-vindo a Portugal.</h1>
       <p class="lead mt12">Estamos aqui para te ajudar a encontrar o teu caminho — passo a passo, sem confusão.</p>
-      <div class="ob-foot"><button class="btn btn-primary btn-lg btn-block" onclick="obNext()">Começar ${svg('arrow')}</button></div>
-      <p class="muted fs-xs tc mt16">Leva menos de um minuto.</p>
+      <div class="ob-foot stack" style="gap:10px">
+        <button class="btn btn-primary btn-lg btn-block" onclick="obNext()">Começar ${svg('arrow')}</button>
+        <button class="btn btn-ghost btn-lg btn-block" onclick="contaModal('entrar')">Já tenho conta — entrar</button>
+      </div>
+      <p class="muted fs-xs tc mt16">Criar o plano leva menos de um minuto.</p>
     </div>`;
   } else if(obStep===1){
     body=`<div class="ob-body">
@@ -2305,6 +2320,12 @@ async function sessaoOrfa(e){
 async function syncPull(){
   if(!signedIn())return;
   const uid=SB_USER.id;
+  /* O que está guardado no aparelho só se funde com esta conta se for
+     anónimo ou já dela. Sendo de outra pessoa — telemóvel partilhado, posto
+     público — a fusão trazia o plano dela para aqui, e o syncPush a seguir
+     gravava-o no servidor desta conta. */
+  if(S.uid&&S.uid!==uid)limparLocal();
+  S.uid=uid;
   try{
     const [{data:prof},{data:passos},{data:checks},{data:guard},{data:cands}]=await Promise.all([
       sb.from('profiles').select('*').eq('id',uid).maybeSingle(),
@@ -2319,7 +2340,11 @@ async function syncPull(){
       if(prof.country_id)S.country=prof.country_id;
       if(prof.city)S.city=prof.city;
       if(prof.situations&&prof.situations.length)S.situations=prof.situations;
-      S.onboarded=true;
+      /* Só conta como onboarded quem tem mesmo plano. A linha em `profiles`
+         nasce com a conta e pode estar vazia — uma conta de empresa ou de
+         administrador, por exemplo. Marcar sempre como onboarded punha essa
+         pessoa dentro da app sem nome nem cidade, com o ecrã inicial vazio. */
+      if(S.name&&S.country&&S.city)S.onboarded=true;
     }
     // união: nunca perder progresso de nenhum dos lados
     (passos||[]).forEach(p=>S.planDone[p.step_id]=true);
@@ -2371,7 +2396,26 @@ async function contaSubmit(modo){
     if(modo==='criar'&&!r.data.session){
       closeModal();toast('Confirma o email para ativares a conta');return;
     }
-    closeModal();toast(modo==='criar'?'Conta criada — progresso guardado':'Bem-vindo de volta');
+    /* Não esperar pelo onAuthStateChange: é preciso saber já se esta conta
+       tem plano guardado, para decidir se entra na app ou se ainda passa
+       pelo onboarding. */
+    SB_USER=r.data.user||SB_USER;
+    if(modo==='entrar')await syncPull();
+    else S.uid=SB_USER.id;   // conta nova adota o progresso anónimo deste aparelho
+    closeModal();
+    /* Quem entrou pelo ecrã de boas-vindas fica preso atrás do overlay:
+       tem de ser fechado à mão. */
+    if(el('ob').classList.contains('live')){
+      if(S.onboarded){
+        el('ob').classList.remove('live');startApp();
+        toast('Bem-vindo de volta'+(S.name?', '+esc(S.name.split(' ')[0]):''));
+      }else{
+        drawOb();
+        toast('Sessão iniciada. Faltam quatro perguntas para criares o plano.');
+      }
+      return;
+    }
+    toast(modo==='criar'?'Conta criada — progresso guardado':'Bem-vindo de volta');
   }catch(e){
     const m=String(e&&e.message||'');
     acErro(/Invalid login/i.test(m)?'Email ou palavra-passe incorretos.'
@@ -2383,7 +2427,10 @@ async function contaSubmit(modo){
 }
 async function sairConta(){
   try{await sb.auth.signOut()}catch(e){}
-  toast('Sessão terminada');renderShell();go('profile');
+  /* Sair tem de deixar o aparelho limpo: os dados estão no servidor e quem
+     usar este telemóvel a seguir não pode ficar com o plano de quem saiu. */
+  limparLocal(); SB_USER=null;
+  toast('Sessão terminada'); renderOnboarding();
 }
 
 /* ============================================================
