@@ -51,6 +51,23 @@ svg{stroke-linecap:round;stroke-linejoin:round}
 .btn-quiet{background:transparent;color:var(--ink-2)} .btn-quiet:hover{background:var(--surface-2);color:var(--ink)}
 .btn-sage{background:var(--sage-soft);color:var(--sage)} .btn-sage:hover{background:var(--sage);color:#fff}
 .btn-boost{background:var(--gold-soft);color:var(--gold)} .btn-boost:hover{background:var(--gold);color:#fff}
+
+/* imagens do anúncio */
+.img-grelha{display:grid;grid-template-columns:repeat(auto-fill,minmax(84px,1fr));gap:8px}
+.img-mini{position:relative;aspect-ratio:4/3;border-radius:var(--r);overflow:hidden;border:1px solid var(--line);background:var(--surface-2)}
+.img-mini img{width:100%;height:100%;object-fit:cover;display:block}
+.img-x{position:absolute;top:4px;right:4px;width:22px;height:22px;border:0;border-radius:var(--r-full);
+  background:rgba(20,17,12,.62);color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;padding:0}
+.img-x svg{width:12px;height:12px}
+.img-capa{position:absolute;bottom:4px;left:4px;font-size:.6rem;font-weight:700;letter-spacing:.06em;
+  text-transform:uppercase;background:var(--accent);color:#fff;padding:.14em .38em;border-radius:4px}
+.img-add{aspect-ratio:4/3;border:1px dashed var(--line);border-radius:var(--r);background:none;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--ink-3);
+  font-family:var(--sans);font-size:.7rem;transition:border-color .18s,color .18s}
+.img-add:hover{border-color:var(--accent);color:var(--accent)}
+.img-add svg{width:16px;height:16px}
+/* miniatura na listagem */
+.linha-thumb{width:44px;height:34px;border-radius:6px;object-fit:cover;flex:none;background:var(--surface-2)}
 .btn-boost svg{width:1em;height:1em}
 .btn-danger{background:var(--danger-soft);color:var(--danger)} .btn-danger:hover{background:var(--danger);color:#fff}
 .btn-sm{padding:.46em .8em;font-size:.8rem} .btn-xs{padding:.34em .62em;font-size:.75rem}
@@ -867,8 +884,9 @@ V['anunciante:dash']=()=>{
 };
 V['anunciante:anuncios']=()=>{
   const rows=ANUNCIOS.map(x=>`<tr>
-    <td><div class="row gap6 wrap"><span class="fw6">${esc(x.title)}</span>${pillDestaque(x)}</div>
-        <div class="muted fs-xs">${esc(x.type)} · ${esc(x.city)}</div></td>
+    <td><div class="row gap8">${(((x.details||{}).imagens||[])[0])?`<img class="linha-thumb" src="${esc(((x.details||{}).imagens||[])[0])}" alt="" loading="lazy">`:''}
+      <div><div class="row gap6 wrap"><span class="fw6">${esc(x.title)}</span>${pillDestaque(x)}</div>
+      <div class="muted fs-xs">${esc(x.type)} · ${esc(x.city)}</div></div></div></td>
     <td class="num fw6">${x.price}€</td>
     <td class="num">${x.views.toLocaleString('pt-PT')}</td><td class="num">${x.favs}</td><td class="num">${x.leads}</td>
     <td>${pill(x.status)}</td>
@@ -1184,6 +1202,56 @@ async function sairPainel(){try{await sb.auth.signOut()}catch(e){}EMPRESA=null;A
    O balde valida tipo e tamanho do lado do servidor, mas validar
    também aqui evita esperar por um upload que vai ser recusado.
    ============================================================ */
+/* ---------- Imagens dos anúncios ----------
+   Guardadas em `empresas/{company_id}/`, que é o balde onde os
+   membros da empresa podem escrever. O anúncio guarda os URLs em
+   details.imagens — array, porque um quarto sem fotografias
+   praticamente não recebe contactos. */
+const MAX_IMG=5*1024*1024, MAX_IMAGENS=5;
+let IMGS=[];        // URLs da edição em curso
+
+function grelhaImagens(){
+  const g=el('imgGrelha'); if(!g)return;
+  g.innerHTML=IMGS.map((u,i)=>`<div class="img-mini">
+      <img src="${esc(u)}" alt="">
+      <button type="button" class="img-x" onclick="removerImagem(${i})" title="Remover">${svg('x')}</button>
+      ${i===0?'<span class="img-capa">capa</span>':''}
+    </div>`).join('')
+   +(IMGS.length<MAX_IMAGENS?`<button type="button" class="img-add" onclick="el('imgInput').click()">
+      ${svg('plus')}<span>Adicionar</span></button>`:'');
+}
+function removerImagem(i){ IMGS.splice(i,1); grelhaImagens() }
+
+async function enviarImagens(input){
+  const ficheiros=[...(input.files||[])]; input.value='';
+  if(!ficheiros.length)return;
+  if(!ligado())return toast('Entra na conta da empresa para enviar imagens','err');
+  if(IMGS.length+ficheiros.length>MAX_IMAGENS)
+    return toast(`No máximo ${MAX_IMAGENS} imagens por anúncio`,'err');
+
+  for(const f of ficheiros){
+    if(!/^image\/(jpeg|png|webp|avif)$/.test(f.type)){ toast(`"${f.name}" não é uma imagem suportada`,'err'); continue }
+    if(f.size>MAX_IMG){ toast(`"${f.name}" passa de 5 MB`,'err'); continue }
+    const ext=f.type.split('/')[1].replace('jpeg','jpg');
+    const caminho=`${EMPRESA.id}/${Date.now()}-${Math.random().toString(36).slice(2,7)}.${ext}`;
+    try{
+      const {error}=await sb.storage.from('empresas').upload(caminho,f,{contentType:f.type});
+      if(error)throw error;
+      IMGS.push(sb.storage.from('empresas').getPublicUrl(caminho).data.publicUrl);
+      grelhaImagens();
+    }catch(e){ toast(`Falhou o envio de "${f.name}"`,'err') }
+  }
+}
+
+/* Ao remover um anúncio, as imagens não devem ficar a ocupar espaço
+   nem acessíveis por URL. */
+async function apagarImagensDe(item){
+  const urls=((item&&item.details)||{}).imagens||[];
+  if(!urls.length||!ligado())return;
+  const caminhos=urls.map(u=>{const p=u.split('/empresas/')[1];return p?p.split('?')[0]:null}).filter(Boolean);
+  if(caminhos.length){ try{ await sb.storage.from('empresas').remove(caminhos) }catch(e){} }
+}
+
 const MAX_FOTO=2*1024*1024;   // igual ao limite do balde `avatars`
 async function enviarFoto(input){
   const f=input.files&&input.files[0]; input.value='';
@@ -1303,6 +1371,7 @@ function valorDe(item,k){
 }
 function formAnuncio(tipo,id){
   const item=id?itemPorTipo(tipo,id):null;
+  IMGS=[...(((item||{}).details||{}).imagens||[])];
   const campos=CAMPOS[tipo];
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
     <h2 class="h2 mb16">${TITULOS[tipo][id?1:0]}</h2>
@@ -1318,6 +1387,13 @@ function formAnuncio(tipo,id){
       return `<div class="field"><label>${esc(c.l)}</label>
         <input class="input" id="${cid}" type="${c.t||'text'}" placeholder="${esc(c.ph||'')}" value="${esc(v)}"></div>`;
     }).join('')}
+    <div class="field">
+      <label>Imagens ${tipo==='anuncio'?'<span class="muted fs-xs">— sem fotografias, um anúncio de casa quase não recebe contactos</span>':'<span class="muted fs-xs">— opcional</span>'}</label>
+      <div class="img-grelha" id="imgGrelha"></div>
+      <input type="file" id="imgInput" accept="image/jpeg,image/png,image/webp,image/avif" multiple
+             style="display:none" onchange="enviarImagens(this)">
+      ${!ligado()?`<p class="muted fs-xs mt8">${svg('info')} Entra na conta da empresa para poderes enviar imagens.</p>`:''}
+    </div>
     <div id="fErro"></div>
     <div class="callout callout-sage mb16">${svg('info')}<div>Publicar é gratuito e sem limite. O destaque é opcional e paga-se à parte.</div></div>
     <div class="row gap8">
@@ -1325,6 +1401,7 @@ function formAnuncio(tipo,id){
       <button class="btn btn-primary flex1" onclick="guardarAnuncio('${tipo}',${id?`'${id}'`:'null'})">${id?'Guardar alterações':'Publicar'}</button>
     </div>
   </div>`);
+  grelhaImagens();
   setTimeout(()=>{const p=el('f0');if(p)p.focus()},220);
 }
 async function guardarAnuncio(tipo,id){
@@ -1336,6 +1413,7 @@ async function guardarAnuncio(tipo,id){
     else if(c.k==='price')dados.price_cents=v==null?null:Math.round(v*100);
     else dados[c.k]=v;
   });
+  dados.details.imagens=IMGS;
   if(!dados.title){el('fErro').innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>O título é obrigatório.</div></div>`;return}
 
   const kind={vaga:'job',anuncio:'home',evento:'event'}[tipo];
@@ -1391,7 +1469,9 @@ function apagarAnuncio(tipo,id){
 }
 async function confirmarRemocao(tipo,id){
   if(ligado()&&String(id).includes('-')){
-    try{ await sb.from('listings').update({status:'removed'}).eq('id',id); await carregarAnuncios(); }
+    try{
+      await apagarImagensDe(itemPorTipo(tipo,id));   // não deixar ficheiros órfãos no balde
+      await sb.from('listings').update({status:'removed'}).eq('id',id); await carregarAnuncios(); }
     catch(e){ closeModal(); return toast('Não foi possível remover','err') }
   }else{
     const lista={vaga:VAGAS,anuncio:ANUNCIOS,evento:MEUS_EVENTOS}[tipo];

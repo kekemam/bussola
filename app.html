@@ -318,6 +318,13 @@ textarea.input{resize:vertical;min-height:96px;line-height:1.5}
 /* ---- Photo blocks ---- */
 .photo{background:var(--surface-2);position:relative;overflow:hidden}
 .photo img{width:100%;height:100%;object-fit:cover;display:block}
+/* galeria do imóvel */
+.galeria{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:2px}
+.galeria::-webkit-scrollbar{display:none}
+.galeria img{width:64px;height:48px;object-fit:cover;border-radius:8px;flex:none;cursor:pointer;
+  border:2px solid transparent;opacity:.65;transition:opacity .18s,border-color .18s}
+.galeria img:hover{opacity:1}
+.galeria img.on{opacity:1;border-color:var(--clay)}
 .thumb{aspect-ratio:16/10;border-radius:var(--r);overflow:hidden;background:var(--surface-2)}
 
 /* ---- Map ---- */
@@ -1572,7 +1579,8 @@ function homeCard(h){
   const saved=S.savedHomes.includes(h.id);
   return `<div class="card card-hover" style="overflow:hidden" onclick="openHome('${h.id}')">
     <div class="photo" style="height:150px;background:linear-gradient(135deg,var(--surface-2),var(--line))">
-      <div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-3);opacity:.5">${svg('home2')}</div>
+      ${capa(h)?`<img src="${esc(capa(h))}" alt="" loading="lazy">`
+        :`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-3);opacity:.5">${svg('home2')}</div>`}
       <button class="btn btn-icon" onclick="event.stopPropagation();toggleSaveHome('${h.id}')" style="position:absolute;top:10px;right:10px;background:var(--surface);color:${saved?'var(--clay)':'var(--ink-3)'}">${svg('heart')}</button>
       ${h.verified?`<span class="verified" style="position:absolute;top:12px;left:12px;background:var(--surface);padding:4px 8px;border-radius:8px">${svg('shield')} Verificado</span>`:''}
       <span class="badge" style="position:absolute;bottom:10px;left:12px;background:var(--ink);color:var(--paper)">${esc(h.type)}</span>
@@ -1590,7 +1598,14 @@ function openHome(id){
   const h=casas().find(x=>x.id===id);if(!h)return;const saved=S.savedHomes.includes(id);
   openModal(`<div class="modal-pad">
     <button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()" style="background:var(--surface);z-index:2">${svg('x')}</button>
-    <div class="photo" style="height:190px;border-radius:var(--r);margin-bottom:16px;background:linear-gradient(135deg,var(--surface-2),var(--line))"><div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-3);opacity:.5">${svg('home2')}</div>${h.verified?`<span class="verified" style="position:absolute;top:12px;left:12px;background:var(--surface);padding:4px 8px;border-radius:8px">${svg('shield')} Verificado</span>`:''}</div>
+    <div class="photo" style="height:200px;border-radius:var(--r);margin-bottom:${(h.imagens||[]).length>1?'8px':'16px'};background:linear-gradient(135deg,var(--surface-2),var(--line))">
+      ${capa(h)?`<img src="${esc(capa(h))}" alt="" id="galeriaPrincipal">`
+        :`<div style="position:absolute;inset:0;display:flex;align-items:center;justify-content:center;color:var(--ink-3);opacity:.5">${svg('home2')}</div>`}
+      ${h.verified?`<span class="verified" style="position:absolute;top:12px;left:12px;background:var(--surface);padding:4px 8px;border-radius:8px">${svg('shield')} Verificado</span>`:''}
+    </div>
+    ${(h.imagens||[]).length>1?`<div class="galeria mb16">${h.imagens.map((u,i)=>
+      `<img src="${esc(u)}" alt="" class="${i===0?'on':''}" loading="lazy"
+            onclick="trocarCapa(this,'${esc(u)}')">`).join('')}</div>`:''}
     <div class="row between"><span class="price clay" style="font-size:1.5rem">${h.price}€<span class="muted fs-sm fw5">/mês</span></span><span class="badge badge-line">${esc(h.type)}</span></div>
     <h2 class="h2 mt8">${esc(h.title)}</h2>
     <div class="muted row gap6 mb16">${svg('pin')} ${esc(h.area)}, ${esc(h.city)}</div>
@@ -2086,6 +2101,13 @@ function cmdkGo(i){const r=cmdkResults[i];if(!r)return;closeCmdk();setTimeout(()
 let LIVE={jobs:null,homes:null,events:null};
 /* O destaque tem de se ver, senão a empresa não sabe o que comprou.
    Discreto: assinala, não grita. */
+/* Primeira imagem do anúncio, quando existe. */
+function trocarCapa(el2,url){
+  const p=document.getElementById('galeriaPrincipal'); if(p)p.src=url;
+  [...el2.parentNode.children].forEach(c=>c.classList.remove('on'));
+  el2.classList.add('on');
+}
+const capa=x=>(x&&x.imagens&&x.imagens[0])||null;
 const badgeDestaque=()=>`<span class="badge badge-gold">${svg('star')} Destacado</span>`;
 const vagas   = ()=>LIVE.jobs   || JOBS;
 const casas   = ()=>LIVE.homes  || HOMES;
@@ -2143,7 +2165,7 @@ async function carregarAnunciosPublicos(){
       type:d.tipo||'Tempo inteiro', schedule:d.horario||'A combinar',
       exp:!d.sem_experiencia, remote:d.regime||'Presencial',
       posted:tempoDesde(x.published_at), desc:d.descricao||'',
-      req:d.requisitos||[], perks:d.beneficios||[],
+      req:d.requisitos||[], perks:d.beneficios||[], imagens:d.imagens||[],
       destaque:destacado(x), verificada:c.verification==='verified'
     }}).sort(ordena);
 
@@ -2151,7 +2173,7 @@ async function carregarAnunciosPublicos(){
       id:x.id, title:x.title, type:d.tipo||'Apartamento', city:x.city||'—', area:d.area||x.city||'',
       price:Math.round((x.price_cents||0)/100), bills:d.despesas||'Não incluídas',
       deposit:d.caucao||'A combinar', rooms:d.quartos||'—', avail:d.disponibilidade||'A combinar',
-      posted:tempoDesde(x.published_at), feat:d.caracteristicas||[], rules:d.regras||'',
+      posted:tempoDesde(x.published_at), feat:d.caracteristicas||[], rules:d.regras||'', imagens:d.imagens||[],
       host:c.name||'Anunciante', hostType:'Agência', verified:c.verification==='verified',
       x:30+Math.random()*40, y:25+Math.random()*45, desc:d.descricao||'',
       destaque:destacado(x)
@@ -2162,7 +2184,7 @@ async function carregarAnunciosPublicos(){
       date:(d.data||x.published_at||'').slice(0,10), time:d.hora||'—',
       city:x.city||'—', venue:d.local||'A anunciar',
       price:x.price_cents?((x.price_cents/100)+'€'):'Gratuito',
-      org:c.name||'Organizador', color:'#C25A3A', desc:d.descricao||'',
+      org:c.name||'Organizador', color:'#C25A3A', desc:d.descricao||'', imagens:d.imagens||[],
       destaque:destacado(x)
     }}).sort(ordena);
 
@@ -2183,14 +2205,17 @@ function syncSoon(){ if(!signedIn())return; clearTimeout(syncTimer); syncTimer=s
 async function syncPush(){
   if(!signedIn()||SB_SYNCING)return; SB_SYNCING=true;
   const uid=SB_USER.id;
+  /* O cliente devolve o erro no resultado em vez de o lançar, por isso
+     um try/catch sozinho não apanha falhas de base de dados. */
+  const check=async(p)=>{const r=await p; if(r&&r.error)throw r.error; return r};
   try{
-    await sb.from('profiles').upsert({id:uid,name:S.name,country_id:S.country,city:S.city,situations:S.situations,updated_at:new Date().toISOString()});
+    await check(sb.from('profiles').upsert({id:uid,name:S.name,country_id:S.country,city:S.city,situations:S.situations,updated_at:new Date().toISOString()}));
     const passos=Object.keys(S.planDone).filter(k=>S.planDone[k]).map(step_id=>({user_id:uid,step_id}));
-    if(passos.length)await sb.from('plan_progress').upsert(passos);
+    if(passos.length)await check(sb.from('plan_progress').upsert(passos));
     const checks=[];
     Object.entries(S.docChecks).forEach(([doc_id,itens])=>Object.entries(itens).forEach(([i,v])=>{
       if(v)checks.push({user_id:uid,doc_id,item_index:+i,done:true})}));
-    if(checks.length)await sb.from('doc_checklist').upsert(checks);
+    if(checks.length)await check(sb.from('doc_checklist').upsert(checks));
     const guardados=[
       ...S.savedJobs.map(id=>({user_id:uid,kind:'job',item_id:id})),
       ...S.savedHomes.map(id=>({user_id:uid,kind:'home',item_id:id})),
@@ -2198,11 +2223,28 @@ async function syncPush(){
       ...S.joinedGroups.map(id=>({user_id:uid,kind:'group',item_id:id})),
       ...S.contactedPros.map(id=>({user_id:uid,kind:'pro',item_id:id})),
     ];
-    if(guardados.length)await sb.from('saved_items').upsert(guardados);
+    if(guardados.length)await check(sb.from('saved_items').upsert(guardados));
     const cands=Object.entries(S.appliedJobs).map(([job_id,status])=>({user_id:uid,job_id,status}));
-    if(cands.length)await sb.from('applications').upsert(cands,{onConflict:'user_id,job_id'});
-  }catch(e){console.warn('sync push falhou:',e&&e.message)}
+    if(cands.length)await check(sb.from('applications').upsert(cands,{onConflict:'user_id,job_id'}));
+  }catch(e){
+    await sessaoOrfa(e);
+    console.warn('sync push falhou:',e&&e.message);
+  }
   SB_SYNCING=false;
+}
+
+/* Uma sessão pode sobreviver ao utilizador: se a conta for apagada
+   noutro dispositivo ou por um administrador, o token continua válido
+   mas já não há linha em auth.users. Sem isto, cada gravação falhava
+   em silêncio e a pessoa só descobria que perdeu tudo mais tarde. */
+async function sessaoOrfa(e){
+  const codigo=e&&(e.code||e.details);
+  const fk=String(codigo||'').includes('23503')||/foreign key constraint/i.test(String(e&&e.message));
+  if(!fk)return false;
+  try{await sb.auth.signOut()}catch(_){}
+  SB_USER=null; renderShell();
+  toast('A tua conta já não existe no servidor. Continuas a usar a app neste dispositivo.','err');
+  return true;
 }
 async function syncPull(){
   if(!signedIn())return;
@@ -2235,7 +2277,7 @@ async function syncPull(){
     S.contactedPros=uniao(S.contactedPros,porTipo('pro'));
     (cands||[]).forEach(c=>{if(!S.appliedJobs[c.job_id])S.appliedJobs[c.job_id]=c.status});
     save();
-  }catch(e){console.warn('sync pull falhou:',e&&e.message)}
+  }catch(e){ await sessaoOrfa(e); console.warn('sync pull falhou:',e&&e.message) }
 }
 
 /* ---------- Conta ---------- */
