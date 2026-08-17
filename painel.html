@@ -794,7 +794,7 @@ V['empresa:vagas']=()=>{
     <td><div class="t-actions">
       ${v.status==='draft'?`<button class="btn btn-sage btn-xs" onclick="pubVaga('${v.id}')">${svg('check')} Publicar</button>`
       :`<button class="btn ${destaqueAtivo(v)?'btn-quiet':'btn-boost'} btn-xs" onclick="modalDestaque('vaga','${v.id}')">${svg('star')} ${destaqueAtivo(v)?'Prolongar':'Destacar'}</button>
-        <button class="btn btn-quiet btn-icon" onclick="toast('Edição de vaga por implementar')">${svg('edit')}</button>
+        <button class="btn btn-quiet btn-icon" onclick="formAnuncio('vaga','${v.id}')" title="Editar">${svg('edit')}</button>
         <button class="btn btn-quiet btn-icon" onclick="pauseVaga('${v.id}')" title="Despublicar">${svg('pause')}</button>`}
     </div></td></tr>`).join('');
   return `${head('Vagas','Publicar é gratuito e sem limite. Só paga se quiser destacar.',`<button class="btn btn-primary btn-sm" onclick="newVaga()">${svg('plus')} Nova vaga</button>`)}
@@ -802,15 +802,7 @@ V['empresa:vagas']=()=>{
 };
 function pubVaga(id){const v=VAGAS.find(x=>x.id===id);v.status='live';v.posted='12 Ago';go('vagas');toast('Vaga publicada','ok2')}
 function pauseVaga(id){const v=VAGAS.find(x=>x.id===id);v.status='draft';go('vagas');toast('Vaga despublicada')}
-function newVaga(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-  <h2 class="h2 mb16">Nova vaga</h2>
-  <div class="field"><label>Cargo</label><input class="input" placeholder="Ex: Servente / Ajudante de construção"></div>
-  <div class="row gap8"><div class="field flex1"><label>Localização</label><input class="input" placeholder="Almada"></div>
-  <div class="field flex1"><label>Salário</label><input class="input" placeholder="1.000€–1.200€"></div></div>
-  <div class="field"><label>Tipo</label><select class="select"><option>Tempo inteiro</option><option>Part-time</option><option>Turnos</option></select></div>
-  <div class="field"><label>Descrição</label><textarea class="input" placeholder="Descreva a função, o ambiente e o que oferece."></textarea></div>
-  <div class="callout callout-sage mb16">${svg('info')}<div>Indique se aceita candidatos <b>sem experiência</b> — é o filtro mais usado por quem procura o primeiro emprego em Portugal.</div></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Vaga submetida para aprovação','ok2')">Publicar vaga</button></div>`)}
+function newVaga(){formAnuncio('vaga',null)}
 V['empresa:candidaturas']=()=>{
   return `${head('Candidaturas','Arraste o processo de cada candidato até à decisão')}
   <div class="kan">
@@ -882,23 +874,14 @@ V['anunciante:anuncios']=()=>{
     <td>${pill(x.status)}</td>
     <td><div class="t-actions">
       ${x.status==='live'?`<button class="btn ${destaqueAtivo(x)?'btn-quiet':'btn-boost'} btn-xs" onclick="modalDestaque('anuncio','${x.id}')">${svg('star')} ${destaqueAtivo(x)?'Prolongar':'Destacar'}</button>`:''}
-      <button class="btn btn-quiet btn-icon" onclick="toast('Edição de anúncio por implementar')">${svg('edit')}</button>
+      <button class="btn btn-quiet btn-icon" onclick="formAnuncio('anuncio','${x.id}')" title="Editar">${svg('edit')}</button>
       ${x.status==='live'?`<button class="btn btn-quiet btn-icon" onclick="pauseAnuncio('${x.id}')" title="Despublicar">${svg('pause')}</button>`:''}
     </div></td></tr>`).join('');
   return `${head('Anúncios','Publicar é gratuito e sem limite. Só paga se quiser destacar.',`<button class="btn btn-primary btn-sm" onclick="newAnuncio()">${svg('plus')} Novo anúncio</button>`)}
   ${tableWrap('Imóveis',`${ANUNCIOS.length} registos`,['Anúncio','Preço','Visualizações','Guardados','Interessados','Estado',''],rows)}`;
 };
 function pauseAnuncio(id){const x=ANUNCIOS.find(a=>a.id===id);x.status='draft';go('anuncios');toast('Anúncio despublicado')}
-function newAnuncio(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-  <h2 class="h2 mb16">Novo anúncio</h2>
-  <div class="field"><label>Título</label><input class="input" placeholder="Ex: T1 renovado perto do centro"></div>
-  <div class="row gap8"><div class="field flex1"><label>Tipo</label><select class="select"><option>Quarto</option><option>Apartamento</option><option>Casa</option><option>Alojamento temporário</option></select></div>
-  <div class="field flex1"><label>Renda mensal (€)</label><input class="input" type="number" placeholder="750"></div></div>
-  <div class="row gap8"><div class="field flex1"><label>Cidade</label><input class="input" placeholder="Setúbal"></div>
-  <div class="field flex1"><label>Caução</label><select class="select"><option>1 mês</option><option>2 meses</option><option>Sem caução</option></select></div></div>
-  <div class="field"><label>Descrição</label><textarea class="input" placeholder="Descreva o imóvel, a zona e as condições com honestidade."></textarea></div>
-  <div class="callout callout-warn mb16">${svg('warn')}<div>Anúncios com preços irrealistas ou sem morada aproximada são retidos para análise antes de publicar.</div></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Anúncio submetido para aprovação','ok2')">Submeter anúncio</button></div>`)}
+function newAnuncio(){formAnuncio('anuncio',null)}
 V['anunciante:interessados']=()=>{
   const rows=LEADS.map(l=>`<tr>
     <td><div class="row gap8">${cc(l.country)}
@@ -961,22 +944,13 @@ V['organizador:eventos']=()=>{
     <td><div class="t-actions">
       ${e.status==='draft'?`<button class="btn btn-sage btn-xs" onclick="pubEvento('${e.id}')">${svg('check')} Publicar</button>`
       :`<button class="btn ${destaqueAtivo(e)?'btn-quiet':'btn-boost'} btn-xs" onclick="modalDestaque('evento','${e.id}')">${svg('star')} ${destaqueAtivo(e)?'Prolongar':'Destacar'}</button>
-        <button class="btn btn-quiet btn-icon" onclick="toast('Edição de evento por implementar')">${svg('edit')}</button>`}
+        <button class="btn btn-quiet btn-icon" onclick="formAnuncio('evento','${e.id}')" title="Editar">${svg('edit')}</button>`}
     </div></td></tr>`).join('');
   return `${head('Eventos','Publicar é gratuito e sem limite. Só paga se quiser destacar.',`<button class="btn btn-primary btn-sm" onclick="newEvento()">${svg('plus')} Novo evento</button>`)}
   ${tableWrap('Eventos',`${MEUS_EVENTOS.length} registos`,['Evento','Data','Preço','Participantes','Visualizações','Estado',''],rows)}`;
 };
 function pubEvento(id){const e=MEUS_EVENTOS.find(x=>x.id===id);e.status='live';go('eventos');toast('Evento submetido para aprovação','ok2')}
-function newEvento(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
-  <h2 class="h2 mb16">Novo evento</h2>
-  <div class="field"><label>Título</label><input class="input" placeholder="Ex: Noite de Kizomba & Semba"></div>
-  <div class="field"><label>Categoria</label><select class="select"><option>Música</option><option>Cultura</option><option>Comunidade</option><option>Networking</option><option>Negócios</option><option>Desporto</option><option>Formação</option><option>Gastronomia</option></select></div>
-  <div class="row gap8"><div class="field flex1"><label>Data</label><input class="input" type="date" value="2026-09-05"></div>
-  <div class="field flex1"><label>Hora</label><input class="input" type="time" value="20:00"></div></div>
-  <div class="row gap8"><div class="field flex1"><label>Local</label><input class="input" placeholder="Espaço, cidade"></div>
-  <div class="field flex1"><label>Preço</label><input class="input" placeholder="Gratuito ou 10€"></div></div>
-  <div class="field"><label>Descrição</label><textarea class="input" placeholder="O que vai acontecer e para quem é."></textarea></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Evento submetido para aprovação','ok2')">Submeter evento</button></div>`)}
+function newEvento(){formAnuncio('evento',null)}
 V['organizador:participantes']=()=>{
   const rows=PARTICIPANTES.map(p=>`<tr>
     <td><div class="row gap8">${cc(p.country)}<span class="fw6">${esc(p.name)}</span></div></td>
@@ -1056,7 +1030,7 @@ V.perfil=()=>{
     organizador:[['Organização','Associação Kianda'],['Tipo','Associação cultural'],['NIPC','Verificado'],['Cidade','Lisboa'],['Fundada em','2014'],['Sobre','Promoção da cultura angolana e cabo-verdiana em Portugal.']],
   }[P.role];
   return `${head('Perfil público','É assim que as pessoas o veem na KEVIMA',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Pré-visualização por implementar')">${svg('eye')} Ver como público</button>
+    <button class="btn btn-ghost btn-sm" onclick="verComoPublico()">${svg('eye')} Ver como público</button>
     <button class="btn btn-primary btn-sm" onclick="toast('Alterações guardadas','ok2')">Guardar alterações</button>`)}
   <div class="grid" style="grid-template-columns:1fr 320px;align-items:start">
     <div class="card card-pad">
@@ -1201,6 +1175,190 @@ async function contaSubmit(modo){
   }
 }
 async function sairPainel(){try{await sb.auth.signOut()}catch(e){}EMPRESA=null;ANUNCIOS_DB=[];toast('Sessão terminada');renderShell();go('dash')}
+
+/* Mostra o perfil como quem procura o vê. Só o que é realmente
+   público: nada de estatísticas, faturação ou contactos internos. */
+function verComoPublico(){
+  const r=R(), emp=EMPRESA;
+  const nome=emp?emp.name:r.who;
+  const cat=emp?emp.category:r.cat;
+  const cidade=emp?(emp.city||'—'):r.sub.split('·').pop().trim();
+  const verificada=emp?emp.verification==='verified':true;
+  const anuncios=ligado()?ANUNCIOS_DB.filter(a=>a.status==='published')
+    :({empresa:VAGAS,anunciante:ANUNCIOS,organizador:MEUS_EVENTOS}[P.role]||[]).filter(x=>x.status==='live');
+
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <div class="row gap6 mb16"><span class="pill pill-off">${svg('eye')}Pré-visualização</span>
+      <span class="muted fs-xs" style="align-self:center">é assim que aparece a quem procura</span></div>
+    <div class="card card-pad" style="background:var(--surface-2)">
+      <div class="row gap12">
+        <div class="av av-lg" style="background:${r.accent};color:#fff">${initials(nome)}</div>
+        <div style="flex:1;min-width:0">
+          <div class="row gap6 wrap"><h3 class="h3">${esc(nome)}</h3>
+            ${verificada?`<span class="pill pill-ok"><i class="dot"></i>Verificada</span>`
+                        :`<span class="pill pill-pend"><i class="dot"></i>Por verificar</span>`}</div>
+          <div class="muted fs-sm">${esc(cat)} · ${esc(cidade)}</div>
+        </div>
+      </div>
+      ${emp&&emp.about?`<p class="fs-sm mt12">${esc(emp.about)}</p>`:''}
+      <hr class="divider" style="margin:14px 0">
+      <div class="eyebrow mb8">${anuncios.length} ${anuncios.length===1?'anúncio publicado':'anúncios publicados'}</div>
+      ${anuncios.length?anuncios.slice(0,4).map(a=>`<div class="row between" style="padding:8px 0;border-bottom:1px solid var(--line-2)">
+        <div class="row gap6"><span class="fs-sm fw5">${esc(a.title||a.role)}</span>${pillDestaque(a)}</div>
+        <span class="muted fs-xs">${esc(a.city||'')}</span></div>`).join('')
+       :`<p class="muted fs-sm">Ainda sem anúncios publicados. Quem visitar o perfil não vê nada.</p>`}
+    </div>
+    ${!verificada?`<div class="callout callout-warn mt16">${svg('info')}<div>Enquanto a verificação estiver pendente, o perfil aparece sem o selo. Isso reduz a confiança de quem procura.</div></div>`:''}
+    <button class="btn btn-ghost btn-block mt16" onclick="closeModal()">Fechar</button>
+  </div>`);
+}
+
+/* ============================================================
+   ANÚNCIOS — criar e editar
+   ------------------------------------------------------------
+   Um formulário só para os três tipos. Os campos comuns vivem em
+   colunas (title, city, price_cents) e os próprios de cada tipo em
+   `details`, que é jsonb — por isso a definição abaixo diz onde
+   cada campo pertence com o prefixo "d.".
+   ============================================================ */
+const CAMPOS={
+  vaga:[
+    {k:'title', l:'Cargo', ph:'Ex: Servente / Ajudante de construção', req:true},
+    {k:'city',  l:'Localização', ph:'Almada'},
+    {k:'d.salario', l:'Salário', ph:'1.000€–1.200€'},
+    {k:'d.tipo', l:'Tipo de contrato', t:'select', op:['Tempo inteiro','Part-time','Turnos','Temporário']},
+    {k:'d.sem_experiencia', l:'Aceita candidatos sem experiência', t:'check',
+     nota:'É o filtro mais usado por quem procura o primeiro emprego em Portugal.'},
+    {k:'d.descricao', l:'Descrição', t:'textarea', ph:'A função, o ambiente e o que oferece.'},
+  ],
+  anuncio:[
+    {k:'title', l:'Título', ph:'Ex: T1 renovado perto do centro', req:true},
+    {k:'d.tipo', l:'Tipo', t:'select', op:['Quarto','Apartamento','Casa','Alojamento temporário']},
+    {k:'price',  l:'Renda mensal (€)', t:'number', ph:'750'},
+    {k:'city',   l:'Cidade', ph:'Setúbal'},
+    {k:'d.caucao', l:'Caução', t:'select', op:['1 mês','2 meses','Sem caução']},
+    {k:'d.despesas', l:'Despesas', t:'select', op:['Incluídas','Não incluídas','Parcialmente incluídas']},
+    {k:'d.descricao', l:'Descrição', t:'textarea', ph:'O imóvel, a zona e as condições, com honestidade.'},
+  ],
+  evento:[
+    {k:'title', l:'Título', ph:'Ex: Noite de Kizomba & Semba', req:true},
+    {k:'d.categoria', l:'Categoria', t:'select',
+     op:['Música','Cultura','Comunidade','Networking','Negócios','Desporto','Formação','Gastronomia']},
+    {k:'d.data', l:'Data', t:'date'},
+    {k:'d.hora', l:'Hora', t:'time'},
+    {k:'d.local', l:'Local', ph:'Espaço e morada'},
+    {k:'city', l:'Cidade', ph:'Lisboa'},
+    {k:'price', l:'Preço (€, vazio = gratuito)', t:'number', ph:'10'},
+    {k:'d.descricao', l:'Descrição', t:'textarea', ph:'O que vai acontecer e para quem é.'},
+  ],
+};
+const TITULOS={vaga:['Nova vaga','Editar vaga'],anuncio:['Novo anúncio','Editar anúncio'],evento:['Novo evento','Editar evento']};
+
+/* Lê um campo do item, seja de coluna ou de details. */
+function valorDe(item,k){
+  if(!item)return '';
+  if(k.startsWith('d.'))return (item.details||{})[k.slice(2)] ?? (item[k.slice(2)] ?? '');
+  if(k==='price')return item.price_cents!=null?item.price_cents/100:(item.price ?? '');
+  return item[k] ?? '';
+}
+function formAnuncio(tipo,id){
+  const item=id?itemPorTipo(tipo,id):null;
+  const campos=CAMPOS[tipo];
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <h2 class="h2 mb16">${TITULOS[tipo][id?1:0]}</h2>
+    ${campos.map((c,i)=>{
+      const v=valorDe(item,c.k), cid='f'+i;
+      if(c.t==='check')return `<label class="row gap8 mb12" style="cursor:pointer;align-items:flex-start">
+        <input type="checkbox" id="${cid}" ${v?'checked':''} style="accent-color:var(--accent);margin-top:3px">
+        <span><span class="fw5 fs-sm">${esc(c.l)}</span>${c.nota?`<br><span class="muted fs-xs">${esc(c.nota)}</span>`:''}</span></label>`;
+      if(c.t==='select')return `<div class="field"><label>${esc(c.l)}</label><select class="select" id="${cid}">
+        ${c.op.map(o=>`<option ${String(v)===o?'selected':''}>${esc(o)}</option>`).join('')}</select></div>`;
+      if(c.t==='textarea')return `<div class="field"><label>${esc(c.l)}</label>
+        <textarea class="input" id="${cid}" placeholder="${esc(c.ph||'')}">${esc(v)}</textarea></div>`;
+      return `<div class="field"><label>${esc(c.l)}</label>
+        <input class="input" id="${cid}" type="${c.t||'text'}" placeholder="${esc(c.ph||'')}" value="${esc(v)}"></div>`;
+    }).join('')}
+    <div id="fErro"></div>
+    <div class="callout callout-sage mb16">${svg('info')}<div>Publicar é gratuito e sem limite. O destaque é opcional e paga-se à parte.</div></div>
+    <div class="row gap8">
+      ${id?`<button class="btn btn-danger" onclick="apagarAnuncio('${tipo}','${id}')">${svg('trash')}</button>`:''}
+      <button class="btn btn-primary flex1" onclick="guardarAnuncio('${tipo}',${id?`'${id}'`:'null'})">${id?'Guardar alterações':'Publicar'}</button>
+    </div>
+  </div>`);
+  setTimeout(()=>{const p=el('f0');if(p)p.focus()},220);
+}
+async function guardarAnuncio(tipo,id){
+  const campos=CAMPOS[tipo], dados={details:{}};
+  campos.forEach((c,i)=>{
+    const e=el('f'+i); if(!e)return;
+    const v=c.t==='check'?e.checked:(c.t==='number'?(e.value===''?null:Number(e.value)):e.value.trim());
+    if(c.k.startsWith('d.'))dados.details[c.k.slice(2)]=v;
+    else if(c.k==='price')dados.price_cents=v==null?null:Math.round(v*100);
+    else dados[c.k]=v;
+  });
+  if(!dados.title){el('fErro').innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>O título é obrigatório.</div></div>`;return}
+
+  const kind={vaga:'job',anuncio:'home',evento:'event'}[tipo];
+
+  if(ligado()){
+    try{
+      if(id&&String(id).includes('-')){
+        const {error}=await sb.from('listings').update({...dados,updated_at:new Date().toISOString()}).eq('id',id);
+        if(error)throw error;
+      }else{
+        const {error}=await sb.from('listings').insert({
+          ...dados, company_id:EMPRESA.id, kind,
+          status:'published', published_at:new Date().toISOString()
+        });
+        if(error)throw error;
+      }
+      await carregarAnuncios(); closeModal(); go(P.route);
+      return toast(id?'Alterações guardadas':'Anúncio publicado','ok2');
+    }catch(e){
+      el('fErro').innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(e.message||'Não foi possível guardar.')}</div></div>`;
+      return;
+    }
+  }
+
+  /* Sem sessão: actualiza os dados de demonstração, para o fluxo ser
+     visível na mesma. */
+  const lista={vaga:VAGAS,anuncio:ANUNCIOS,evento:MEUS_EVENTOS}[tipo];
+  const d=dados.details;
+  if(id){
+    const it=lista.find(x=>x.id===id);
+    if(it){
+      it.title=dados.title; if(dados.city)it.city=dados.city;
+      if(tipo==='vaga'){it.role=dados.title; it.salary=d.salario||it.salary; it.type=d.tipo||it.type}
+      if(tipo==='anuncio'&&dados.price_cents!=null)it.price=dados.price_cents/100;
+      if(tipo==='evento'){it.venue=d.local||it.venue; it.price=dados.price_cents?(dados.price_cents/100)+'€':'Gratuito'}
+    }
+  }else{
+    const novo={id:tipo[0]+Date.now(),status:'live',city:dados.city||'—',title:dados.title,destaque:null};
+    if(tipo==='vaga')Object.assign(novo,{role:dados.title,salary:d.salario||'A combinar',type:d.tipo||'Tempo inteiro',apps:0,views:0,posted:'hoje'});
+    if(tipo==='anuncio')Object.assign(novo,{price:dados.price_cents?dados.price_cents/100:0,type:d.tipo||'Apartamento',views:0,favs:0,leads:0,posted:'hoje'});
+    if(tipo==='evento')Object.assign(novo,{venue:d.local||'A anunciar',date:d.data||'',time:d.hora||'',price:dados.price_cents?(dados.price_cents/100)+'€':'Gratuito',going:0,views:0,cap:100});
+    lista.unshift(novo);
+  }
+  closeModal(); go(P.route);
+  toast(id?'Alterações guardadas':'Anúncio publicado','ok2');
+}
+function apagarAnuncio(tipo,id){
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <h2 class="h2 mb8">Remover anúncio?</h2>
+    <p class="muted mb24">Deixa de aparecer nas pesquisas. Se tiver destaque activo, o período não é reembolsado.</p>
+    <div class="row gap8"><button class="btn btn-ghost flex1" onclick="formAnuncio('${tipo}','${id}')">Cancelar</button>
+    <button class="btn btn-danger flex1" onclick="confirmarRemocao('${tipo}','${id}')">Remover</button></div></div>`);
+}
+async function confirmarRemocao(tipo,id){
+  if(ligado()&&String(id).includes('-')){
+    try{ await sb.from('listings').update({status:'removed'}).eq('id',id); await carregarAnuncios(); }
+    catch(e){ closeModal(); return toast('Não foi possível remover','err') }
+  }else{
+    const lista={vaga:VAGAS,anuncio:ANUNCIOS,evento:MEUS_EVENTOS}[tipo];
+    const i=lista.findIndex(x=>x.id===id); if(i>=0)lista.splice(i,1);
+  }
+  closeModal(); go(P.route); toast('Anúncio removido');
+}
 
 /* ============================================================
    REGISTAR EMPRESA — gratuito, sem cartão

@@ -481,6 +481,124 @@ const nVerif=()=>aoVivo()?DB.empresas.filter(c=>c.verification==='pending'||c.ve
                         :VERIF.filter(v=>v.status==='pend'||v.status==='anal').length;
 const eur=c=>((c||0)/100).toLocaleString('pt-PT',{minimumFractionDigits:0})+'€';
 
+/* ============================================================
+   PACOTES DE DESTAQUE — preços editáveis sem deploy
+   ------------------------------------------------------------
+   Os preços vivem em `boost_packages` precisamente para isto. O
+   painel lê-os de lá, por isso alterar aqui muda o que a empresa vê.
+   ============================================================ */
+async function gerirPacotes(){
+  if(!aoVivo())return toast('Entra na consola para editar preços','err');
+  let pacotes=[];
+  try{
+    const {data}=await sb.from('boost_packages').select('*').order('sort');
+    pacotes=data||[];
+  }catch(e){return toast('Não foi possível ler os pacotes','err')}
+
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <h2 class="h2 mb4">Pacotes de destaque</h2>
+    <p class="muted mb16">Os valores estão em euros. A alteração é imediata para todas as empresas.</p>
+    ${pacotes.map((p,i)=>`<div class="card card-pad mb12" style="padding:14px 16px">
+      <div class="row between mb8"><span class="fw6">${esc(p.name)}</span>
+        <label class="row gap6 fs-xs muted" style="cursor:pointer">
+          <input type="checkbox" id="pa${i}" ${p.active?'checked':''} style="accent-color:var(--clay)">activo</label></div>
+      <div class="row gap8">
+        <div class="field flex1" style="margin:0"><label>Dias</label>
+          <input class="input" id="pd${i}" type="number" min="1" value="${p.days}"></div>
+        <div class="field flex1" style="margin:0"><label>Preço (€)</label>
+          <input class="input" id="pp${i}" type="number" min="0" step="0.01" value="${(p.price_cents/100).toFixed(2)}"></div>
+      </div>
+      <div class="field mt8" style="margin:0"><label>Descrição</label>
+        <input class="input" id="pt${i}" value="${esc(p.description||'')}"></div>
+    </div>`).join('')}
+    <div id="pkErro"></div>
+    <div class="callout callout-warn mb16">${svg('warn')}<div>Destaques já comprados mantêm o preço e o período que foram pagos. A alteração vale só para compras futuras.</div></div>
+    <button class="btn btn-primary btn-block" onclick='guardarPacotes(${JSON.stringify(pacotes.map(p=>p.id))})'>Guardar preços</button>
+  </div>`);
+}
+async function guardarPacotes(ids){
+  const erros=[];
+  for(let i=0;i<ids.length;i++){
+    const dias=Number(el('pd'+i).value), euros=Number(el('pp'+i).value);
+    if(!(dias>0))erros.push('Os dias têm de ser maiores que zero.');
+    if(!(euros>=0))erros.push('O preço não pode ser negativo.');
+  }
+  if(erros.length){
+    el('pkErro').innerHTML=`<div class="callout callout-warn mb12">${svg('warn')}<div>${esc(erros[0])}</div></div>`;
+    return;
+  }
+  try{
+    for(let i=0;i<ids.length;i++){
+      const {error}=await sb.from('boost_packages').update({
+        days:Number(el('pd'+i).value),
+        price_cents:Math.round(Number(el('pp'+i).value)*100),
+        description:el('pt'+i).value.trim(),
+        active:el('pa'+i).checked
+      }).eq('id',ids[i]);
+      if(error)throw error;
+    }
+    await carregarTudo(); closeModal(); go('payments');
+    toast('Preços actualizados','ok2');
+  }catch(e){
+    el('pkErro').innerHTML=`<div class="callout callout-warn mb12">${svg('warn')}<div>${esc(e.message)}</div></div>`;
+  }
+}
+
+/* ============================================================
+   EXPORTAÇÃO — ficheiro real, não um toast
+   ============================================================ */
+function csv(linhas){
+  const escapa=v=>{const s=String(v??'');return /[",;\n]/.test(s)?'"'+s.replace(/"/g,'""')+'"':s};
+  return linhas.map(l=>l.map(escapa).join(';')).join('\r\n');
+}
+function descarregar(nome,conteudo,tipo){
+  // BOM para o Excel abrir acentos correctamente
+  const blob=new Blob(['﻿'+conteudo],{type:(tipo||'text/csv')+';charset=utf-8'});
+  const a=document.createElement('a');
+  a.href=URL.createObjectURL(blob); a.download=nome; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),1000);
+}
+function exportarContabilidade(){
+  const linhas=[['Recibo','Data','Empresa','Anúncio','Pacote','Dias','Valor (EUR)','Estado','Referência']];
+  const fonte=aoVivo()?DB.destaques:[];
+  if(!fonte.length)return toast('Não há compras para exportar','err');
+  fonte.forEach(b=>{
+    const emp=(DB.empresas.find(e=>e.id===b.company_id)||{}).name||'—';
+    const an=(DB.anuncios.find(l=>l.id===b.listing_id)||{}).title||'—';
+    linhas.push(['DS '+b.receipt_no, new Date(b.created_at).toLocaleDateString('pt-PT'),
+      emp, an, b.package_id, b.days, (b.price_cents/100).toFixed(2).replace('.',','),
+      b.status, b.payment_ref||'']);
+  });
+  descarregar('kevima-destaques-'+new Date().toISOString().slice(0,10)+'.csv', csv(linhas));
+  toast(fonte.length+' compras exportadas','ok2');
+}
+
+function exportarUtilizadores(){
+  const fonte=aoVivo()?DB.perfis.map(u=>[u.name||'',(u.country_id||'').toUpperCase(),u.city||'',
+      new Date(u.created_at).toLocaleDateString('pt-PT')]):USERS.map(u=>[u.name,u.country,u.city,u.joined]);
+  if(!fonte.length)return toast('Não há utilizadores para exportar','err');
+  descarregar('kevima-utilizadores-'+new Date().toISOString().slice(0,10)+'.csv',
+    csv([['Nome','País','Cidade','Registo'],...fonte]));
+  toast(fonte.length+' utilizadores exportados','ok2');
+}
+function exportarRelatorio(){
+  const l=[['KEVIMA — relatório da plataforma'],['Gerado em',new Date().toLocaleString('pt-PT')],
+    ['Fonte',aoVivo()?'dados reais':'demonstração'],[]];
+  if(aoVivo()){
+    l.push(['Empresas',DB.empresas.length],['Anúncios',DB.anuncios.length],
+      ['Anúncios publicados',DB.anuncios.filter(a=>a.status==='published').length],
+      ['Destaques comprados',DB.destaques.length],
+      ['Receita (EUR)',(DB.destaques.reduce((s,b)=>s+b.price_cents,0)/100).toFixed(2).replace('.',',')],
+      ['Utilizadores',DB.perfis.length],['Denúncias abertas',DB.fila.length],[]);
+    l.push(['Pacote','Vendidos','Receita (EUR)']);
+    DB.pacotes.forEach(p=>l.push([p.name,p.vendidos,(p.receita_cents/100).toFixed(2).replace('.',',')]));
+  }else{
+    l.push(['(dados de demonstração — entra na consola para o relatório real)']);
+  }
+  descarregar('kevima-relatorio-'+new Date().toISOString().slice(0,10)+'.csv', csv(l));
+  toast('Relatório exportado','ok2');
+}
+
 /* Numa consola, confundir dados reais com dados de exemplo leva a
    decisões erradas. O ecrã diz sempre de onde vêm os números. */
 function avisoFonte(){
@@ -639,7 +757,7 @@ R.dash=()=>{
   const max=Math.max(...GROWTH.map(g=>g.v));
   return `
   ${head('Visão geral','Estado da plataforma · '+dataHoje(),`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado')">${svg('dl')} Exportar</button>
+    <button class="btn btn-ghost btn-sm" onclick="exportarRelatorio()">${svg('dl')} Exportar</button>
     <button class="btn btn-primary btn-sm" onclick="go('reports')">${svg('flag')} Rever denúncias</button>`)}
 
   <div class="grid g4">
@@ -710,7 +828,7 @@ R.users=()=>{
     </div></td>
   </tr>`).join('');
   return `${head('Utilizadores','8.412 contas registadas · 642 novas nos últimos 7 dias',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('CSV exportado')">${svg('dl')} Exportar CSV</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="exportarUtilizadores()">${svg('dl')} Exportar CSV</button>`)}
   ${avisoFonte()}
   <div class="row gap6 wrap mb16">
     ${[['','Todos'],['ok','Ativos'],['susp','Suspensos']].map(([v,l])=>`<span class="chip ${uFilter===v?'on':''}" onclick="uFilter='${v}';go('users')">${l}</span>`).join('')}
@@ -1031,7 +1149,7 @@ R.analytics=()=>{
   const bar=(list,key,max,color)=>list.map(x=>`<div class="progrow"><div class="pl fs-sm">${x.f?x.f+' ':''}${esc(x.n)}</div>
     <div class="pt"><i style="width:${Math.round(x.v/max*100)}%;background:${color||'var(--clay)'}"></i></div><div class="pv">${x.v}%</div></div>`).join('');
   return `${head('Analytics','Aquisição, ativação, retenção e o que falta na plataforma',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Relatório exportado')">${svg('dl')} Exportar</button>`)}
+    <button class="btn btn-ghost btn-sm" onclick="exportarRelatorio()">${svg('dl')} Exportar</button>`)}
 
   <div class="card card-pad mb16">
     <div class="eyebrow mb4">Funil</div><div class="h3 mb16">Do visitante ao utilizador ativo</div>
@@ -1078,7 +1196,7 @@ R.payments=()=>{
   const receitaMes=vivo?eur((DB.receita[0]||{}).receita_cents||0):'7.141€';
   const mediaDest=vivo?eur((DB.receita[0]||{}).media_cents||0):'14,40€';
   const ativosAgora=vivo?DB.destaques.filter(b=>b.status==='active'&&new Date(b.ends_at)>new Date()).length:63;
-  return `${head('Pagamentos','Receita por destaque de anúncio · não há mensalidades',`<button class="btn btn-ghost btn-sm" onclick="toast('Exportação contabilística por implementar')">${svg('dl')} Exportar</button>`)}
+  return `${head('Pagamentos','Receita por destaque de anúncio · não há mensalidades',`<button class="btn btn-ghost btn-sm" onclick="exportarContabilidade()">${svg('dl')} Exportar</button>`)}
   ${avisoFonte()}
   <div class="grid g4 mb16">
     ${[['Receita do mês',receitaMes,'euro','var(--sage)'],['Destaques comprados',totalSubs,'star','var(--clay)'],['Valor médio por destaque',mediaDest,'chart','var(--sky)'],['Anúncios destacados agora',ativosAgora,'eye','var(--gold)']]
@@ -1089,7 +1207,7 @@ R.payments=()=>{
       ${pacotes.map(p=>`<div class="row between" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
         <div><div class="fw6 fs-sm">${esc(p.name)}</div><div class="muted fs-xs">${esc(p.price)} · ${p.subs} comprados</div></div>
         <div class="num fw6">${esc(p.rev)}</div></div>`).join('')}
-      <button class="btn btn-ghost btn-sm mt12" onclick="toast('Gestão de pacotes por implementar')">${svg('settings')} Gerir pacotes e preços</button>
+      <button class="btn btn-ghost btn-sm mt12" onclick="gerirPacotes()">${svg('settings')} Gerir pacotes e preços</button>
     </div>
     <div class="card card-pad">
       <div class="h3 mb4">Modelo de monetização</div><p class="muted fs-sm mb16">Só existe um ponto de cobrança: o destaque de anúncio, escolhido pela empresa.</p>
