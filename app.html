@@ -97,6 +97,31 @@ body{
 
 /* ---- Ícones: tamanho base + overrides ---- */
 .star.on svg{fill:currentColor}
+/* Conversas — mesmas classes do painel, adaptadas às variáveis da app. */
+.msg-wrap{display:grid;grid-template-columns:290px 1fr;border:1px solid var(--line);border-radius:var(--r-lg);overflow:hidden;background:var(--surface);height:calc(100vh - 190px);min-height:440px}
+.conv-list{border-right:1px solid var(--line);overflow-y:auto}
+.conv{display:flex;gap:10px;padding:13px 14px;border-bottom:1px solid var(--line-2);cursor:pointer;transition:background .14s}
+.conv:hover{background:var(--surface-2)}
+.conv.on{background:var(--accent-tint);border-left:3px solid var(--clay);padding-left:11px}
+.conv .cn{font-weight:600;font-size:.85rem;display:flex;justify-content:space-between;gap:6px}
+.conv .cp{color:var(--ink-3);font-size:.76rem;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.unread-dot{width:8px;height:8px;background:var(--clay);border-radius:50%;flex:none;align-self:center}
+.thread{display:flex;flex-direction:column;min-width:0}
+.thread-head{padding:12px 16px;border-bottom:1px solid var(--line);display:flex;align-items:center;gap:10px}
+.thread-body{flex:1;overflow-y:auto;padding:18px 16px;display:flex;flex-direction:column;gap:10px;background:var(--paper)}
+.bub{max-width:74%;padding:10px 13px;border-radius:16px;font-size:.86rem;line-height:1.45;position:relative}
+.bub .tm{font-size:.66rem;opacity:.6;margin-top:4px}
+.bub.them{background:var(--surface);border:1px solid var(--line);border-bottom-left-radius:5px;align-self:flex-start}
+.bub.me{background:var(--clay);color:#fff;border-bottom-right-radius:5px;align-self:flex-end}
+.bub.auto{background:var(--sage-soft);color:var(--sage);align-self:center;font-size:.78rem;max-width:88%;text-align:center;border-radius:10px}
+.composer{padding:12px 14px;border-top:1px solid var(--line);display:flex;gap:8px;align-items:flex-end}
+.composer textarea{flex:1;border:1px solid var(--line);border-radius:16px;padding:9px 13px;font-family:var(--sans);font-size:.86rem;resize:none;background:var(--surface);color:var(--ink);max-height:110px;min-height:38px}
+.composer textarea:focus{outline:none;border-color:var(--clay)}
+
+.callout{display:flex;gap:10px;padding:12px 14px;border-radius:var(--r);font-size:.84rem;line-height:1.5}
+@media(max-width:760px){.msg-wrap{grid-template-columns:1fr;height:auto}
+ .conv-list{border-right:none;border-bottom:1px solid var(--line);max-height:190px}
+ .thread-body{min-height:280px}}
 .i{width:1.15em;height:1.15em;flex:none;vertical-align:middle}
 .av svg{width:46%;height:46%}
 .photo svg.i{width:34px;height:34px}
@@ -1203,6 +1228,7 @@ const NAV=[
   {r:'jobs',label:'Trabalho',icon:'work'},
   {r:'homes',label:'Casa',icon:'home2'},
   {r:'pros',label:'Profissionais',icon:'law'},
+  {r:'msgs',label:'Mensagens',icon:'chat'},
   {r:'events',label:'Eventos',icon:'event'},
   {r:'community',label:'Comunidade',icon:'people'},
   {r:'map',label:'Mapa',icon:'map'},
@@ -1256,7 +1282,10 @@ function renderShell(){
     return `<div class="bn-item ${on?'on':''}" onclick="go('${b.r}')">${svg(b.icon)}<span>${b.label}</span>${b.r==='community'&&unread()?'<span class="bdot"></span>':''}</div>`}).join('');
   updateNavActive();
 }
-function navItem(n){return `<div class="nav-item ${S.route===n.r?'on':''}" data-r="${n.r}" onclick="go('${n.r}')">${svg(n.icon)}<span>${n.label}</span>${n.r==='community'&&unread()?`<span class="dot">${unread()}</span>`:''}</div>`}
+function navItem(n){
+  const c=n.r==='community'?unread():n.r==='msgs'?porLer():0;
+  return `<div class="nav-item ${S.route===n.r?'on':''}" data-r="${n.r}" onclick="go('${n.r}')">${svg(n.icon)}<span>${n.label}</span>${c?`<span class="dot">${c}</span>`:''}</div>`;
+}
 function updateNavActive(){$$('.nav-item[data-r]').forEach(i=>i.classList.toggle('on',i.dataset.r===S.route))}
 
 const ROUTES={};
@@ -1911,6 +1940,101 @@ async function confirmConsult(id){
 let CONSULTA_PENDENTE=null;
 
 /* ============================================================
+   MENSAGENS
+   ------------------------------------------------------------
+   A conversa só existe depois de o profissional aceitar o pedido —
+   é a mesma regra que a base de dados impõe.
+   ============================================================ */
+let CONVERSAS=[], CONV_ABERTA=null;
+const porLer=()=>CONVERSAS.reduce((a,c)=>a+(c.porLer||0),0);
+
+async function carregarConversas(){
+  if(!SB_ON||!signedIn())return;
+  try{
+    const {data:cs,error}=await sb.from('conversations').select('*')
+      .order('last_message_at',{ascending:false,nullsFirst:false});
+    if(error)throw error;
+    const ids=(cs||[]).map(c=>c.id);
+    let msgs=[];
+    if(ids.length){
+      const {data:m}=await sb.from('messages').select('*')
+        .in('conversation_id',ids).order('created_at',{ascending:true});
+      msgs=m||[];
+    }
+    const fichas={};
+    (LIVE.pros||[]).forEach(p=>fichas[p.id]=p);
+    CONVERSAS=(cs||[]).map(c=>{
+      const suas=msgs.filter(m=>m.conversation_id===c.id);
+      const f=fichas[c.company_id]||{};
+      return {id:c.id, empresa:c.company_id, nome:f.name||c.client_name||'Profissional',
+        verificado:!!f.verified,
+        msgs:suas, ultima:suas[suas.length-1]||null,
+        /* por ler = as que vieram da empresa e ainda não foram abertas */
+        porLer:suas.filter(m=>m.from_company&&!m.read_at).length};
+    });
+    if(CONV_ABERTA&&!CONVERSAS.some(c=>c.id===CONV_ABERTA))CONV_ABERTA=null;
+  }catch(e){console.warn('conversas:',e&&e.message)}
+}
+ROUTES.msgs=()=>{
+  if(!signedIn())return `${pageHead('Mensagens','As tuas conversas','')}
+    ${emptyState('chat','Entra para veres as tuas conversas','As conversas com profissionais ficam guardadas na tua conta.')}`;
+  if(!CONVERSAS.length)return `${pageHead('Mensagens','As tuas conversas','')}
+    ${emptyState('chat','Ainda sem conversas','Depois de um profissional aceitar o teu pedido de consulta, podem falar aqui.')}`;
+  if(!CONV_ABERTA)CONV_ABERTA=CONVERSAS[0].id;
+  const c=CONVERSAS.find(x=>x.id===CONV_ABERTA)||CONVERSAS[0];
+  return `${pageHead('Mensagens','As tuas conversas','Falas aqui com os profissionais que aceitaram o teu pedido.')}
+  <div class="msg-wrap">
+    <div class="conv-list">
+      ${CONVERSAS.map(x=>`<div class="conv ${x.id===c.id?'on':''}" onclick="abrirConversa('${x.id}')">
+        <div class="av av-sm">${initials(x.nome)}</div>
+        <div style="flex:1;min-width:0"><div class="cn"><span>${esc(x.nome)}</span>${x.porLer?'<span class="unread-dot"></span>':''}</div>
+        <div class="cp">${esc((x.ultima||{}).body||'Conversa iniciada')}</div></div>
+      </div>`).join('')}
+    </div>
+    <div class="thread">
+      <div class="thread-head">
+        <div class="av av-sm">${initials(c.nome)}</div>
+        <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.nome)}</div><div class="muted fs-xs">${c.verificado?'Profissional verificado pela KEVIMA':'Perfil ainda em verificação'}</div></div>
+      </div>
+      <div class="thread-body" id="threadBody">
+        ${c.msgs.length?c.msgs.map(m=>`<div class="bub ${m.from_company?'them':'me'}">${esc(m.body)}<div class="tm">${horaDe(m.created_at)}</div></div>`).join('')
+          :`<div class="bub auto">${svg('info')} O profissional aceitou o teu pedido. Podem falar por aqui.</div>`}
+      </div>
+      <div class="composer">
+        <textarea id="msgIn" placeholder="Escreve a tua mensagem…" onkeydown="if(event.key==='Enter'&&!event.shiftKey){event.preventDefault();enviarMensagem()}"></textarea>
+        <button class="btn btn-primary btn-icon" onclick="enviarMensagem()">${svg('send')}</button>
+      </div>
+      <p class="muted fs-xs mt8">Não partilhes documentos, dados bancários ou palavras-passe por mensagem. Nenhum profissional sério os pede assim.</p>
+    </div>
+  </div>`;
+};
+const horaDe=iso=>iso?new Date(iso).toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}):'';
+async function abrirConversa(id){
+  CONV_ABERTA=id; go('msgs');
+  const c=CONVERSAS.find(x=>x.id===id); if(!c)return;
+  const porLer=c.msgs.filter(m=>m.from_company&&!m.read_at).map(m=>m.id);
+  if(!porLer.length)return;
+  try{
+    await sb.from('messages').update({read_at:new Date().toISOString()}).in('id',porLer);
+    await carregarConversas(); renderShell(); go('msgs');
+  }catch(e){/* o contador fica como está */}
+}
+async function enviarMensagem(){
+  const inp=el('msgIn'); if(!inp)return;
+  const t=(inp.value||'').trim(); if(!t)return;
+  const c=CONVERSAS.find(x=>x.id===CONV_ABERTA); if(!c)return;
+  inp.value='';
+  try{
+    const {error}=await sb.from('messages').insert({conversation_id:c.id,sender_id:SB_USER.id,body:t});
+    if(error)throw error;
+    await carregarConversas(); go('msgs'); setTimeout(()=>{const b=el('threadBody');if(b)b.scrollTop=b.scrollHeight},40);
+  }catch(e){
+    console.warn('enviar mensagem:',e&&e.message);
+    inp.value=t; toast('Não foi possível enviar. Tenta novamente.','err');
+  }
+}
+
+/* ============================================================
    EVENTOS
    ============================================================ */
 let evF='';
@@ -2329,13 +2453,13 @@ async function sbInit(){
          palavra-passe. Não sincronizar nem entrar na app antes disso. */
       if(ev==='PASSWORD_RECOVERY'){RECUPERACAO=true;novaPasseModal();return}
       if(RECUPERACAO)return;
-      if(ev==='SIGNED_IN'){await syncPull();await syncPush()}
+      if(ev==='SIGNED_IN'){await syncPull();await syncPush();await carregarConversas()}
       renderShell();if(S.onboarded)go(S.route);
     });
     /* O evento pode disparar antes de este código correr. O fragmento do URL
        diz que viemos de uma ligação de recuperação. */
     if(/type=recovery/.test(location.hash||'')){RECUPERACAO=true;novaPasseModal()}
-    else if(SB_USER){await syncPull();if(S.onboarded){renderShell();go(S.route)}}
+    else if(SB_USER){await syncPull();await carregarConversas();if(S.onboarded){renderShell();go(S.route)}}
     carregarAnunciosPublicos();
   }catch(e){
     SB_ON=false; // esm.sh em baixo, sem rede, browser antigo — a app continua a funcionar
