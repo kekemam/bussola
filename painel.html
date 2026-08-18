@@ -574,7 +574,7 @@ function renderShell(){
     <div class="sb-brand">${mark(24)} <span>KEVIMA</span></div>
     <div class="role-sel" onclick="event.stopPropagation();el('roleMenu').classList.toggle('on')">
       <div class="rl">A ver como</div>
-      <div class="rn"><span style="color:${r.accent}">${svg(r.ic)}</span>${esc(r.who)} <span class="mla muted">${svg('chevd')}</span></div>
+      <div class="rn"><span style="color:${r.accent}">${svg(r.ic)}</span>${esc(quemSou())} <span class="mla muted">${svg('chevd')}</span></div>
       <div class="role-menu" id="roleMenu">
         ${Object.values(ROLES).map(x=>`<div onclick="event.stopPropagation();setRole('${x.id}')"><span style="color:${x.accent}">${svg(x.ic)}</span>
           <div><div class="fw6">${esc(x.who)}</div><div class="muted fs-xs">${esc(x.label)} · ${esc(x.cat)}</div></div>
@@ -591,8 +591,8 @@ function renderShell(){
     <div class="sb-foot">
       <div class="sb-item" onclick="toggleTheme()">${svg(P.theme==='dark'?'sun':'moon')}<span>${P.theme==='dark'?'Tema claro':'Tema escuro'}</span></div>
       <div class="sb-user">
-        <div class="av av-sm" style="background:${r.accent};color:#fff">${initials(r.who)}</div>
-        <div style="line-height:1.2;min-width:0"><div class="fw6 fs-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(r.who)}</div><div class="muted fs-xs">${esc(r.label)}</div></div>
+        <div class="av av-sm" style="background:${r.accent};color:#fff">${initials(quemSou())}</div>
+        <div style="line-height:1.2;min-width:0"><div class="fw6 fs-sm" style="white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(quemSou())}</div><div class="muted fs-xs">${esc(EMPRESA?EMPRESA.category:r.label)}</div></div>
       </div>
     </div>`;
   el('topbar').innerHTML=`
@@ -688,13 +688,21 @@ function emptyState(ic,t,m,cta){return `<div class="state"><div class="ill">${sv
    ============================================================ */
 V['pro:dash']=()=>{
   const novos=PEDIDOS.filter(p=>p.status==='novo');
-  const a=R().accent;
+  const a=R().accent, real=ligado();
+  const aceites=PEDIDOS.filter(p=>p.status==='aceite');
+  /* Com empresa a sério não se inventam números: avaliações e agenda ainda
+     não têm onde ser recolhidas, por isso mostram traço em vez de um valor
+     que pareceria medido. As variações (+2, +0,1) também desaparecem — não
+     há histórico com que as comparar. */
   return `${head('Bom dia, '+quemSou(),'O que precisa da sua atenção.')}
   <div class="grid g4 mb24">
-    ${statTile('Pedidos por responder',novos.length,'inbox',a,'+2')}
-    ${statTile('Consultas esta semana',CONSULTAS.length,'cal','var(--sky)')}
-    ${statTile('Avaliação média','4,9','star','var(--gold)','+0,1')}
-    ${statTile('Casos acompanhados','340','shield','var(--sage)','+12')}
+    ${statTile('Pedidos por responder',novos.length,'inbox',a,real?null:'+2')}
+    ${real?statTile('Pedidos aceites',aceites.length,'cal','var(--sky)')
+          :statTile('Consultas esta semana',CONSULTAS.length,'cal','var(--sky)')}
+    ${real?statTile('Avaliação média','—','star','var(--gold)')
+          :statTile('Avaliação média','4,9','star','var(--gold)','+0,1')}
+    ${real?statTile('Pedidos recebidos',PEDIDOS.length,'shield','var(--sage)')
+          :statTile('Casos acompanhados','340','shield','var(--sage)','+12')}
   </div>
   <div class="grid" style="grid-template-columns:1.3fr 1fr;align-items:start">
     <div class="card card-pad">
@@ -708,14 +716,19 @@ V['pro:dash']=()=>{
       :`<p class="muted">Sem pedidos por responder.</p>`}
     </div>
     <div class="card card-pad">
-      <div class="eyebrow mb4">Hoje</div><div class="h3 mb16">Próximas consultas</div>
+      ${real?`<div class="eyebrow mb4">Aceites</div><div class="h3 mb16">A aguardar marcação</div>
+      ${aceites.length?aceites.slice(0,4).map(p=>`<div class="row gap12" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
+        ${cc(p.country)}<div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(p.name)}</div>
+        <div class="muted fs-xs">${esc(p.city)} · ${esc(p.time)}</div></div></div>`).join('')
+      :`<p class="muted fs-sm">Ainda não aceitou nenhum pedido.</p>`}`
+      :`<div class="eyebrow mb4">Hoje</div><div class="h3 mb16">Próximas consultas</div>
       ${CONSULTAS.slice(0,3).map(c=>`<div class="row gap12" style="padding:11px 0;border-bottom:1px solid var(--line-2)">
         <div style="text-align:center;flex:none"><div class="num fw6" style="color:${a}">${esc(c.t)}</div><div class="muted fs-xs">${esc(c.dur)}</div></div>
         <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.who)}</div><div class="muted fs-xs">${esc(c.type)} · ${esc(c.mode)}</div></div></div>`).join('')}
-      <button class="btn btn-ghost btn-sm btn-block mt12" onclick="go('agenda')">${svg('cal')} Ver agenda</button>
+      <button class="btn btn-ghost btn-sm btn-block mt12" onclick="go('agenda')">${svg('cal')} Ver agenda</button>`}
     </div>
   </div>
-  <div class="callout callout-accent mt24">${svg('info')}<div>Responder em menos de 24 h aumenta significativamente a probabilidade de o cliente avançar. O seu tempo médio atual é de <b>3 h</b>.</div></div>`;
+  ${real?'':`<div class="callout callout-accent mt24">${svg('info')}<div>Responder em menos de 24 h aumenta significativamente a probabilidade de o cliente avançar. O seu tempo médio atual é de <b>3 h</b>.</div></div>`}`;
 };
 V['pro:pedidos']=()=>{
   const rows=PEDIDOS.map(p=>`<tr>
@@ -744,8 +757,21 @@ function openPedido(id){
     :`<button class="btn btn-ghost btn-block" onclick="closeModal();go('msgs')">${svg('chat')} Abrir conversa</button>`}
   </div>`);
 }
-function aceitar(id){const p=PEDIDOS.find(x=>x.id===id);p.status='aceite';save();closeModal();renderShell();go('pedidos');toast('Pedido aceite — conversa aberta','ok2')}
-function recusar(id){const p=PEDIDOS.find(x=>x.id===id);p.status='concluido';save();closeModal();renderShell();go('pedidos');toast('Pedido recusado com nota ao cliente')}
+async function responderPedido(id,estado,msg){
+  const p=PEDIDOS.find(x=>x.id===id); if(!p)return;
+  /* Com sessão o estado vive na base de dados: é o que a pessoa que pediu
+     vê do outro lado. Só depois se actualiza o ecrã. */
+  if(PEDIDOS_DB.some(x=>x.id===id)){
+    const {error}=await sb.from('consult_requests').update({status:estado}).eq('id',id);
+    if(error){console.warn('responder pedido:',error.message);return toast('Não foi possível guardar a resposta','err')}
+    await carregarPedidos();
+  }else{
+    p.status=estado==='aceite'?'aceite':'concluido';save();
+  }
+  closeModal();renderShell();go('pedidos');toast(msg,estado==='aceite'?'ok2':undefined);
+}
+function aceitar(id){responderPedido(id,'aceite','Pedido aceite — conversa aberta')}
+function recusar(id){responderPedido(id,'recusada','Pedido recusado com nota ao cliente')}
 function newConsulta(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb16">Marcar consulta</h2>
   <div class="field"><label>Cliente</label><select class="select">${PEDIDOS.map(p=>`<option>${esc(p.name)}</option>`).join('')}</select></div>
@@ -1088,7 +1114,7 @@ V.perfil=()=>{
       <div class="card card-pad tc">
         <div class="av av-lg" style="margin:0 auto 12px;background:${r.accent};color:#fff">${
           fotoAtual()?`<img src="${esc(fotoAtual())}" alt="" style="width:100%;height:100%;object-fit:cover">`:initials(r.who)}</div>
-        <div class="fw6">${esc(r.who)}</div><div class="muted fs-sm">${esc(r.sub)}</div>
+        <div class="fw6">${esc(quemSou())}</div><div class="muted fs-sm">${esc(EMPRESA?[EMPRESA.category,EMPRESA.city].filter(Boolean).join(' · '):r.sub)}</div>
         <span class="pill pill-ok mt12"><i class="dot"></i>Verificado</span>
         <button class="btn btn-ghost btn-sm btn-block mt16" onclick="el('fotoInput').click()">${svg('plus')} Alterar fotografia</button>
         <input type="file" id="fotoInput" accept="image/jpeg,image/png,image/webp" style="display:none" onchange="enviarFoto(this)">
@@ -1170,8 +1196,42 @@ async function carregarEmpresa(){
        de advogados aterrava no painel guardado da sessão anterior (ou no
        de demonstração) e nunca via os seus próprios ecrãs. */
     if(EMPRESA)P.role=papelDaCategoria(EMPRESA.category);
-    if(EMPRESA)await carregarAnuncios();
+    if(EMPRESA){await carregarAnuncios();await carregarPedidos()}
   }catch(e){console.warn('carregar empresa falhou:',e&&e.message)}
+}
+
+/* Pedidos de consulta reais desta empresa. */
+async function carregarPedidos(){
+  if(!EMPRESA)return;
+  try{
+    const {data,error}=await sb.from('consult_requests').select('*')
+      .eq('company_id',EMPRESA.id).order('created_at',{ascending:false});
+    if(error)throw error;
+    PEDIDOS_DB=data||[];
+    /* As vistas foram escritas sobre o array de demonstração; com sessão
+       passa a ser o real, para a empresa não ver casos de outra gente. */
+    PEDIDOS=PEDIDOS_DB.map(p=>({
+      id:p.id, name:p.requester_name||'Utilizador',
+      city:p.requester_city||'—', country:paisSigla(p.requester_country),
+      subject:'Pedido de consulta', text:p.message,
+      time:tempoDesde(p.created_at),
+      status:({nova:'novo',aceite:'aceite',recusada:'concluido',concluida:'concluido'})[p.status]||'novo'
+    }));
+  }catch(e){console.warn('carregar pedidos falhou:',e&&e.message)}
+}
+let PEDIDOS_DB=[];
+/* A bandeira do cartão precisa da sigla; o pedido guarda o nome do país. */
+function paisSigla(nome){
+  return ({Angola:'AO','Cabo Verde':'CV','Guiné-Bissau':'GW','Moçambique':'MZ',
+    'São Tomé e Príncipe':'ST'})[nome]||'';
+}
+function tempoDesde(iso){
+  if(!iso)return 'agora';
+  const h=Math.floor((Date.now()-new Date(iso))/3600000);
+  if(h<1)return 'há minutos';
+  if(h<24)return 'há '+h+' h';
+  const d=Math.floor(h/24);
+  return d===1?'ontem':'há '+d+' dias';
 }
 
 /* Traz os anúncios reais e o destaque em vigor de cada um. */

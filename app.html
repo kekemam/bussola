@@ -1806,10 +1806,42 @@ function openPro(id){
 function requestConsult(id){const p=profis().find(x=>x.id===id);
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb4">Pedir consulta</h2><p class="muted mb16">com ${esc(p.name)}</p>
-  <div class="field"><label>Explica brevemente o teu caso</label><textarea class="input" placeholder="Ex: Cheguei de Angola há 3 meses e preciso de ajuda com o meu título de residência…"></textarea></div>
-  <div class="callout callout-info mb16">${svg('info')}<div>O profissional recebe o teu pedido e responde através da plataforma. Não partilhes documentos sensíveis nesta fase.</div></div>
-  <button class="btn btn-primary btn-block btn-lg" onclick="confirmConsult('${p.id}')">${svg('send')} Enviar pedido</button></div>`)}
-function confirmConsult(id){if(!S.contactedPros.includes(id))S.contactedPros.push(id);save();closeModal();toast('Pedido de consulta enviado')}
+  <div class="field"><label>Explica brevemente o teu caso</label><textarea class="input" id="pcTexto" rows="4" placeholder="Ex: Cheguei de Angola há 3 meses e preciso de ajuda com o meu título de residência…"></textarea></div>
+  <div id="pcErro"></div>
+  <div class="callout callout-info mb16">${svg('info')}<div>O profissional recebe o teu pedido com o teu nome e cidade, e responde através da plataforma. Não partilhes documentos sensíveis nesta fase.</div></div>
+  <button class="btn btn-primary btn-block btn-lg" id="pcBtn" onclick="confirmConsult('${p.id}')">${svg('send')} Enviar pedido</button></div>`);
+  setTimeout(()=>{const t=el('pcTexto');if(t)t.focus()},240);
+}
+function pcErro(m){const d=el('pcErro');if(d)d.innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(m)}</div></div>`}
+async function confirmConsult(id){
+  const texto=((el('pcTexto')||{}).value||'').trim();
+  if(texto.length<10){pcErro('Escreve um pouco mais sobre o teu caso — ajuda quem te vai responder.');return}
+  /* Sem conta o pedido não tem para onde ir nem por onde receber resposta.
+     Antes, a app dizia "enviado" e não enviava nada. */
+  if(!SB_ON){pcErro('Sem ligação ao servidor. Tenta daqui a pouco.');return}
+  if(!signedIn()){
+    CONSULTA_PENDENTE={id,texto};
+    closeModal();toast('Cria conta para o profissional te poder responder');
+    return contaModal('criar');
+  }
+  const btn=el('pcBtn');if(btn){btn.disabled=true;btn.textContent='A enviar…'}
+  try{
+    const {error}=await sb.from('consult_requests').insert({
+      company_id:id, user_id:SB_USER.id, message:texto,
+      requester_name:S.name||null, requester_city:S.city||null,
+      requester_country:(COUNTRIES.find(c=>c.id===S.country)||{}).name||null
+    });
+    if(error)throw error;
+    if(!S.contactedPros.includes(id))S.contactedPros.push(id);
+    save();closeModal();toast('Pedido enviado ao profissional','ok2');
+  }catch(e){
+    console.warn('pedido de consulta:',e&&e.message);
+    pcErro('Não foi possível enviar o pedido. Tenta novamente.');
+    if(btn){btn.disabled=false;btn.innerHTML=svg('send')+' Enviar pedido'}
+  }
+}
+/* Pedido escrito antes de haver conta, para não se perder no desvio. */
+let CONSULTA_PENDENTE=null;
 
 /* ============================================================
    EVENTOS
@@ -2469,6 +2501,13 @@ async function contaSubmit(modo){
     if(modo==='entrar')await syncPull();
     else S.uid=SB_USER.id;   // conta nova adota o progresso anónimo deste aparelho
     closeModal();
+    /* Voltou de um pedido de consulta interrompido pela criação de conta. */
+    if(CONSULTA_PENDENTE){
+      const {id,texto}=CONSULTA_PENDENTE; CONSULTA_PENDENTE=null;
+      requestConsult(id);
+      setTimeout(()=>{const t=el('pcTexto');if(t){t.value=texto;confirmConsult(id)}},400);
+      return;
+    }
     /* Quem entrou pelo ecrã de boas-vindas fica preso atrás do overlay:
        tem de ser fechado à mão. */
     if(el('ob').classList.contains('live')){
