@@ -1006,11 +1006,41 @@ function boot(){
 let obStep=0;
 const OB_TOTAL=5;
 let obTemp={name:'',country:null,city:'',situations:[]};
+/* Ecrã de escolha do perfil, entre o "Começar" e as quatro perguntas. Fica
+   como sub-estado do passo 0 para não renumerar o resto do onboarding. */
+let obEscolha=false;
+/* As categorias profissionais são as mesmas de `companies.category` na base
+   de dados: quem escolhe aqui já vai com ela preenchida para o painel. */
+const PERFIS=[
+  {cat:'Advogados',    ic:'law',      t:'Advogado ou apoio jurídico',      d:'Recebe pedidos de consulta de quem precisa de regularizar a situação.'},
+  {cat:'Imobiliárias', ic:'home',     t:'Tenho casas ou quartos para arrendar', d:'Publica alojamento e fala com quem procura casa.'},
+  {cat:'Empregos',     ic:'briefcase',t:'Quero contratar',                  d:'Publica vagas e recebe candidaturas.'},
+  {cat:'Eventos',      ic:'event',    t:'Organizo eventos',                 d:'Divulga encontros, formações e festas da comunidade.'},
+  {cat:'',             ic:'grid',     t:'Outra área',                       d:'Serviços, formação, contabilidade, saúde ou associação.'},
+];
 function renderOnboarding(){el('ob').classList.add('live');el('app').classList.remove('live');drawOb()}
 function obPct(){return Math.round((obStep/(OB_TOTAL))*100)}
 function drawOb(){
   let body='';
-  if(obStep===0){
+  if(obStep===0&&obEscolha){
+    body=`<div class="ob-body">
+      <div class="eyebrow mb8">Antes de começar</div>
+      <h1 class="h1">O que te traz à KEVIMA?</h1>
+      <p class="lead mt8 mb24">Escolhe o que descreve melhor a tua situação. Leva-te ao sítio certo.</p>
+      <div class="opt on" style="align-items:flex-start" onclick="escolherPerfil('pessoa')">
+        <span style="color:var(--clay);width:22px;margin-top:2px">${svg('pin')}</span>
+        <span style="flex:1;min-width:0"><span class="fw6">Cheguei — ou vou chegar — a Portugal</span>
+        <span class="muted fs-sm" style="display:block">Fazemos-te um plano com documentação, casa, trabalho e comunidade.</span></span>
+        <span style="color:var(--clay)">${svg('chevr')}</span></div>
+      <div class="eyebrow mt24 mb8">Represento uma empresa ou sou profissional</div>
+      ${PERFIS.map(p=>`<div class="opt" style="align-items:flex-start" onclick="escolherPerfil('${p.cat}')">
+        <span style="color:var(--ink-3);width:22px;margin-top:2px">${svg(p.ic)}</span>
+        <span style="flex:1;min-width:0"><span class="fw6">${esc(p.t)}</span>
+        <span class="muted fs-sm" style="display:block">${esc(p.d)}</span></span>
+        <span style="color:var(--ink-3)">${svg('chevr')}</span></div>`).join('')}
+      <p class="muted fs-xs tc mt16">Registar a empresa é gratuito. Só se paga para destacar um anúncio.</p>
+    </div>`;
+  } else if(obStep===0){
     body=`<div class="ob-body">
       <div class="mark-lg mb24">${brandMark(46)}</div>
       <div class="eyebrow mb12">${esc(BRAND)}</div>
@@ -1068,7 +1098,10 @@ function drawOb(){
     </div>`;
   }
   const showBack=obStep>0&&obStep<5;
-  const foot=obStep===0?'':`<div class="ob-foot">
+  /* Na escolha de perfil o avanço é a própria escolha: só falta o voltar. */
+  const foot=obStep===0&&obEscolha
+    ? `<div class="ob-foot"><button class="btn btn-ghost btn-block" onclick="obBack()">${svg('chevl')} Voltar</button></div>`
+    : obStep===0?'':`<div class="ob-foot">
     ${showBack?`<button class="btn btn-ghost btn-icon" onclick="obBack()">${svg('chevl')}</button>`:''}
     <button class="btn btn-primary btn-lg flex1" onclick="${obStep===5?'obFinish()':'obNext()'}" id="obNextBtn">${obStep===5?'Entrar na KEVIMA':'Continuar'} ${svg('arrow')}</button>
   </div>`;
@@ -1086,13 +1119,26 @@ function drawOb(){
 function obCityFilter(q){const list=el('obCityList');if(!list)return;const f=CITIES.filter(c=>c.toLowerCase().includes((q||'').toLowerCase()));list.innerHTML=f.length?f.map(c=>`<div class="opt ${obTemp.city===c?'on':''}" style="margin-bottom:0" onclick="obTemp.city='${c}';drawOb()"><span style="color:var(--ink-3);width:20px">${svg('pin')}</span><span class="fw5">${esc(c)}</span><span class="tick">${svg('check')}</span></div>`).join(''):`<p class="muted fs-sm" style="padding:8px">Escreve o nome da tua cidade e continua.</p>`}
 function obToggleSit(id){const i=obTemp.situations.indexOf(id);if(i>=0)obTemp.situations.splice(i,1);else obTemp.situations.push(id);drawOb()}
 function obNext(){
+  /* No passo 0 o "Começar" abre a escolha de perfil em vez de saltar já
+     para as perguntas, que só fazem sentido a quem vem procurar ajuda. */
+  if(obStep===0&&!obEscolha){obEscolha=true;drawOb();window.scrollTo(0,0);return}
   if(obStep===1&&!obTemp.name.trim()){toast('Diz-nos como te chamas.','err');return}
   if(obStep===2&&!obTemp.country){toast('Escolhe o teu país de origem.','err');return}
   if(obStep===3&&!obTemp.city){toast('Escolhe a tua cidade.','err');return}
   if(obStep===4&&!obTemp.situations.length){toast('Escolhe pelo menos uma opção.','err');return}
   obStep++;drawOb();window.scrollTo(0,0);
 }
-function obBack(){if(obStep>0){obStep--;drawOb()}}
+function obBack(){
+  if(obStep===1){obStep=0;obEscolha=true;drawOb();return}  // volta à escolha, não ao ecrã inicial
+  if(obStep>0){obStep--;drawOb()}
+  else if(obEscolha){obEscolha=false;drawOb()}
+}
+/* 'pessoa' segue para o plano de chegada; qualquer outro valor é uma
+   categoria de empresa e leva ao painel já com ela escolhida. */
+function escolherPerfil(cat){
+  if(cat==='pessoa'){obStep=1;drawOb();window.scrollTo(0,0);return}
+  location.href='/painel?registar=1'+(cat?'&cat='+encodeURIComponent(cat):'');
+}
 function obFinish(){
   S.name=obTemp.name.trim();S.country=obTemp.country;S.city=obTemp.city;S.situations=obTemp.situations;S.onboarded=true;
   save();el('ob').classList.remove('live');startApp();toast('Plano criado');

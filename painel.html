@@ -1272,6 +1272,8 @@ async function contaSubmit(modo){
     if(r.error)throw r.error;
     if(modo==='criar'&&!r.data.session){closeModal();return toast('Confirma o email para ativares a conta')}
     closeModal();toast(modo==='criar'?'Conta criada':'Sessão iniciada','ok2');
+    /* Voltou de um registo de empresa interrompido: retoma onde ficou. */
+    if(EMPRESA_PENDENTE){SB_USER=r.data.user||SB_USER;return setTimeout(()=>registarEmpresa(),400)}
   }catch(e){
     const m=String(e&&e.message||'');
     acErro(/Invalid login/i.test(m)?'Email ou palavra-passe incorretos.'
@@ -1641,19 +1643,28 @@ async function confirmarRemocao(tipo,id){
 /* ============================================================
    REGISTAR EMPRESA — gratuito, sem cartão
    ============================================================ */
-function registarEmpresa(){
+/* Dados escritos no formulário antes de haver conta. Sem isto, quem vinha
+   da escolha de perfil na app preenchia tudo, era mandado criar conta e
+   perdia o que tinha escrito. */
+let EMPRESA_PENDENTE=null;
+/* `cat` chega da escolha de perfil na app; a categoria fica pré-seleccionada
+   mas editável — quem se enganou no ecrã anterior corrige aqui.
+   `d` repõe o formulário depois do desvio pela criação de conta. */
+function registarEmpresa(cat,d){
+  d=d||EMPRESA_PENDENTE||{};
+  cat=cat||d.cat;
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
     <div class="av av-lg" style="background:var(--accent-soft);color:var(--accent);border-radius:16px;width:52px;height:52px">${svg('building')}</div>
     <h2 class="h2 mt12 mb4">Registar empresa</h2>
     <p class="muted mb16">O registo é gratuito e não pede cartão. Publicar anúncios também não custa nada.</p>
-    <div class="field"><label>Nome da empresa</label><input class="input" id="reNome" placeholder="Ex: Edifer Obras"></div>
+    <div class="field"><label>Nome da empresa</label><input class="input" id="reNome" placeholder="Ex: Edifer Obras" value="${esc(d.nome||'')}"></div>
     <div class="field"><label>Categoria</label>
-      <select class="select" id="reCat">${CATEGORIAS.map(c=>`<option>${esc(c)}</option>`).join('')}</select></div>
+      <select class="select" id="reCat">${CATEGORIAS.map(c=>`<option${c===cat?' selected':''}>${esc(c)}</option>`).join('')}</select></div>
     <div class="row gap8">
-      <div class="field flex1"><label>Cidade</label><input class="input" id="reCidade" placeholder="Ex: Almada"></div>
-      <div class="field flex1"><label>NIF</label><input class="input" id="reNif" placeholder="Nove dígitos"></div>
+      <div class="field flex1"><label>Cidade</label><input class="input" id="reCidade" placeholder="Ex: Almada" value="${esc(d.cidade||'')}"></div>
+      <div class="field flex1"><label>NIF</label><input class="input" id="reNif" placeholder="Nove dígitos" value="${esc(d.nif||'')}"></div>
     </div>
-    <div class="field"><label>Email de contacto</label><input class="input" id="reEmail" type="email" placeholder="geral@empresa.pt"></div>
+    <div class="field"><label>Email de contacto</label><input class="input" id="reEmail" type="email" placeholder="geral@empresa.pt" value="${esc(d.email||'')}"></div>
     <div id="reErro"></div>
     <div class="callout callout-sage mb16">${svg('shield')}<div>Sem mensalidade e sem compromisso. Só paga se um dia decidir destacar um anúncio.</div></div>
     <button class="btn btn-primary btn-block btn-lg" onclick="submeterEmpresa()">Criar conta gratuita</button>
@@ -1666,8 +1677,14 @@ async function submeterEmpresa(){
   if(!nome)return erro('Indique o nome da empresa.');
   if(!email||!email.includes('@'))return erro('Indique um email de contacto válido.');
 
-  // Sem sessão não há onde guardar: pede a conta primeiro.
-  if(SB_ON&&!comSessao()){closeModal();toast('Cria primeiro a tua conta');return contaModal('criar')}
+  // Sem sessão não há onde guardar: pede a conta primeiro, sem perder o
+  // que já foi escrito.
+  if(SB_ON&&!comSessao()){
+    EMPRESA_PENDENTE={nome,email,cat:el('reCat').value,
+      cidade:(el('reCidade').value||'').trim(),nif:(el('reNif').value||'').trim()};
+    closeModal();toast('Falta criar a tua conta — os dados ficam guardados');
+    return contaModal('criar');
+  }
 
   if(ligado()||comSessao()){
     try{
@@ -1681,7 +1698,7 @@ async function submeterEmpresa(){
         p_email:email
       });
       if(error)throw error;
-      EMPRESA=Array.isArray(co)?co[0]:co; await carregarAnuncios();
+      EMPRESA=Array.isArray(co)?co[0]:co; EMPRESA_PENDENTE=null; await carregarAnuncios();
       closeModal(); renderShell(); go(P.route);
       return toast('Empresa registada. Já pode publicar anúncios','ok2');
     }catch(e){return erro('Não foi possível registar: '+(e.message||'erro'))}
@@ -1829,8 +1846,12 @@ V.faturacao=()=>{
    ============================================================ */
 applyTheme();applyAccent();renderShell();go(P.route||'dash');
 sbInit();   // assíncrono: o painel já está utilizável
-/* Entrada directa a partir da landing: /painel?registar=1 */
-if(/[?&]registar=1/.test(location.search))setTimeout(registarEmpresa,320);
+/* Entrada directa da landing (/painel?registar=1) ou da escolha de perfil
+   na app, que já traz a categoria: /painel?registar=1&cat=Advogados */
+if(/[?&]registar=1/.test(location.search))setTimeout(()=>{
+  const c=new URLSearchParams(location.search).get('cat');
+  registarEmpresa(CATEGORIAS.includes(c)?c:null);
+},320);
 el('scrim').addEventListener('click',()=>{if(RECUPERACAO)return;closeModal()});
 document.addEventListener('keydown',e=>{if(e.key==='Escape')closeModal()});
 </script>
