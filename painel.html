@@ -41,6 +41,7 @@ h1,h2,h3,h4{font-family:var(--serif);font-weight:500;line-height:1.15;letter-spa
 .muted{color:var(--ink-3)} .fw6{font-weight:600} .fw5{font-weight:550}
 .num{font-family:var(--serif);font-variant-numeric:tabular-nums;font-feature-settings:"tnum"}
 a{color:inherit;text-decoration:none}
+.star.on svg{fill:currentColor}
 .i{width:1.15em;height:1.15em;flex:none;vertical-align:middle}
 svg{stroke-linecap:round;stroke-linejoin:round}
 
@@ -342,7 +343,11 @@ const $$=(s,r=document)=>[...r.querySelectorAll(s)];
 const cc=(c,x)=>`<span class="cc ${x||''}">${esc(c||'—')}</span>`;
 const esc=s=>String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 const initials=n=>String(n||'?').trim().split(/\s+/).slice(0,2).map(w=>w[0]).join('').toUpperCase();
-const stars=r=>{let s='';for(let i=1;i<=5;i++)s+=`<span style="color:${i<=Math.round(r)?'var(--gold)':'var(--line)'}">${svg('star')}</span>`;return `<span class="row" style="gap:1px">${s}</span>`};
+/* O ícone da estrela é traçado com fill="none": só a cor não a preenche.
+   A classe .on é que a enche, e o atributo perde para a regra CSS. */
+const stars=r=>{let s='';for(let i=1;i<=5;i++){const on=i<=Math.round(r);
+  s+=`<span class="star${on?' on':''}" style="color:${on?'var(--gold)':'var(--line)'}">${svg('star')}</span>`}
+  return `<span class="row" style="gap:1px">${s}</span>`};
 
 /* ============================================================
    PAPÉIS
@@ -437,7 +442,7 @@ let CONSULTAS=[
   {id:'c4',d:14,day:'4ª',t:'09:30',dur:'60 min',who:'Família Baldé',type:'Reagrupamento',mode:'Presencial'},
   {id:'c5',d:15,day:'5ª',t:'14:00',dur:'30 min',who:'Carla Sanca',type:'Seguimento',mode:'Online'},
 ];
-const REVIEWS=[
+let REVIEWS=[
   {who:'Jandira M.',country:'CV',r:5,time:'há 1 semana',t:'Explicou-me tudo com paciência e numa linguagem que eu percebi. Saí da consulta a saber exatamente o que fazer. Recomendo muito.'},
   {who:'Aderito N.',country:'ST',r:5,time:'há 2 semanas',t:'Tratou da minha renovação sem stress. Respondeu sempre às mensagens no mesmo dia.'},
   {who:'Paulo S.',country:'AO',r:4,time:'há 3 semanas',t:'Muito profissional e honesta — disse-me logo o que era possível e o que não era. Só demorou um pouco a agendar.'},
@@ -699,7 +704,7 @@ V['pro:dash']=()=>{
     ${statTile('Pedidos por responder',novos.length,'inbox',a,real?null:'+2')}
     ${real?statTile('Pedidos aceites',aceites.length,'cal','var(--sky)')
           :statTile('Consultas esta semana',CONSULTAS.length,'cal','var(--sky)')}
-    ${real?statTile('Avaliação média','—','star','var(--gold)')
+    ${real?statTile('Avaliação média',REVIEWS.length?(REVIEWS.reduce((x,r)=>x+r.r,0)/REVIEWS.length).toFixed(1).replace('.',','):'—','star','var(--gold)')
           :statTile('Avaliação média','4,9','star','var(--gold)','+0,1')}
     ${real?statTile('Pedidos recebidos',PEDIDOS.length,'shield','var(--sage)')
           :statTile('Casos acompanhados','340','shield','var(--sage)','+12')}
@@ -772,17 +777,74 @@ async function responderPedido(id,estado,msg){
 }
 function aceitar(id){responderPedido(id,'aceite','Pedido aceite — conversa aberta')}
 function recusar(id){responderPedido(id,'recusada','Pedido recusado com nota ao cliente')}
-function newConsulta(){openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+function newConsulta(){
+  /* Só se marca com quem já teve o pedido aceite — é também o que a
+     política de escrita da base de dados exige, e sem isso o formulário
+     deixava escolher gente com quem a consulta seria recusada. */
+  const elegiveis=ligado()
+    ? PEDIDOS_DB.filter(p=>['aceite','concluida'].includes(p.status))
+    : PEDIDOS.map(p=>({id:p.id,user_id:null,requester_name:p.name}));
+  if(ligado()&&!elegiveis.length){
+    return openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+      <h2 class="h2 mb4">Marcar consulta</h2>
+      <p class="muted mb16">Ainda não há com quem marcar. Aceite primeiro um pedido em <b>Pedidos recebidos</b> — a consulta é marcada com quem já lhe pediu ajuda.</p>
+      <button class="btn btn-primary btn-block" onclick="closeModal();go('pedidos')">Ver pedidos</button></div>`);
+  }
+  const amanha=new Date(Date.now()+86400000).toISOString().slice(0,10);
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb16">Marcar consulta</h2>
-  <div class="field"><label>Cliente</label><select class="select">${PEDIDOS.map(p=>`<option>${esc(p.name)}</option>`).join('')}</select></div>
-  <div class="row gap8"><div class="field flex1"><label>Data</label><input class="input" type="date" value="2026-08-14"></div>
-  <div class="field flex1"><label>Hora</label><input class="input" type="time" value="10:00"></div></div>
-  <div class="field"><label>Modalidade</label><select class="select"><option>Online</option><option>Presencial</option></select></div>
-  <button class="btn btn-primary btn-block" onclick="closeModal();toast('Consulta marcada','ok2')">Marcar consulta</button></div>`)}
+  <div class="field"><label>Cliente</label><select class="select" id="ncQuem">${elegiveis.map(p=>`<option value="${esc(p.id)}">${esc(p.requester_name||'Utilizador')}</option>`).join('')}</select></div>
+  <div class="row gap8"><div class="field flex1"><label>Data</label><input class="input" type="date" id="ncData" value="${amanha}"></div>
+  <div class="field flex1"><label>Hora</label><input class="input" type="time" id="ncHora" value="10:00"></div></div>
+  <div class="row gap8"><div class="field flex1"><label>Duração</label><select class="select" id="ncDur"><option value="30">30 min</option><option value="45" selected>45 min</option><option value="60">60 min</option></select></div>
+  <div class="field flex1"><label>Modalidade</label><select class="select" id="ncModo"><option value="online">Online</option><option value="presencial">Presencial</option></select></div></div>
+  <div class="field"><label>Assunto (opcional)</label><input class="input" id="ncNota" placeholder="Ex: Título de residência"></div>
+  <div id="ncErro"></div>
+  <button class="btn btn-primary btn-block" id="ncBtn" onclick="guardarConsulta()">Marcar consulta</button></div>`);
+}
+async function guardarConsulta(){
+  const erro=m=>{el('ncErro').innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(m)}</div></div>`};
+  const data=el('ncData').value, hora=el('ncHora').value;
+  if(!data||!hora)return erro('Escolha a data e a hora.');
+  const quando=new Date(data+'T'+hora);
+  if(isNaN(quando))return erro('Data ou hora inválidas.');
+  if(!ligado()){closeModal();return toast('Consulta marcada','ok2')}
+  const ped=PEDIDOS_DB.find(p=>p.id===el('ncQuem').value);
+  if(!ped)return erro('Escolha o cliente.');
+  const b=el('ncBtn');b.disabled=true;b.textContent='A marcar…';
+  try{
+    const {error}=await sb.from('appointments').insert({
+      company_id:EMPRESA.id, user_id:ped.user_id, request_id:ped.id,
+      starts_at:quando.toISOString(), duration_min:Number(el('ncDur').value)||45,
+      mode:el('ncModo').value, notes:(el('ncNota').value||'').trim()||null,
+      client_name:ped.requester_name||null
+    });
+    if(error)throw error;
+    await carregarConsultas();
+    closeModal();renderShell();go('agenda');toast('Consulta marcada','ok2');
+  }catch(e){
+    console.warn('marcar consulta:',e&&e.message);
+    erro('Não foi possível marcar a consulta.');
+    b.disabled=false;b.textContent='Marcar consulta';
+  }
+}
+/* Semana de trabalho a contar de hoje. Estava escrita à mão como
+   "12 a 16 de agosto de 2026" — em qualquer outra semana mentia. */
+function semanaDeTrabalho(){
+  const hoje=new Date(); hoje.setHours(0,0,0,0);
+  const seg=new Date(hoje); seg.setDate(hoje.getDate()-((hoje.getDay()+6)%7));
+  const NOMES=['2ª feira','3ª feira','4ª feira','5ª feira','6ª feira'];
+  return NOMES.map((n,i)=>{const d=new Date(seg); d.setDate(seg.getDate()+i);
+    return {d:d.getDate(),n,t:d.getTime()===hoje.getTime(),data:d}});
+}
 V['pro:agenda']=()=>{
-  const dias=[{d:12,n:'2ª feira',t:true},{d:13,n:'3ª feira'},{d:14,n:'4ª feira'},{d:15,n:'5ª feira'},{d:16,n:'6ª feira'}];
-  return `${head('Consultas','Semana de 12 a 16 de agosto de 2026',`
-    <button class="btn btn-ghost btn-sm" onclick="toast('Disponibilidade atualizada')">${svg('clock')} Definir disponibilidade</button>
+  const dias=ligado()?semanaDeTrabalho()
+    :[{d:12,n:'2ª feira',t:true},{d:13,n:'3ª feira'},{d:14,n:'4ª feira'},{d:15,n:'5ª feira'},{d:16,n:'6ª feira'}];
+  const intervalo=ligado()
+    ? 'Semana de '+dias[0].data.toLocaleDateString('pt-PT',{day:'numeric',month:'long'})
+      +' a '+dias[4].data.toLocaleDateString('pt-PT',{day:'numeric',month:'long',year:'numeric'})
+    : 'Semana de 12 a 16 de agosto de 2026';
+  return `${head('Consultas',intervalo,`
     <button class="btn btn-primary btn-sm" onclick="newConsulta()">${svg('plus')} Marcar consulta</button>`)}
   <div class="agenda">
     ${dias.map(d=>{const cs=CONSULTAS.filter(c=>c.d===d.d);
@@ -798,30 +860,39 @@ V['pro:agenda']=()=>{
   </div>`;
 };
 V['pro:reviews']=()=>{
-  const media=(REVIEWS.reduce((a,r)=>a+r.r,0)/REVIEWS.length).toFixed(1).replace('.',',');
-  const dist=[5,4,3,2,1].map(n=>({n,c:REVIEWS.filter(r=>r.r===n).length}));
+  const n=REVIEWS.length;
+  /* Sem avaliações não há média: a divisão por zero dava NaN no ecrã. */
+  if(!n)return `${head('Avaliações','O que os seus clientes dizem sobre si')}
+    <div class="card card-pad tc" style="padding:40px 24px">
+      <div style="color:var(--gold)">${svg('star')}</div>
+      <div class="h3 mt12 mb4">Ainda sem avaliações</div>
+      <p class="muted maxw-s mxa">Depois de atender alguém, essa pessoa pode avaliar o seu trabalho na app. Só quem teve um pedido aceite consegue avaliar.</p>
+    </div>`;
+  const soma=REVIEWS.reduce((a,r)=>a+r.r,0);
+  const mediaN=soma/n, media=mediaN.toFixed(1).replace('.',',');
+  const dist=[5,4,3,2,1].map(x=>({n:x,c:REVIEWS.filter(r=>r.r===x).length}));
   return `${head('Avaliações','O que os seus clientes dizem sobre si')}
   <div class="grid" style="grid-template-columns:280px 1fr;align-items:start">
     <div class="card card-pad tc">
       <div class="num" style="font-size:3rem;line-height:1">${media}</div>
-      <div class="row" style="justify-content:center">${stars(4.9)}</div>
-      <div class="muted fs-sm mt8">${REVIEWS.length} avaliações verificadas</div>
+      <div class="row" style="justify-content:center">${stars(mediaN)}</div>
+      <div class="muted fs-sm mt8">${n} ${n===1?'avaliação':'avaliações'}</div>
       <hr class="divider mt16 mb12">
       ${dist.map(d=>`<div class="row gap8" style="padding:3px 0"><span class="fs-xs muted" style="width:12px">${d.n}</span>
-        <div class="pt" style="flex:1;height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden"><i style="display:block;height:100%;width:${Math.round(d.c/REVIEWS.length*100)}%;background:var(--gold)"></i></div>
+        <div class="pt" style="flex:1;height:6px;background:var(--surface-2);border-radius:99px;overflow:hidden"><i style="display:block;height:100%;width:${Math.round(d.c/n*100)}%;background:var(--gold)"></i></div>
         <span class="fs-xs muted" style="width:16px;text-align:right">${d.c}</span></div>`).join('')}
     </div>
     <div class="stack" style="gap:12px">
       ${REVIEWS.map(r=>`<div class="card card-pad">
-        <div class="row between mb8"><div class="row gap8">${cc(r.country)}
+        <div class="row between mb8"><div class="row gap8">${r.country?cc(r.country):''}
           <div><div class="fw6 fs-sm">${esc(r.who)}</div><div class="muted fs-xs">${esc(r.time)}</div></div></div>
           ${stars(r.r)}</div>
         <p class="fs-sm">${esc(r.t)}</p>
-        <button class="btn btn-quiet btn-xs mt8" onclick="toast('Resposta pública enviada')">Responder publicamente</button>
+        ${ligado()?'':`<button class="btn btn-quiet btn-xs mt8" onclick="toast('Resposta pública enviada')">Responder publicamente</button>`}
       </div>`).join('')}
     </div>
   </div>
-  <div class="callout callout-sage mt24">${svg('shield')}<div>Só clientes com consulta concluída podem avaliar. As avaliações não podem ser apagadas — só respondidas.</div></div>`;
+  <div class="callout callout-sage mt24">${svg('shield')}<div>Só quem teve um pedido aceite pode avaliar, uma vez por profissional. As avaliações não podem ser apagadas nem alteradas por si — só pelo autor.</div></div>`;
 };
 
 /* ============================================================
@@ -1196,7 +1267,7 @@ async function carregarEmpresa(){
        de advogados aterrava no painel guardado da sessão anterior (ou no
        de demonstração) e nunca via os seus próprios ecrãs. */
     if(EMPRESA)P.role=papelDaCategoria(EMPRESA.category);
-    if(EMPRESA){await carregarAnuncios();await carregarPedidos()}
+    if(EMPRESA){await carregarAnuncios();await carregarPedidos();await carregarAvaliacoes();await carregarConsultas()}
   }catch(e){console.warn('carregar empresa falhou:',e&&e.message)}
 }
 
@@ -1220,6 +1291,42 @@ async function carregarPedidos(){
   }catch(e){console.warn('carregar pedidos falhou:',e&&e.message)}
 }
 let PEDIDOS_DB=[];
+
+/* Avaliações e consultas reais desta empresa. */
+async function carregarAvaliacoes(){
+  if(!EMPRESA)return;
+  try{
+    const {data,error}=await sb.from('reviews').select('*')
+      .eq('company_id',EMPRESA.id).order('created_at',{ascending:false});
+    if(error)throw error;
+    AVALIACOES_DB=data||[];
+    /* Mesmos nomes de campos do array de demonstração: as vistas ficam iguais. */
+    REVIEWS=AVALIACOES_DB.map(x=>({
+      id:x.id, who:x.author_name||'Utilizador', country:'',
+      r:x.rating, t:x.comment||'', time:tempoDesde(x.created_at)
+    }));
+  }catch(e){console.warn('carregar avaliações falhou:',e&&e.message)}
+}
+async function carregarConsultas(){
+  if(!EMPRESA)return;
+  try{
+    const {data,error}=await sb.from('appointments').select('*')
+      .eq('company_id',EMPRESA.id).neq('status','cancelada')
+      .order('starts_at',{ascending:true});
+    if(error)throw error;
+    CONSULTAS_DB=data||[];
+    const DIAS=['dom','2ª','3ª','4ª','5ª','6ª','sáb'];
+    CONSULTAS=CONSULTAS_DB.map(c=>{
+      const d=new Date(c.starts_at);
+      return {id:c.id, d:d.getDate(), day:DIAS[d.getDay()],
+        t:d.toLocaleTimeString('pt-PT',{hour:'2-digit',minute:'2-digit'}),
+        dur:c.duration_min+' min', who:c.client_name||'Cliente',
+        type:c.notes||'Consulta', mode:c.mode==='online'?'Online':'Presencial',
+        data:d, estado:c.status};
+    });
+  }catch(e){console.warn('carregar consultas falhou:',e&&e.message)}
+}
+let AVALIACOES_DB=[], CONSULTAS_DB=[];
 /* A bandeira do cartão precisa da sigla; o pedido guarda o nome do país. */
 function paisSigla(nome){
   return ({Angola:'AO','Cabo Verde':'CV','Guiné-Bissau':'GW','Moçambique':'MZ',

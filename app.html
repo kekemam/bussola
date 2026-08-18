@@ -96,6 +96,7 @@ body{
 @media (prefers-reduced-motion:reduce){*{animation-duration:.001ms!important;transition-duration:.001ms!important}}
 
 /* ---- Ícones: tamanho base + overrides ---- */
+.star.on svg{fill:currentColor}
 .i{width:1.15em;height:1.15em;flex:none;vertical-align:middle}
 .av svg{width:46%;height:46%}
 .photo svg.i{width:34px;height:34px}
@@ -967,7 +968,11 @@ const greet=()=>{const h=new Date().getHours();return h<13?'Bom dia':h<20?'Boa t
 const firstName=()=>S.name?S.name.split(' ')[0]:'';
 const countryName=()=>{const c=COUNTRIES.find(c=>c.id===S.country);return c?c.name:''};
 const countryCode=()=>{const c=COUNTRIES.find(c=>c.id===S.country);return c?c.code:'—'};
-const stars=r=>{let s='';for(let i=1;i<=5;i++)s+=`<span style="color:${i<=Math.round(r)?'var(--gold)':'var(--line)'}">${svg('star')}</span>`;return `<span class="row" style="gap:1px">${s}</span>`};
+/* O ícone da estrela é traçado com fill="none": só a cor não a preenche.
+   A classe .on é que a enche, e o atributo perde para a regra CSS. */
+const stars=r=>{let s='';for(let i=1;i<=5;i++){const on=i<=Math.round(r);
+  s+=`<span class="star${on?' on':''}" style="color:${on?'var(--gold)':'var(--line)'}">${svg('star')}</span>`}
+  return `<span class="row" style="gap:1px">${s}</span>`};
 function fmtDate(iso){const d=new Date(iso+'T00:00:00');const dias=['dom','seg','ter','qua','qui','sex','sáb'],mes=['jan','fev','mar','abr','mai','jun','jul','ago','set','out','nov','dez'];return `${dias[d.getDay()]}, ${d.getDate()} ${mes[d.getMonth()]}`}
 function fmtDay(iso){const d=new Date(iso+'T00:00:00');return {d:d.getDate(),m:['JAN','FEV','MAR','ABR','MAI','JUN','JUL','AGO','SET','OUT','NOV','DEZ'][d.getMonth()]}}
 
@@ -1801,7 +1806,69 @@ function openPro(id){
     <div class="eyebrow mb8">Idiomas</div><div class="row wrap gap6 mb12">${p.langs.map(l=>`<span class="badge badge-line">${esc(l)}</span>`).join('')}</div>
     <div class="row wrap gap6 mb24">${p.online?'<span class="badge badge-sage">'+svg('wifi')+' Online</span>':''}${p.inperson?'<span class="badge badge-sage">'+svg('pin')+' Presencial</span>':''}</div>
     <button class="btn btn-primary btn-block btn-lg" onclick="requestConsult('${p.id}')">${contacted?'Pedido enviado':'Pedir consulta'}</button>
+    <div id="acaoAvaliar"></div>
   </div>`);
+  mostrarAcaoAvaliar(id);
+}
+/* O botão de avaliar só aparece a quem foi mesmo atendido — a mesma regra
+   que a base de dados impõe. Perguntar ao servidor evita mostrar um botão
+   que a política ia recusar. */
+async function mostrarAcaoAvaliar(id){
+  if(!SB_ON||!signedIn())return;
+  try{
+    const [{data:ped},{data:minha}]=await Promise.all([
+      sb.from('consult_requests').select('id').eq('company_id',id)
+        .eq('user_id',SB_USER.id).in('status',['aceite','concluida']).limit(1),
+      sb.from('reviews').select('id,rating,comment').eq('company_id',id)
+        .eq('user_id',SB_USER.id).maybeSingle(),
+    ]);
+    if(!ped||!ped.length)return;
+    const d=el('acaoAvaliar'); if(!d)return;
+    d.innerHTML=`<button class="btn btn-ghost btn-block mt8" onclick="avaliarModal('${id}')">${svg('star')} ${minha?'Editar a minha avaliação':'Avaliar este profissional'}</button>`;
+  }catch(e){/* sem avaliação disponível, o perfil fica como está */}
+}
+let AVAL={estrelas:0,id:null,existente:null};
+async function avaliarModal(id){
+  const p=profis().find(x=>x.id===id)||{};
+  const {data:minha}=await sb.from('reviews').select('id,rating,comment')
+    .eq('company_id',id).eq('user_id',SB_USER.id).maybeSingle();
+  AVAL={estrelas:minha?minha.rating:0,id,existente:minha||null};
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <h2 class="h2 mb4">Avaliar</h2><p class="muted mb16">${esc(p.name||'')}</p>
+    <div class="eyebrow mb8">A sua nota</div>
+    <div class="row gap8 mb16" id="avEstrelas"></div>
+    <div class="field"><label>Comentário (opcional)</label><textarea class="input" id="avTexto" rows="4" placeholder="O que correu bem? O que outra pessoa devia saber antes de escolher?">${esc(minha&&minha.comment||'')}</textarea></div>
+    <div id="avErro"></div>
+    <div class="callout callout-info mb16">${svg('info')}<div>A avaliação fica visível no perfil, com o teu primeiro nome. Não pode ser apagada pelo profissional.</div></div>
+    <button class="btn btn-primary btn-block btn-lg" id="avBtn" onclick="guardarAvaliacao()">${minha?'Guardar alterações':'Publicar avaliação'}</button>
+  </div>`);
+  pintarEstrelas();
+}
+function pintarEstrelas(){
+  const d=el('avEstrelas'); if(!d)return;
+  d.innerHTML=[1,2,3,4,5].map(n=>`<span onclick="AVAL.estrelas=${n};pintarEstrelas()" title="${n}"
+    style="cursor:pointer;font-size:1.9rem;line-height:1;color:${n<=AVAL.estrelas?'var(--gold)':'var(--line)'}">★</span>`).join('');
+}
+async function guardarAvaliacao(){
+  const erro=m=>{el('avErro').innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(m)}</div></div>`};
+  if(!AVAL.estrelas)return erro('Escolhe uma nota de 1 a 5 estrelas.');
+  const b=el('avBtn');b.disabled=true;b.textContent='A guardar…';
+  const texto=((el('avTexto')||{}).value||'').trim()||null;
+  try{
+    const r=AVAL.existente
+      ? await sb.from('reviews').update({rating:AVAL.estrelas,comment:texto,updated_at:new Date().toISOString()}).eq('id',AVAL.existente.id)
+      : await sb.from('reviews').insert({company_id:AVAL.id,user_id:SB_USER.id,rating:AVAL.estrelas,
+          comment:texto, author_name:(S.name||'').split(' ')[0]||null});
+    if(r.error)throw r.error;
+    closeModal();
+    await carregarAnunciosPublicos();   // a média do perfil muda com isto
+    go(S.route);
+    toast('Avaliação publicada','ok2');
+  }catch(e){
+    console.warn('avaliação:',e&&e.message);
+    erro('Não foi possível guardar a avaliação.');
+    b.disabled=false;b.textContent=AVAL.existente?'Guardar alterações':'Publicar avaliação';
+  }
 }
 function requestConsult(id){const p=profis().find(x=>x.id===id);
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
@@ -2286,7 +2353,7 @@ async function carregarAnunciosPublicos(){
        de advogados aparece no directório de profissionais mesmo que nunca
        publique nada. */
     const {data:emp}=await sb.from('companies')
-      .select('id,name,category,city,about,verification,logo_url');
+      .select('id,name,category,city,about,verification,logo_url,rating_avg,rating_count');
     const nomeDe=id=>(emp||[]).find(e=>e.id===id)||{};
 
     /* Profissionais não são anúncios: são empresas da categoria Advogados. */
@@ -2296,7 +2363,7 @@ async function carregarAnunciosPublicos(){
         id:c.id, name:c.name, prof:'Advogado(a)',
         /* sem campo de especialidades na ficha, não se inventam áreas */
         spec:[], city:c.city||'—', langs:['Português'], exp:'—',
-        rating:null, reviews:0, cases:null,
+        rating:c.rating_avg?Number(c.rating_avg):null, reviews:c.rating_count||0, cases:null,
         verified:c.verification==='verified',
         price:'Sob consulta', online:true, inperson:true,
         avail:c.verification==='verified'?'Disponível':'Perfil em verificação',
