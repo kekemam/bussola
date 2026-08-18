@@ -1640,8 +1640,16 @@ function openJob(id){
 }
 function applyJob(id){
   if(S.appliedJobs[id]){closeModal();go('applications');return}
-  S.appliedJobs[id]='Candidatura enviada';const si=S.savedJobs.indexOf(id);if(si>=0)S.savedJobs.splice(si,1);
-  save();closeModal();toast('Candidatura enviada');go('applications');
+  const v=vagas().find(x=>x.id===id)||{};
+  /* Passa a haver uma mensagem: do outro lado está uma pessoa a decidir
+     entre candidaturas, e antes chegava-lhe apenas um nome. */
+  openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
+    <h2 class="h2 mb4">Candidatar-me</h2><p class="muted mb16">${esc(v.role||'')} · ${esc(v.company||'')}</p>
+    <div class="field"><label>Porque é que te queres candidatar?</label><textarea class="input" id="jobMsg" rows="4" placeholder="Ex: Tenho 5 anos de experiência como pedreiro e estou disponível para começar já.">Tenho interesse nesta vaga e estou disponível para começar.</textarea></div>
+    <div id="lcErro"></div>
+    <div class="callout callout-info mb16">${svg('info')}<div>A empresa recebe o teu nome, cidade e esta mensagem. Nunca pagues para te candidatares.</div></div>
+    <button class="btn btn-primary btn-block btn-lg" id="lcBtn" onclick="enviarContacto('${id}','job')">${svg('send')} Enviar candidatura</button></div>`);
+  const si=S.savedJobs.indexOf(id);if(si>=0)S.savedJobs.splice(si,1);
 }
 
 /* Candidaturas */
@@ -1751,9 +1759,53 @@ function openHome(id){
 }
 function contactHost(id){const h=casas().find(x=>x.id===id);openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb4">Contactar ${esc(h.host)}</h2><p class="muted mb16">Sobre "${esc(h.title)}"</p>
-  <div class="field"><label>A tua mensagem</label><textarea class="input" id="hostMsg" placeholder="Olá, tenho interesse neste imóvel. Está disponível para visita?">Olá, tenho interesse neste imóvel. Ainda está disponível?</textarea></div>
+  <div class="field"><label>A tua mensagem</label><textarea class="input" id="hostMsg" rows="4" placeholder="Olá, tenho interesse neste imóvel. Está disponível para visita?">Olá, tenho interesse neste imóvel. Ainda está disponível?</textarea></div>
+  <div id="lcErro"></div>
   <div class="callout callout-warn mb16">${svg('shield')}<div>Nunca faças pagamentos antes de visitar o imóvel presencialmente.</div></div>
-  <button class="btn btn-primary btn-block btn-lg" onclick="closeModal();toast('Mensagem enviada')">${svg('send')} Enviar mensagem</button></div>`)}
+  <button class="btn btn-primary btn-block btn-lg" id="lcBtn" onclick="enviarContacto('${id}','home')">${svg('send')} Enviar mensagem</button></div>`)}
+
+/* ============================================================
+   CONTACTOS SOBRE ANÚNCIOS
+   ------------------------------------------------------------
+   Candidatar-se a uma vaga, contactar sobre um quarto e inscrever-se
+   num evento são o mesmo gesto: responder a um anúncio. Antes, nenhum
+   deles gravava seja o que for.
+   ============================================================ */
+let CONTACTO_PENDENTE=null;
+function lcErro(m){const d=el('lcErro');if(d)d.innerHTML=`<div class="callout" style="background:var(--danger-soft);color:var(--danger);margin-bottom:12px">${svg('warn')}<div>${esc(m)}</div></div>`}
+async function enviarContacto(listingId,tipo,textoFixo){
+  const campo={home:'hostMsg',job:'jobMsg',event:'evMsg'}[tipo];
+  const texto=(textoFixo||((el(campo)||{}).value||'')).trim();
+  if(texto.length<5){lcErro('Escreve uma mensagem para acompanhar o contacto.');return}
+  if(!SB_ON){lcErro('Sem ligação ao servidor. Tenta daqui a pouco.');return}
+  if(!signedIn()){
+    CONTACTO_PENDENTE={listingId,tipo,texto};
+    closeModal();toast('Cria conta para poderes receber a resposta');
+    return contaModal('criar');
+  }
+  const btn=el('lcBtn');if(btn){btn.disabled=true;btn.textContent='A enviar…'}
+  try{
+    /* A empresa vem do anúncio, não do ecrã: é também o que a política de
+       escrita confirma do lado do servidor. */
+    const {data:l,error:e1}=await sb.from('listings').select('company_id').eq('id',listingId).maybeSingle();
+    if(e1||!l)throw e1||new Error('anúncio não encontrado');
+    const {error}=await sb.from('listing_contacts').insert({
+      listing_id:listingId, company_id:l.company_id, user_id:SB_USER.id, message:texto,
+      contact_name:S.name||null, contact_city:S.city||null,
+      contact_country:(COUNTRIES.find(c=>c.id===S.country)||{}).name||null});
+    if(error&&error.code==='23505'){closeModal();return toast('Já tinhas contactado sobre este anúncio')}
+    if(error)throw error;
+    if(tipo==='job')S.appliedJobs[listingId]='Candidatura enviada';
+    if(tipo==='event'&&!S.savedEvents.includes(listingId))S.savedEvents.push(listingId);
+    save();closeModal();
+    toast(tipo==='job'?'Candidatura enviada':tipo==='event'?'Inscrição enviada':'Mensagem enviada','ok2');
+    go(S.route);
+  }catch(e){
+    console.warn('contacto:',e&&e.message);
+    lcErro('Não foi possível enviar. Tenta novamente.');
+    if(btn){btn.disabled=false;btn.innerHTML=svg('send')+' Enviar'}
+  }
+}
 function reportHome(id){
   openModal(`<div class="modal-pad"><button class="btn btn-quiet btn-icon modal-x" onclick="closeModal()">${svg('x')}</button>
   <h2 class="h2 mb4">Denunciar anúncio</h2><p class="muted mb16">Ajuda-nos a manter a plataforma segura. Qual é o motivo?</p>
@@ -1945,7 +1997,7 @@ let CONSULTA_PENDENTE=null;
    A conversa só existe depois de o profissional aceitar o pedido —
    é a mesma regra que a base de dados impõe.
    ============================================================ */
-let CONVERSAS=[], CONV_ABERTA=null;
+let CONVERSAS=[], CONV_ABERTA=null, EMPRESAS_PUB={};
 const porLer=()=>CONVERSAS.reduce((a,c)=>a+(c.porLer||0),0);
 
 async function carregarConversas(){
@@ -1961,13 +2013,12 @@ async function carregarConversas(){
         .in('conversation_id',ids).order('created_at',{ascending:true});
       msgs=m||[];
     }
-    const fichas={};
-    (LIVE.pros||[]).forEach(p=>fichas[p.id]=p);
+
     CONVERSAS=(cs||[]).map(c=>{
       const suas=msgs.filter(m=>m.conversation_id===c.id);
-      const f=fichas[c.company_id]||{};
-      return {id:c.id, empresa:c.company_id, nome:f.name||c.client_name||'Profissional',
-        verificado:!!f.verified,
+      const f=EMPRESAS_PUB[c.company_id]||{};
+      return {id:c.id, empresa:c.company_id, nome:f.name||'Empresa',
+        verificado:!!f.verified, cat:f.cat||'',
         msgs:suas, ultima:suas[suas.length-1]||null,
         /* por ler = as que vieram da empresa e ainda não foram abertas */
         porLer:suas.filter(m=>m.from_company&&!m.read_at).length};
@@ -1979,10 +2030,10 @@ ROUTES.msgs=()=>{
   if(!signedIn())return `${pageHead('Mensagens','As tuas conversas','')}
     ${emptyState('chat','Entra para veres as tuas conversas','As conversas com profissionais ficam guardadas na tua conta.')}`;
   if(!CONVERSAS.length)return `${pageHead('Mensagens','As tuas conversas','')}
-    ${emptyState('chat','Ainda sem conversas','Depois de um profissional aceitar o teu pedido de consulta, podem falar aqui.')}`;
+    ${emptyState('chat','Ainda sem conversas','Quando um profissional, senhorio, empregador ou organizador aceitar o teu contacto, a conversa aparece aqui.')}`;
   if(!CONV_ABERTA)CONV_ABERTA=CONVERSAS[0].id;
   const c=CONVERSAS.find(x=>x.id===CONV_ABERTA)||CONVERSAS[0];
-  return `${pageHead('Mensagens','As tuas conversas','Falas aqui com os profissionais que aceitaram o teu pedido.')}
+  return `${pageHead('Mensagens','As tuas conversas','Falas aqui com quem aceitou o teu pedido, candidatura ou contacto.')}
   <div class="msg-wrap">
     <div class="conv-list">
       ${CONVERSAS.map(x=>`<div class="conv ${x.id===c.id?'on':''}" onclick="abrirConversa('${x.id}')">
@@ -1994,7 +2045,7 @@ ROUTES.msgs=()=>{
     <div class="thread">
       <div class="thread-head">
         <div class="av av-sm">${initials(c.nome)}</div>
-        <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.nome)}</div><div class="muted fs-xs">${c.verificado?'Profissional verificado pela KEVIMA':'Perfil ainda em verificação'}</div></div>
+        <div style="flex:1;min-width:0"><div class="fw6 fs-sm">${esc(c.nome)}</div><div class="muted fs-xs">${c.verificado?'Verificado pela KEVIMA':'Perfil ainda em verificação'}${c.cat?' · '+esc(c.cat):''}</div></div>
       </div>
       <div class="thread-body" id="threadBody">
         ${c.msgs.length?c.msgs.map(m=>`<div class="bub ${m.from_company?'them':'me'}">${esc(m.body)}<div class="tm">${horaDe(m.created_at)}</div></div>`).join('')
@@ -2084,7 +2135,17 @@ function openEvent(id){
     <button class="btn ${going?'btn-ghost':'btn-primary'} btn-block btn-lg" onclick="toggleEvent('${e.id}')">${going?'Vais participar — cancelar':'Vou participar'}</button>
   </div>`);
 }
-function toggleEvent(id){const i=S.savedEvents.indexOf(id);if(i>=0){S.savedEvents.splice(i,1);toast('Removido do calendário')}else{S.savedEvents.push(id);toast('Adicionado ao teu calendário')}save();closeModal();if(S.route==='events')go('events');else if(S.route==='calendar')go('calendar')}
+function toggleEvent(id){
+  const i=S.savedEvents.indexOf(id);
+  if(i>=0){S.savedEvents.splice(i,1);save();closeModal();toast('Removido do calendário');
+    return S.route==='events'?go('events'):S.route==='calendar'?go('calendar'):null}
+  /* Num evento real a inscrição tem de chegar a quem organiza; nos de
+     exemplo continua a ser só o calendário pessoal. */
+  const real=(LIVE.events||[]).some(e=>e.id===id);
+  if(real&&SB_ON)return enviarContacto(id,'event','Quero participar neste evento.');
+  S.savedEvents.push(id);save();closeModal();toast('Adicionado ao teu calendário');
+  if(S.route==='events')go('events');else if(S.route==='calendar')go('calendar');
+}
 ROUTES.calendar=()=>{
   const mine=S.savedEvents.map(id=>eventosL().find(x=>x.id===id)).filter(Boolean).sort((a,b)=>a.date<b.date?-1:1);
   return `<button class="btn btn-quiet btn-sm mb16" onclick="go('events')">${svg('chevl')} Voltar aos eventos</button>
@@ -2479,6 +2540,10 @@ async function carregarAnunciosPublicos(){
     const {data:emp}=await sb.from('companies')
       .select('id,name,category,city,about,verification,logo_url,rating_avg,rating_count');
     const nomeDe=id=>(emp||[]).find(e=>e.id===id)||{};
+    /* Mapa de todas as empresas, não só dos advogados: as conversas podem
+       ser com uma imobiliária, um empregador ou quem organiza eventos. */
+    EMPRESAS_PUB={}; (emp||[]).forEach(c=>EMPRESAS_PUB[c.id]={
+      name:c.name, verified:c.verification==='verified', cat:c.category});
 
     /* Profissionais não são anúncios: são empresas da categoria Advogados. */
     const pros=(emp||[])
@@ -2692,6 +2757,12 @@ async function contaSubmit(modo){
     if(modo==='entrar')await syncPull();
     else S.uid=SB_USER.id;   // conta nova adota o progresso anónimo deste aparelho
     closeModal();
+    /* Voltou de um contacto sobre um anúncio interrompido pela conta. */
+    if(CONTACTO_PENDENTE){
+      const {listingId,tipo,texto}=CONTACTO_PENDENTE; CONTACTO_PENDENTE=null;
+      setTimeout(()=>enviarContacto(listingId,tipo,texto),400);
+      return;
+    }
     /* Voltou de um pedido de consulta interrompido pela criação de conta. */
     if(CONSULTA_PENDENTE){
       const {id,texto}=CONSULTA_PENDENTE; CONSULTA_PENDENTE=null;
