@@ -646,10 +646,25 @@ const I = {
 function svg(name,cls){return `<svg class="i ${cls||''}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${I[name]||''}</svg>`}
 
 /* ---------- Dados de referência ---------- */
+/* Principais comunidades estrangeiras em Portugal, pela ordem aproximada
+   de dimensão. A lista é longa de propósito: quem chega tem de se
+   encontrar aqui, e não numa opção "Outro país". */
 const COUNTRIES=[
-  {id:'ao',name:'Angola',code:'AO'},{id:'cv',name:'Cabo Verde',code:'CV'},
-  {id:'gw',name:'Guiné-Bissau',code:'GW'},{id:'mz',name:'Moçambique',code:'MZ'},
-  {id:'st',name:'São Tomé e Príncipe',code:'ST'},{id:'other',name:'Outro país',code:'—'},
+  {id:'br',name:'Brasil',code:'BR'},           {id:'ao',name:'Angola',code:'AO'},
+  {id:'cv',name:'Cabo Verde',code:'CV'},       {id:'in',name:'Índia',code:'IN'},
+  {id:'np',name:'Nepal',code:'NP'},            {id:'gb',name:'Reino Unido',code:'GB'},
+  {id:'it',name:'Itália',code:'IT'},           {id:'bd',name:'Bangladesh',code:'BD'},
+  {id:'gw',name:'Guiné-Bissau',code:'GW'},     {id:'ua',name:'Ucrânia',code:'UA'},
+  {id:'cn',name:'China',code:'CN'},            {id:'pk',name:'Paquistão',code:'PK'},
+  {id:'st',name:'São Tomé e Príncipe',code:'ST'},{id:'ro',name:'Roménia',code:'RO'},
+  {id:'fr',name:'França',code:'FR'},           {id:'es',name:'Espanha',code:'ES'},
+  {id:'de',name:'Alemanha',code:'DE'},         {id:'md',name:'Moldávia',code:'MD'},
+  {id:'mz',name:'Moçambique',code:'MZ'},       {id:'ma',name:'Marrocos',code:'MA'},
+  {id:'sn',name:'Senegal',code:'SN'},          {id:'ve',name:'Venezuela',code:'VE'},
+  {id:'co',name:'Colômbia',code:'CO'},         {id:'us',name:'Estados Unidos',code:'US'},
+  {id:'ru',name:'Rússia',code:'RU'},           {id:'gn',name:'Guiné',code:'GN'},
+  {id:'nl',name:'Países Baixos',code:'NL'},    {id:'ph',name:'Filipinas',code:'PH'},
+  {id:'cu',name:'Cuba',code:'CU'},             {id:'other',name:'Outro país',code:'—'},
 ];
 const cc=(code,cls)=>`<span class="cc ${cls||''}">${esc(code||'—')}</span>`;
 const plural=(n,um,muitos)=>`${n} ${n===1?um:muitos}`;
@@ -668,7 +683,7 @@ const SITUATIONS=[
 /* ---------- SEED: Documentação ---------- */
 const DOCS=[
   {id:'aima-res',cat:'Regularização',icon:'shield',title:'Autorização de Residência (AIMA)',
-   who:'Cidadãos PALOP que pretendem residir legalmente em Portugal e já iniciaram o pedido junto da AIMA.',
+   who:'Qualquer pessoa estrangeira que pretenda residir legalmente em Portugal e já tenha iniciado o pedido junto da AIMA.',
    summary:'O título de residência é o documento central da tua situação legal. Desde 2023, os pedidos e renovações são tratados pela AIMA (que substituiu o SEF).',
    need:['Passaporte válido','Comprovativo de entrada legal','Registo criminal (país de origem e/ou Portugal)','Comprovativo de meios de subsistência','Comprovativo de morada','NIF e NISS'],
    steps:['Reúne os documentos da tua situação específica','Aguarda ou agenda o teu atendimento na AIMA','Comparece com os originais e cópias','Recolhe dados biométricos','Aguarda a emissão do título'],
@@ -856,11 +871,11 @@ const PROS=[
    online:true,inperson:true,avail:'Disponível esta semana',
    bio:'Especialista em regularização e nacionalidade, com forte ligação à comunidade cabo-verdiana. Acompanho cada caso do início ao fim, com linguagem clara.'},
   {id:'p2',name:'Dr. Manuel Adão',prof:'Solicitador',spec:['Reagrupamento familiar','Autorização de residência'],city:'Setúbal',
-   langs:['Português','Crioulo','Francês'],exp:'8 anos',rating:4.7,reviews:52,cases:210,verified:true,price:'A partir de 45€/consulta',
+   langs:['Português','Francês','Crioulo'],exp:'8 anos',rating:4.7,reviews:52,cases:210,verified:true,price:'A partir de 45€/consulta',
    online:true,inperson:true,avail:'Próxima semana',
-   bio:'Apoio em processos de residência e reagrupamento familiar na margem sul. Trabalho próximo com famílias PALOP.'},
+   bio:'Apoio em processos de residência e reagrupamento familiar na margem sul. Trabalho próximo com famílias imigrantes.'},
   {id:'p3',name:'Dra. Sílvia Nunes',prof:'Advogada',spec:['Direito do Trabalho','Contratos'],city:'Lisboa',
-   langs:['Português','Inglês'],exp:'15 anos',rating:4.8,reviews:64,cases:280,verified:true,price:'A partir de 70€/consulta',
+   langs:['Português','Inglês','Hindi'],exp:'15 anos',rating:4.8,reviews:64,cases:280,verified:true,price:'A partir de 70€/consulta',
    online:true,inperson:false,avail:'Disponível esta semana',
    bio:'Trabalho questões laborais: contratos, despedimentos e direitos dos trabalhadores. Consultas online.'},
   {id:'p4',name:'Dr. João Vaz',prof:'Advogado',spec:['Direito de Imigração','Recursos'],city:'Porto',
@@ -868,7 +883,7 @@ const PROS=[
    online:true,inperson:true,avail:'Disponível esta semana',
    bio:'Baseado no Porto, apoio processos de imigração e recursos junto das entidades competentes.'},
   {id:'p5',name:'Dra. Aline Semedo',prof:'Solicitadora',spec:['Nacionalidade','Registos'],city:'Amadora',
-   langs:['Português','Crioulo cabo-verdiano'],exp:'6 anos',rating:4.9,reviews:38,cases:150,verified:true,price:'A partir de 40€/consulta',
+   langs:['Português','Espanhol','Ucraniano'],exp:'6 anos',rating:4.9,reviews:38,cases:150,verified:true,price:'A partir de 40€/consulta',
    online:false,inperson:true,avail:'Próxima semana',
    bio:'Apoio prático em processos de nacionalidade e registos, com atendimento próximo e humano.'},
 ];
@@ -883,10 +898,10 @@ const EVENTS=[
    price:'Gratuito',org:'Rede de Apoio ao Migrante',color:'#3E6B5A',
    desc:'Sessão prática e gratuita sobre NIF, NISS, título de residência e onde pedir ajuda. Com apoio de voluntários.'},
   {id:'e3',title:'Feira de Gastronomia Africana',cat:'Gastronomia',date:'2026-08-17',time:'12:00',city:'Amadora',venue:'Parque Central da Amadora',
-   price:'Entrada livre',org:'Coletivo Sabores PALOP',color:'#B4842B',
+   price:'Entrada livre',org:'Coletivo Sabores do Mundo',color:'#B4842B',
    desc:'Cachupa, muamba, calulu e muito mais. Um dia para celebrar os sabores dos cinco países, em família.'},
-  {id:'e4',title:'Networking — Empreendedores PALOP',cat:'Negócios',date:'2026-08-20',time:'19:00',city:'Lisboa',venue:'Impact Hub Lisboa',
-   price:'Gratuito (inscrição)',org:'PALOP Business Network',color:'#37618E',
+  {id:'e4',title:'Networking — Empreendedores imigrantes',cat:'Negócios',date:'2026-08-20',time:'19:00',city:'Lisboa',venue:'Impact Hub Lisboa',
+   price:'Gratuito (inscrição)',org:'Migrant Business Network',color:'#37618E',
    desc:'Encontro para quem quer abrir ou já tem negócio em Portugal. Partilha de experiências e contactos úteis.'},
   {id:'e5',title:'Torneio de Futebol Inter-Comunidades',cat:'Desporto',date:'2026-08-24',time:'10:00',city:'Almada',venue:'Complexo Desportivo do Feijó',
    price:'Gratuito',org:'Liga Comunitária Margem Sul',color:'#3E6B5A',
@@ -899,24 +914,28 @@ const EVENT_CATS=['Música','Cultura','Comunidade','Networking','Negócios','Des
 
 /* ---------- SEED: Comunidade ---------- */
 const GROUPS=[
-  {id:'g1',name:'Cabo-verdianos em Lisboa',members:2840,city:'Lisboa',flag:'CV',color:'#37618E'},
-  {id:'g2',name:'Angolanos em Setúbal',members:1210,city:'Setúbal',flag:'AO',color:'#C25A3A'},
-  {id:'g3',name:'Moçambicanos no Porto',members:760,city:'Porto',flag:'MZ',color:'#3E6B5A'},
   {id:'g4',name:'Primeiros meses em Portugal',members:5320,city:'Nacional',flag:'PT',color:'#B4842B'},
-  {id:'g5',name:'Empreendedores PALOP',members:1890,city:'Nacional',flag:'PALOP',color:'#A8432A'},
+  {id:'g7',name:'Brasileiros em Lisboa',members:4180,city:'Lisboa',flag:'BR',color:'#3E6B5A'},
+  {id:'g1',name:'Cabo-verdianos em Lisboa',members:2840,city:'Lisboa',flag:'CV',color:'#37618E'},
+  {id:'g5',name:'Empreendedores imigrantes',members:1890,city:'Nacional',flag:'—',color:'#A8432A'},
+  {id:'g8',name:'South Asians in Portugal',members:1640,city:'Nacional',flag:'IN',color:'#B4842B'},
+  {id:'g2',name:'Angolanos em Setúbal',members:1210,city:'Setúbal',flag:'AO',color:'#C25A3A'},
+  {id:'g9',name:'Українці в Португалії',members:1120,city:'Nacional',flag:'UA',color:'#37618E'},
   {id:'g6',name:'Guineenses em Portugal',members:940,city:'Nacional',flag:'GW',color:'#3E6B5A'},
+  {id:'g3',name:'Moçambicanos no Porto',members:760,city:'Porto',flag:'MZ',color:'#3E6B5A'},
+  {id:'g10',name:'Nepalis in Portugal',members:680,city:'Nacional',flag:'NP',color:'#C25A3A'},
 ];
 const POSTS=[
   {id:'q1',group:'Primeiros meses em Portugal',author:'Domingas T.',country:'AO',time:'há 3 h',type:'Pergunta',
    text:'Cheguei a Lisboa há uma semana. Devo tratar primeiro do NIF ou do título de residência? Estou um pouco perdida.',
    replies:14,reacts:23,tag:'Documentação'},
-  {id:'q2',group:'Cabo-verdianos em Lisboa',author:'Jandira M.',country:'CV',time:'há 6 h',type:'Recomendação',
+  {id:'q2',group:'South Asians in Portugal',author:'Anjali S.',country:'IN',time:'há 6 h',type:'Recomendação',
    text:'Deixo aqui a dica: no centro de saúde dos Anjos fizeram-me a inscrição de utente sem complicações. Levem NIF e comprovativo de morada.',
    replies:9,reacts:41,tag:'Saúde'},
-  {id:'q3',group:'Empreendedores PALOP',author:'Nelson B.',country:'GW',time:'há 1 dia',type:'Oportunidade',
+  {id:'q3',group:'Empreendedores imigrantes',author:'Nelson B.',country:'GW',time:'há 1 dia',type:'Oportunidade',
    text:'Vou abrir um espaço de comida guineense no Barreiro e procuro alguém para a cozinha. Alguém interessado ou que conheça?',
    replies:21,reacts:35,tag:'Trabalho'},
-  {id:'q4',group:'Angolanos em Setúbal',author:'Preciosa L.',country:'AO',time:'há 2 dias',type:'Pergunta',
+  {id:'q4',group:'Українці в Португалії',author:'Larysa K.',country:'UA',time:'há 2 dias',type:'Pergunta',
    text:'Alguém sabe de quartos bons e a preço justo na zona de Setúbal? Cuidado que já vi alguns anúncios estranhos.',
    replies:17,reacts:12,tag:'Habitação'},
 ];
@@ -1093,10 +1112,9 @@ function drawOb(){
     body=`<div class="ob-body">
       <div class="eyebrow mb8">Passo 2 de 4</div>
       <h1 class="h1">De onde vens?</h1>
-      <p class="lead mt8 mb24">Vamos adaptar a informação ao teu país de origem.</p>
-      ${COUNTRIES.map(c=>`<div class="opt ${obTemp.country===c.id?'on':''}" onclick="obTemp.country='${c.id}';drawOb()">
-        ${cc(c.code,"cc-lg")}<span class="fw5">${esc(c.name)}</span>
-        <span class="tick">${svg('check')}</span></div>`).join('')}
+      <p class="lead mt8 mb16">Vamos adaptar a informação ao teu país de origem.</p>
+      <div class="search-wrap mb12">${svg('search','ic')}<input class="input" id="obPais" placeholder="Pesquisar país…" oninput="obPaisFilter(this.value)"></div>
+      <div id="obPaisList" class="stack" style="gap:6px;max-height:40vh;overflow-y:auto"></div>
     </div>`;
   } else if(obStep===3){
     body=`<div class="ob-body">
@@ -1143,8 +1161,21 @@ function drawOb(){
     ${body}
     ${foot}
   </div>`;
+  if(obStep===2)obPaisFilter('');
   if(obStep===3)obCityFilter(obTemp.city);
   if(obStep===1)setTimeout(()=>{const n=el('obName');if(n)n.focus()},60);
+}
+/* Com trinta países a lista deixou de caber num ecrã: pesquisa-se, como
+   já se fazia com a cidade. O país escolhido sobe para o topo para não se
+   perder de vista depois de filtrar. */
+function obPaisFilter(q){
+  const list=el('obPaisList'); if(!list)return;
+  const t=(q||'').toLowerCase().trim();
+  let f=COUNTRIES.filter(c=>!t||c.name.toLowerCase().includes(t)||c.code.toLowerCase()===t);
+  if(!t&&obTemp.country){const i=f.findIndex(c=>c.id===obTemp.country);if(i>0)f=[f[i],...f.filter((_,j)=>j!==i)]}
+  list.innerHTML=f.length?f.map(c=>`<div class="opt ${obTemp.country===c.id?'on':''}" style="margin-bottom:0" onclick="obTemp.country='${c.id}';obPaisFilter(document.getElementById('obPais')?document.getElementById('obPais').value:'')">
+    ${cc(c.code,'cc-lg')}<span class="fw5">${esc(c.name)}</span><span class="tick">${svg('check')}</span></div>`).join('')
+    :`<p class="muted fs-sm" style="padding:8px">Sem resultados. Escolhe <b>Outro país</b> e continua.</p>`;
 }
 function obCityFilter(q){const list=el('obCityList');if(!list)return;const f=CITIES.filter(c=>c.toLowerCase().includes((q||'').toLowerCase()));list.innerHTML=f.length?f.map(c=>`<div class="opt ${obTemp.city===c?'on':''}" style="margin-bottom:0" onclick="obTemp.city='${c}';drawOb()"><span style="color:var(--ink-3);width:20px">${svg('pin')}</span><span class="fw5">${esc(c)}</span><span class="tick">${svg('check')}</span></div>`).join(''):`<p class="muted fs-sm" style="padding:8px">Escreve o nome da tua cidade e continua.</p>`}
 function obToggleSit(id){const i=obTemp.situations.indexOf(id);if(i>=0)obTemp.situations.splice(i,1);else obTemp.situations.push(id);drawOb()}
@@ -3213,9 +3244,9 @@ function aiAnswer(raw){
       src:'Área ainda em construção'};
   if(aiHas(q,['negocio','abrir empresa','empresa','empreender','atividade','trabalhar por conta propria','recibos verdes']))
     return {text:`<p>Ainda não tenho um guia verificado sobre abertura de actividade — prefiro não improvisar sobre obrigações fiscais.</p>`+
-      `<p>Há contabilistas na plataforma e um grupo de empreendedores PALOP com gente que já passou por isso.</p>`,
+      `<p>Há contabilistas na plataforma e um grupo de empreendedores imigrantes com gente que já passou por isso.</p>`,
       cards:SERVICES.filter(s=>s.cat==='Contabilidade').map(s=>({ic:s.icon,t:s.name,s:`${s.cat} · ${s.city}`,h:aiHandler(()=>{aiClose();openService(s.id)})})),
-      acts:[{l:'Empreendedores PALOP',h:aiHandler(()=>{aiClose();commTab='groups';go('community')}),soft:true}],
+      acts:[{l:'Empreendedores imigrantes',h:aiHandler(()=>{aiClose();commTab='groups';go('community')}),soft:true}],
       src:'Área ainda em construção'};
 
   /* 12. Não sabe — honesto */

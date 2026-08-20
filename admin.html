@@ -354,7 +354,7 @@ const HOMESA=[
 const EVENTSA=[
   {id:'e1',title:'Noite de Kizomba & Semba',org:'Associação Kianda',city:'Lisboa',date:'15 Ago',status:'live',going:184},
   {id:'e2',title:'Workshop: Documentação',org:'Rede de Apoio ao Migrante',city:'Setúbal',date:'13 Ago',status:'live',going:62},
-  {id:'e3',title:'Feira de Gastronomia Africana',org:'Sabores PALOP',city:'Amadora',date:'17 Ago',status:'pend',going:0},
+  {id:'e3',title:'Feira de Gastronomia Africana',org:'Sabores do Mundo',city:'Amadora',date:'17 Ago',status:'pend',going:0},
 ];
 /* Fila de moderação */
 let QUEUE=[
@@ -388,7 +388,7 @@ const INVOICES=[
   {id:'FT 2026/1042',who:'Dra. Helena Baptista',plan:'Profissional',amount:'29€',status:'ok',date:'10 Ago'},
   {id:'FT 2026/1041',who:'Sado Habitat',plan:'Imobiliária',amount:'49€',status:'ok',date:'10 Ago'},
   {id:'FT 2026/1040',who:'Edifer Obras',plan:'Empresa',amount:'39€',status:'ok',date:'9 Ago'},
-  {id:'FT 2026/1039',who:'PALOP Business',plan:'Organizador',amount:'19€',status:'pend',date:'9 Ago'},
+  {id:'FT 2026/1039',who:'Migrant Business',plan:'Organizador',amount:'19€',status:'pend',date:'9 Ago'},
   {id:'FT 2026/1038',who:'Aderito Neves',plan:'Premium',amount:'4,99€',status:'rej',date:'8 Ago'},
 ];
 /* Analytics */
@@ -401,7 +401,7 @@ const NORESULT=[ // pesquisas sem resultados — insight fundamental (§40)
   {q:'apoio para abrir empresa',n:142},
   {q:'médico dentista low cost',n:98},
   {q:'aulas de código estrada',n:76},
-  {q:'tradutor crioulo português',n:61},
+  {q:'tradutor para português',n:61},
 ];
 // Um funil tem de ser monotonicamente decrescente: cada etapa é um
 // subconjunto da anterior. Valores que sobem são sinal de erro de medição.
@@ -1235,7 +1235,7 @@ R.community=()=>{
   const groups=[
     {n:'Primeiros meses em Portugal',m:'5.320',p:412,st:'live'},
     {n:'Cabo-verdianos em Lisboa',m:'2.840',p:388,st:'live'},
-    {n:'Empreendedores PALOP',m:'1.890',p:206,st:'live'},
+    {n:'Empreendedores imigrantes',m:'1.890',p:206,st:'live'},
     {n:'Angolanos em Setúbal',m:'1.210',p:174,st:'live'},
     {n:'Guineenses em Portugal',m:'940',p:98,st:'live'},
   ];
@@ -1389,7 +1389,7 @@ R.settings=()=>{
           <span class="pill pill-pend"><i class="dot"></i>Luxemburgo · planeado</span>
         </div>
         <div class="row gap6 wrap">
-          <span class="tag">Português (pt-PT)</span><span class="tag">Inglês</span><span class="tag">Francês</span><span class="tag">Crioulo · em preparação</span>
+          <span class="tag">Português (pt-PT)</span><span class="tag">Inglês</span><span class="tag">Francês</span><span class="tag">Espanhol · em preparação</span><span class="tag">Hindi · em preparação</span>
         </div>
       </div>
       <div class="card card-pad">

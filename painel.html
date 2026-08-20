@@ -1477,11 +1477,16 @@ async function aceitarContacto(id,estado){
   await carregarContactos(); await carregarConversas();
   return true;
 }
-/* A bandeira do cartão precisa da sigla; o pedido guarda o nome do país. */
-function paisSigla(nome){
-  return ({Angola:'AO','Cabo Verde':'CV','Guiné-Bissau':'GW','Moçambique':'MZ',
-    'São Tomé e Príncipe':'ST'})[nome]||'';
-}
+/* A bandeira do cartão precisa da sigla; o contacto guarda o nome do país.
+   Tem de cobrir a mesma lista que a app oferece — senão as comunidades
+   fora dos cinco primeiros apareciam sem sigla nenhuma. */
+const SIGLAS={Brasil:'BR',Angola:'AO','Cabo Verde':'CV','Índia':'IN',Nepal:'NP',
+  'Reino Unido':'GB','Itália':'IT',Bangladesh:'BD','Guiné-Bissau':'GW','Ucrânia':'UA',
+  China:'CN','Paquistão':'PK','São Tomé e Príncipe':'ST','Roménia':'RO','França':'FR',
+  Espanha:'ES',Alemanha:'DE','Moldávia':'MD','Moçambique':'MZ',Marrocos:'MA',
+  Senegal:'SN',Venezuela:'VE','Colômbia':'CO','Estados Unidos':'US','Rússia':'RU',
+  'Guiné':'GN','Países Baixos':'NL',Filipinas:'PH',Cuba:'CU'};
+function paisSigla(nome){return SIGLAS[nome]||''}
 function tempoDesde(iso){
   if(!iso)return 'agora';
   const h=Math.floor((Date.now()-new Date(iso))/3600000);
