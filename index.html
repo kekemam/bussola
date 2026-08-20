@@ -777,7 +777,11 @@ function traduzirPagina(){
   document.documentElement.lang='en';
 }
 let LANG='pt';
-try{const st=JSON.parse(localStorage.getItem('bussola_v1')||'{}');if(st.lang)LANG=st.lang}catch(e){}
+/* A app tem cinco idiomas; esta superfície tem dois. Quem escolheu hindi,
+   francês ou ucraniano recebe inglês aqui, não português: é a língua que
+   tem mais hipóteses de servir a quem já indicou que não lê português. */
+try{const st=JSON.parse(localStorage.getItem('bussola_v1')||'{}');
+  if(st.lang)LANG=(st.lang==='pt'||st.lang==='en')?st.lang:'en'}catch(e){}
 function mudarIdioma(){
   LANG=LANG==='en'?'pt':'en';
   try{const st=JSON.parse(localStorage.getItem('bussola_v1')||'{}');st.lang=LANG;
